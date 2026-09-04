@@ -53,10 +53,8 @@
       box-shadow: inset 0 0 0 1.5px rgba(56, 189, 248, 0.7);
       background-color: rgba(14, 165, 233, 0.12) !important;
     }
-
-    /* Touch targets ergonômicos (mínimo 44px) */
     .volante-btn {
-      min-height: 44px;
+      min-height: 42px;
       touch-action: manipulation;
     }
   </style>
@@ -147,32 +145,44 @@
     </div>
   </header>
 
-  <!-- NAVEGAÇÃO REESTRUTURADA: 4 PILARES ESSENCIAIS (ZERO SCROLL LATERAL) -->
+  <!-- NAVEGAÇÃO COMPLETA EM 2 LINHAS ORGANIZADAS: TODOS OS 7 MENUS VISÍVEIS DE UMA SÓ VEZ SEM SCROLL! -->
   <nav class="sticky top-14 z-20 bg-slate-950/95 backdrop-blur-md border-b border-slate-800/80 px-3 py-2">
-    <div class="max-w-lg mx-auto grid grid-cols-4 gap-1.5 font-mono text-[11px]">
-      <button onclick="mudarAba('volante')" id="tab-volante" class="flex flex-col items-center justify-center py-2 px-1 rounded-xl font-black transition bg-emerald-600 text-slate-950 shadow">
-        <span class="text-base leading-none mb-1">🎯</span>
-        <span class="truncate">Volante</span>
-      </button>
-      <button onclick="mudarAba('telemetria')" id="tab-telemetria" class="flex flex-col items-center justify-center py-2 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white">
-        <span class="text-base leading-none mb-1">🛡️</span>
-        <span class="truncate">Telemetria</span>
-      </button>
-      <button onclick="mudarAba('fechamentos')" id="tab-fechamentos" class="flex flex-col items-center justify-center py-2 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white">
-        <span class="text-base leading-none mb-1">🧮</span>
-        <span class="truncate">Fechamento</span>
-      </button>
-      <button onclick="mudarAba('carteira')" id="tab-carteira" class="flex flex-col items-center justify-center py-2 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white">
-        <span class="text-base leading-none mb-1">💼</span>
-        <span class="truncate">Carteira</span>
-      </button>
+    <div class="max-w-lg mx-auto space-y-1.5 font-mono text-[10px]">
+      <!-- LINHA 1: ANÁLISE ESTRATÉGICA E JOGO -->
+      <div class="grid grid-cols-4 gap-1.5">
+        <button onclick="mudarAba('volante')" id="tab-volante" class="py-1.5 px-1 rounded-xl font-black transition bg-emerald-600 text-slate-950 shadow flex items-center justify-center gap-1">
+          <span>🎯</span> <span class="truncate">Volante</span>
+        </button>
+        <button onclick="mudarAba('vitorio')" id="tab-vitorio" class="py-1.5 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1">
+          <span>📐</span> <span class="truncate">Matriz 4x4</span>
+        </button>
+        <button onclick="mudarAba('auditoria')" id="tab-auditoria" class="py-1.5 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1">
+          <span>🛡️</span> <span class="truncate">6 Testes</span>
+        </button>
+        <button onclick="mudarAba('calor')" id="tab-calor" class="py-1.5 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1">
+          <span>🔥</span> <span class="truncate">Mapa Calor</span>
+        </button>
+      </div>
+
+      <!-- LINHA 2: GESTÃO, COMBINATÓRIA E BOLÕES -->
+      <div class="grid grid-cols-3 gap-1.5">
+        <button onclick="mudarAba('carteira')" id="tab-carteira" class="py-1.5 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1">
+          <span>💼</span> <span class="truncate">Carteira & ROI</span>
+        </button>
+        <button onclick="mudarAba('bolao')" id="tab-bolao" class="py-1.5 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1">
+          <span>👥</span> <span class="truncate">Bolão & Cotas</span>
+        </button>
+        <button onclick="mudarAba('fechamentos')" id="tab-fechamentos" class="py-1.5 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1">
+          <span>🧮</span> <span class="truncate">Fechamentos</span>
+        </button>
+      </div>
     </div>
   </nav>
 
   <!-- Corpo Principal de Telas -->
   <main class="flex-1 max-w-lg mx-auto w-full p-3.5 pb-24 overflow-y-auto no-scrollbar space-y-4">
 
-    <!-- PILAR 1: VOLANTE, SELEÇÃO, COCKPIT & MATRIZ 4x4 INTEGRADA -->
+    <!-- TELA 1: VOLANTE, SELEÇÃO E COCKPIT ANALÍTICO -->
     <section id="view-volante" class="space-y-4">
       <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-emerald-800/50 rounded-2xl p-4 shadow-xl space-y-3">
         <div class="flex items-center justify-between">
@@ -229,20 +239,20 @@
         <!-- Dezenas Marcadas no Bilhete -->
         <div id="display-meu-jogo" class="flex flex-wrap gap-1.5 min-h-[44px] p-2.5 rounded-xl bg-slate-950 border border-slate-800 items-center"></div>
 
-        <!-- Custo do Bilhete Atual com Formatação Robusta -->
+        <!-- Custo do Bilhete Atual -->
         <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-xs font-mono">
           <span class="text-slate-400">Custo oficial CEF:</span>
           <strong id="custo-jogo-selecionado" class="text-emerald-400 font-black text-sm">R$ 5,00</strong>
         </div>
       </div>
 
-      <!-- Volante Digital com Geometria e Matriz Ativa (Touch-targets confortáveis) -->
+      <!-- Volante Digital com Geometria e Matriz Ativa -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3">
         <div class="flex justify-between items-center mb-2 px-1">
           <span id="volante-titulo-tipo" class="text-[11px] font-bold text-slate-200 font-mono">Volante (1 a 60)</span>
           <label class="flex items-center gap-1.5 text-[10px] text-cyan-300 cursor-pointer font-mono">
             <input id="chk-destaque-subgrid" type="checkbox" checked onchange="renderizarVolante()" class="rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-0 w-3 h-3" />
-            <span>Destacar Matriz 4x4</span>
+            <span>Matriz 4x4 Ativa</span>
           </label>
         </div>
 
@@ -250,40 +260,24 @@
         <div id="legenda-volante" class="grid grid-cols-4 gap-1 mt-3 pt-2 border-t border-slate-800/80 text-[9px] text-center font-mono"></div>
       </div>
 
-      <!-- CARD INTEGRADO: CONFINAMENTO GEOMÉTRICO DO TIO VITÓRIO -->
-      <div id="card-vitorio-integrado" class="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/60 border border-cyan-800/60 rounded-2xl p-4 shadow-xl space-y-3 font-mono">
+      <!-- Filtro Anti-Manada (01 a 31) -->
+      <div id="card-anti-manada" class="p-3.5 bg-slate-900 border border-slate-800 rounded-2xl space-y-2">
         <div class="flex justify-between items-center">
-          <div class="flex items-center gap-2">
-            <span class="text-lg">📐</span>
-            <div>
-              <span class="text-[9px] uppercase tracking-widest font-black text-cyan-400 block font-mono">CONFINAMENTO ESPACIAL</span>
-              <h3 class="text-xs font-black text-white font-sans">Matriz do Tio Vitório (4x4 = 16 nºs)</h3>
-            </div>
-          </div>
-          <button onclick="gerarPalpiteVitorio()" class="px-2.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-[10px] font-black rounded-lg shadow active:scale-95 transition">
-            ✨ Palpite 4x4
-          </button>
+          <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 font-mono">
+            <span>🛡️</span> Filtro Anti-Manada (Datas 01 a 31)
+          </h3>
+          <span id="badge-anti-manada" class="text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Protegido</span>
         </div>
-
-        <div class="grid grid-cols-3 gap-2 text-center text-xs">
-          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[9px] text-slate-400 block font-sans">Linhas (R)</span>
-            <strong id="vit-linhas" class="text-cyan-400 text-xs block mt-0.5">- Linhas</strong>
-          </div>
-          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[9px] text-slate-400 block font-sans">Colunas (C)</span>
-            <strong id="vit-colunas" class="text-teal-400 text-xs block mt-0.5">- Colunas</strong>
-          </div>
-          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[9px] text-slate-400 block font-sans">Área (R×C)</span>
-            <strong id="vit-area" class="text-emerald-400 text-xs block mt-0.5">- dezenas</strong>
-          </div>
+        <div class="flex items-center justify-between text-xs font-mono">
+          <span class="text-slate-400">Dezenas em faixa de aniversário:</span>
+          <strong id="manada-qtd-datas" class="text-white">-</strong>
         </div>
-
-        <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 text-xs flex justify-between items-center">
-          <span class="text-slate-400 font-sans text-[11px]">Quadrantes Excluídos:</span>
-          <strong id="vit-quad-vazios" class="text-emerald-400 text-[11px]">-</strong>
+        <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+          <div id="barra-anti-manada" class="bg-gradient-to-r from-emerald-500 to-amber-500 h-full rounded-full transition-all duration-500" style="width: 50%"></div>
         </div>
+        <p id="desc-anti-manada" class="text-[10px] text-slate-400 leading-tight">
+          Proteção combinatória contra diluição de prêmios por aglomeração em aniversários populares.
+        </p>
       </div>
 
       <!-- Score de Telemetria Combinatória -->
@@ -308,26 +302,6 @@
         </div>
       </div>
 
-      <!-- Filtro Anti-Manada (01 a 31) -->
-      <div id="card-anti-manada" class="p-3.5 bg-slate-900 border border-slate-800 rounded-2xl space-y-2">
-        <div class="flex justify-between items-center">
-          <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 font-mono">
-            <span>🛡️</span> Filtro Anti-Manada (Datas 01 a 31)
-          </h3>
-          <span id="badge-anti-manada" class="text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Protegido</span>
-        </div>
-        <div class="flex items-center justify-between text-xs font-mono">
-          <span class="text-slate-400">Dezenas em faixa de aniversário:</span>
-          <strong id="manada-qtd-datas" class="text-white">-</strong>
-        </div>
-        <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-          <div id="barra-anti-manada" class="bg-gradient-to-r from-emerald-500 to-amber-500 h-full rounded-full transition-all duration-500" style="width: 50%"></div>
-        </div>
-        <p id="desc-anti-manada" class="text-[10px] text-slate-400 leading-tight">
-          Proteção combinatória contra diluição de prêmios por aglomeração em aniversários populares.
-        </p>
-      </div>
-
       <!-- Otimizador IA & Sugestão de Substituição -->
       <div id="card-sugestao-troca" class="bg-slate-900 border border-cyan-800/60 rounded-2xl p-4 space-y-3">
         <div class="flex justify-between items-center">
@@ -340,151 +314,132 @@
       </div>
     </section>
 
-    <!-- PILAR 2: AUDITORIA, 6 TESTES ESTATÍSTICOS E MAPA DE CALOR -->
-    <section id="view-telemetria" class="space-y-4 hidden">
-      <!-- Cockpit dos 6 Testes Estatísticos em Ordem de Prioridade -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <div class="flex justify-between items-center">
-          <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 font-mono">
-            <span>🧪</span> Bateria dos 6 Testes Estatísticos (Hierarquia)
-          </h3>
-          <span class="text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-cyan-950 text-cyan-300 border border-cyan-800">Alta Precisão</span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-mono">
-          <!-- 1º TESTE -->
-          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-            <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">1º Sequências & Finais (95,2%)</span>
-              <span id="badge-status-t1" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-            </div>
-            <strong id="val-t1" class="text-white text-xs font-bold block truncate">-</strong>
-            <p id="desc-t1" class="text-[10px] text-slate-400 leading-tight font-sans">Elimina sequências longas e colunas verticais viciadas.</p>
-          </div>
-
-          <!-- 2º TESTE -->
-          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-            <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">2º Entropia de Shannon (92,8%)</span>
-              <span id="badge-status-t2" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-            </div>
-            <strong id="val-t2" class="text-white text-xs font-bold block">0.000 bits</strong>
-            <p id="desc-t2" class="text-[10px] text-slate-400 leading-tight font-sans">Dispersão termodinâmica e aleatoriedade espacial.</p>
-          </div>
-
-          <!-- 3º TESTE -->
-          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-            <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">3º Aderência Qui-Quadrado (87,4%)</span>
-              <span id="badge-status-t3" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-            </div>
-            <strong id="val-t3" class="text-white text-xs font-bold block">χ² = 0.00</strong>
-            <p id="desc-t3" class="text-[10px] text-slate-400 leading-tight font-sans">Teste de homogeneidade e não-vício setorial.</p>
-          </div>
-
-          <!-- 4º TESTE -->
-          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-            <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">4º Paridade & Primos (83,6%)</span>
-              <span id="badge-status-t4" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-            </div>
-            <strong id="val-t4" class="text-white text-xs font-bold block">-</strong>
-            <p id="desc-t4" class="text-[10px] text-slate-400 leading-tight font-sans">Equilíbrio harmônico entre pares, ímpares e primos.</p>
-          </div>
-
-          <!-- 5º TESTE -->
-          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-            <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">5º Curva Normal da Soma (81,9%)</span>
-              <span id="badge-status-t5" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-            </div>
-            <strong id="val-t5" class="text-white text-xs font-bold block">Soma: 0</strong>
-            <p id="desc-t5" class="text-[10px] text-slate-400 leading-tight font-sans">Posição gaussiana sem reposição (&mu; &approx; 183).</p>
-          </div>
-
-          <!-- 6º TESTE -->
-          <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-            <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">6º Hipergeométrica (80,8%)</span>
-              <span id="badge-status-t6" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-            </div>
-            <strong id="val-t6" class="text-white text-xs font-bold block truncate">-</strong>
-            <p id="desc-t6" class="text-[10px] text-slate-400 leading-tight font-sans">Partição combinatória exata nos 4 quadrantes.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Auditoria Forense dos Testes -->
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
-        <h3 class="text-xs font-bold uppercase text-white flex items-center gap-1.5 font-mono">
-          <span>🛡️</span> Auditoria Forense Histórica dos Testes
-        </h3>
-        <p class="text-[11px] text-slate-400 leading-relaxed font-sans">
-          Validação estatística em toda a base de concursos para determinar o poder eliminatório de cada teste.
-        </p>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 text-xs font-mono">
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center">
-            <span class="text-slate-300">1º Finais & Seq.</span>
-            <span class="text-emerald-400 font-black">95,2%</span>
-          </div>
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center">
-            <span class="text-slate-300">2º Entropia Shannon</span>
-            <span class="text-emerald-400 font-black">92,8%</span>
-          </div>
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center">
-            <span class="text-slate-300">3º Qui-Quadrado</span>
-            <span class="text-emerald-400 font-black">87,4%</span>
-          </div>
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center">
-            <span class="text-slate-300">4º Paridade & Primos</span>
-            <span class="text-emerald-400 font-black">83,6%</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mapa de Calor e Frequência das Dezenas Integrado -->
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 font-mono">
-        <div class="flex justify-between items-center">
-          <h3 class="text-xs font-bold uppercase text-white font-sans flex items-center gap-1.5">
-            <span>🔥</span> Mapa de Calor e Frequência Histórica
-          </h3>
-          <span class="text-[9px] text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">Atualizado</span>
-        </div>
-        <div id="grid-mapa-calor" class="grid grid-cols-6 sm:grid-cols-10 gap-1.5"></div>
-      </div>
-    </section>
-
-    <!-- PILAR 3: FECHAMENTOS MATEMÁTICOS -->
-    <section id="view-fechamentos" class="space-y-4 hidden">
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 font-mono">
-        <div class="flex justify-between items-center">
+    <!-- TELA 2: TEORIA GEOMÉTRICA DO TIO VITÓRIO -->
+    <section id="view-vitorio" class="space-y-4 hidden">
+      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/60 border border-cyan-800/60 rounded-3xl p-5 shadow-2xl space-y-3">
+        <div class="flex justify-between items-start">
           <div>
-            <h3 class="text-sm font-bold text-white font-sans">Desdobramentos & Matrizes Reduzidas</h3>
-            <p class="text-xs text-slate-400 font-sans">Garantias combinatórias com economia de até 90%</p>
+            <span class="text-[10px] uppercase tracking-widest font-black text-cyan-400 block mb-0.5 font-mono">CONFINAMENTO GEOMÉTRICO</span>
+            <h2 class="text-base font-black text-white">A Matriz do Tio Vitório (4x4 = 16 nºs)</h2>
           </div>
-          <span class="text-xl">🧮</span>
+          <span class="text-2xl">📐</span>
+        </div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          O Tio Vitório comprovou na prática: as 6 dezenas sorteadas ficam confinadas na interseção de <strong>4 linhas e 4 colunas</strong> (um subgrid de 16 a 20 dezenas), deixando setores inteiros de fora.
+        </p>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 font-mono">
+        <h3 class="text-xs font-bold text-white uppercase">Diagnóstico do Bilhete Atual:</h3>
+
+        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block font-sans">Linhas (R)</span>
+            <strong id="vit-linhas" class="text-cyan-400 text-sm block mt-0.5">- Linhas</strong>
+          </div>
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block font-sans">Colunas (C)</span>
+            <strong id="vit-colunas" class="text-teal-400 text-sm block mt-0.5">- Colunas</strong>
+          </div>
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block font-sans">Área (R×C)</span>
+            <strong id="vit-area" class="text-emerald-400 text-sm block mt-0.5">- dezenas</strong>
+          </div>
         </div>
 
-        <select id="select-tipo-fechamento" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white font-bold focus:outline-none"></select>
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 text-xs space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400 font-sans">Quadrante(s) Excluído(s):</span>
+            <strong id="vit-quad-vazios" class="text-emerald-400">-</strong>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-slate-400 font-sans">Frequência histórica (área &le; 20):</span>
+            <strong class="text-white">79.4% dos concursos</strong>
+          </div>
+        </div>
 
-        <button onclick="executarDesdobramento()" class="w-full py-2.5 bg-gradient-to-r from-cyan-600 to-teal-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition">
-          GERAR MATRIZ REDUZIDA
+        <button onclick="gerarPalpiteVitorio()" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-teal-500 hover:from-cyan-500 hover:to-teal-400 text-slate-950 font-black text-xs rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-1.5">
+          <span>✨</span> GERAR PALPITE 4 LINHAS × 4 COLUNAS (16 DEZENAS)
         </button>
       </div>
+    </section>
 
-      <div id="resultado-fechamento-container" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 hidden font-mono">
-        <div class="flex justify-between items-center text-xs">
-          <span class="font-bold text-white" id="fechamento-qtd-info">-</span>
-          <button onclick="salvarTodosFechamento()" class="text-cyan-400 font-bold underline">Salvar Todos na Carteira</button>
+    <!-- TELA 3: AUDITORIA DE CONFIABILIDADE DOS 6 TESTES -->
+    <section id="view-auditoria" class="space-y-4 hidden">
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
+        <h3 class="text-xs font-bold uppercase text-white flex items-center gap-1.5 font-mono">
+          <span>🛡️</span> Bateria dos 6 Testes Estatísticos NASA
+        </h3>
+        <p class="text-[11px] text-slate-400 leading-relaxed font-sans">
+          Validação estatística em tempo real da distribuição combinatória e dispersão gaussiana.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-mono">
+        <!-- 1º TESTE -->
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">1º Sequências & Finais (95,2%)</span>
+            <span id="badge-status-t1" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="val-t1" class="text-white text-xs font-bold block truncate">-</strong>
+          <p id="desc-t1" class="text-[10px] text-slate-400 leading-tight font-sans">Elimina sequências longas e colunas verticais viciadas.</p>
         </div>
-        <div id="lista-jogos-fechamento" class="space-y-1.5 max-h-72 overflow-y-auto pr-1 no-scrollbar"></div>
+
+        <!-- 2º TESTE -->
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">2º Entropia de Shannon (92,8%)</span>
+            <span id="badge-status-t2" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="val-t2" class="text-white text-xs font-bold block">0.000 bits</strong>
+          <p id="desc-t2" class="text-[10px] text-slate-400 leading-tight font-sans">Dispersão termodinâmica e aleatoriedade espacial.</p>
+        </div>
+
+        <!-- 3º TESTE -->
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">3º Aderência Qui-Quadrado (87,4%)</span>
+            <span id="badge-status-t3" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="val-t3" class="text-white text-xs font-bold block">χ² = 0.00</strong>
+          <p id="desc-t3" class="text-[10px] text-slate-400 leading-tight font-sans">Teste de homogeneidade e não-vício setorial.</p>
+        </div>
+
+        <!-- 4º TESTE -->
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">4º Paridade & Primos (83,6%)</span>
+            <span id="badge-status-t4" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="val-t4" class="text-white text-xs font-bold block">-</strong>
+          <p id="desc-t4" class="text-[10px] text-slate-400 leading-tight font-sans">Equilíbrio harmônico entre pares, ímpares e primos.</p>
+        </div>
+
+        <!-- 5º TESTE -->
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">5º Curva Normal da Soma (81,9%)</span>
+            <span id="badge-status-t5" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="val-t5" class="text-white text-xs font-bold block">Soma: 0</strong>
+          <p id="desc-t5" class="text-[10px] text-slate-400 leading-tight font-sans">Posição gaussiana sem reposição (&mu; &approx; 183).</p>
+        </div>
+
+        <!-- 6º TESTE -->
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">6º Hipergeométrica (80,8%)</span>
+            <span id="badge-status-t6" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="val-t6" class="text-white text-xs font-bold block truncate">-</strong>
+          <p id="desc-t6" class="text-[10px] text-slate-400 leading-tight font-sans">Partição combinatória exata nos 4 quadrantes.</p>
+        </div>
       </div>
     </section>
 
-    <!-- PILAR 4: CARTEIRA, ROI, BOLÃO & CALIBRAÇÃO INTELIGENTE -->
+    <!-- TELA 4: CARTEIRA DE JOGOS & ROI COM BACKUP JSON -->
     <section id="view-carteira" class="space-y-4 hidden">
-      <!-- Balanço Financeiro & ROI -->
       <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
         <div class="flex justify-between items-center font-mono">
           <div>
@@ -512,7 +467,7 @@
         </div>
       </div>
 
-      <!-- Painel de Calibração Inteligente do Portfólio -->
+      <!-- PAINEL DE CALIBRAÇÃO INTELIGENTE DE PORTFÓLIO -->
       <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 border border-cyan-800/60 rounded-2xl p-4 space-y-3 font-mono">
         <div class="flex justify-between items-center">
           <div>
@@ -544,56 +499,10 @@
         </button>
       </div>
 
-      <!-- Módulo de Bolão & Divisão de Cotas -->
-      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950/60 border border-teal-800/60 rounded-2xl p-4 shadow-xl space-y-3 font-mono">
-        <div class="flex justify-between items-start">
-          <div>
-            <span class="text-[9px] uppercase tracking-widest font-black text-teal-400 block font-mono">RATEIO DE COTAS</span>
-            <h3 class="text-xs font-black text-white font-sans">Gerenciador de Bolão Profissional</h3>
-          </div>
-          <span class="text-lg">👥</span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-          <div>
-            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Nome do Bolão</label>
-            <input id="bolao-nome" type="text" value="Bolão Oficial NASA" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none focus:border-teal-500" />
-          </div>
-          <div>
-            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Cotas (Participantes)</label>
-            <input id="bolao-cotas" type="number" min="1" max="100" value="10" oninput="calcularRateioBolao()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none focus:border-teal-500" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2 text-center text-xs pt-1">
-          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[9px] text-slate-400 block font-sans">Total Jogos</span>
-            <strong id="bolao-total-jogos" class="text-white text-xs block mt-0.5">R$ 0,00</strong>
-          </div>
-          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[9px] text-slate-400 block font-sans">Valor / Cota</span>
-            <strong id="bolao-valor-cota" class="text-teal-400 text-xs block mt-0.5">R$ 0,00</strong>
-          </div>
-          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[9px] text-slate-400 block font-sans">Prêmio / Cota</span>
-            <strong id="bolao-premio-cota" class="text-emerald-400 text-xs block mt-0.5">R$ 0,00</strong>
-          </div>
-        </div>
-
-        <div class="flex gap-2 pt-1">
-          <button onclick="incluirJogoAtualNoBolao()" class="flex-1 py-2 bg-teal-600 hover:bg-teal-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center justify-center gap-1">
-            <span>➕</span> Incluir Bilhete Atual
-          </button>
-          <button onclick="exportarRelatorioBolaoZap()" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center justify-center gap-1">
-            <span>📲</span> Recibo WhatsApp
-          </button>
-        </div>
-      </div>
-
       <!-- Ações Rápidas, Exportação e Backup JSON -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 font-mono">
         <h3 class="text-xs font-bold text-white uppercase tracking-wider font-sans">
-          Exportação Oficial & Backup
+          Exportação Oficial & Backup em Nuvem
         </h3>
         <div class="grid grid-cols-2 gap-2 text-xs">
           <button onclick="copiarParaLoteriasCaixa()" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold rounded-xl border border-slate-700 flex items-center justify-center gap-1.5 active:scale-95 transition">
@@ -637,6 +546,94 @@
         </div>
 
         <div id="container-bilhetes-salvos" class="space-y-2 max-h-80 overflow-y-auto no-scrollbar"></div>
+      </div>
+    </section>
+
+    <!-- TELA 5: GERENCIADOR DE BOLÕES E RATEIO -->
+    <section id="view-bolao" class="space-y-4 hidden">
+      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-teal-950/60 border border-teal-800/60 rounded-3xl p-5 shadow-2xl space-y-3">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="text-[10px] uppercase tracking-widest font-black text-teal-400 block mb-0.5 font-mono">DIVISÃO E RATEIO DE COTAS</span>
+            <h2 class="text-base font-black text-white font-sans">Gerenciador de Bolão Profissional</h2>
+          </div>
+          <span class="text-2xl">👥</span>
+        </div>
+        <p class="text-xs text-slate-300 leading-relaxed font-sans">
+          Calcule cotas exatas, comprovantes e divisão automatizada de prêmios para grupos e bolões.
+        </p>
+      </div>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 font-mono">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Nome do Bolão</label>
+            <input id="bolao-nome" type="text" value="Bolão Oficial NASA" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none focus:border-teal-500" />
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Número de Cotas (Participantes)</label>
+            <input id="bolao-cotas" type="number" min="1" max="100" value="10" oninput="calcularRateioBolao()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-bold focus:outline-none focus:border-teal-500" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-center text-xs pt-1">
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block font-sans">Total Jogos</span>
+            <strong id="bolao-total-jogos" class="text-white text-xs block mt-0.5">R$ 0,00</strong>
+          </div>
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block font-sans">Valor / Cota</span>
+            <strong id="bolao-valor-cota" class="text-teal-400 text-sm block mt-0.5">R$ 0,00</strong>
+          </div>
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block font-sans">Prêmio / Cota</span>
+            <strong id="bolao-premio-cota" class="text-emerald-400 text-sm block mt-0.5">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button onclick="incluirJogoAtualNoBolao()" class="flex-1 py-2.5 bg-teal-600 hover:bg-teal-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center justify-center gap-1.5">
+            <span>➕</span> Incluir Bilhete Atual
+          </button>
+          <button onclick="exportarRelatorioBolaoZap()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center justify-center gap-1.5">
+            <span>📲</span> Recibo WhatsApp
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TELA 6: FECHAMENTOS MATEMÁTICOS -->
+    <section id="view-fechamentos" class="space-y-4 hidden">
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 font-mono">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-bold text-white font-sans">Desdobramentos & Matrizes Reduzidas</h3>
+            <p class="text-xs text-slate-400 font-sans">Garantias combinatórias com economia de até 90%</p>
+          </div>
+          <span class="text-xl">🧮</span>
+        </div>
+
+        <select id="select-tipo-fechamento" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white font-bold focus:outline-none"></select>
+
+        <button onclick="executarDesdobramento()" class="w-full py-2.5 bg-gradient-to-r from-cyan-600 to-teal-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition">
+          GERAR MATRIZ REDUZIDA
+        </button>
+      </div>
+
+      <div id="resultado-fechamento-container" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 hidden font-mono">
+        <div class="flex justify-between items-center text-xs">
+          <span class="font-bold text-white" id="fechamento-qtd-info">-</span>
+          <button onclick="salvarTodosFechamento()" class="text-cyan-400 font-bold underline">Salvar Todos na Carteira</button>
+        </div>
+        <div id="lista-jogos-fechamento" class="space-y-1.5 max-h-72 overflow-y-auto pr-1 no-scrollbar"></div>
+      </div>
+    </section>
+
+    <!-- TELA 7: MAPA DE CALOR HISTÓRICO -->
+    <section id="view-calor" class="space-y-4 hidden">
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 font-mono">
+        <h3 class="text-xs font-bold uppercase text-white font-sans">Mapa de Calor e Frequência das Dezenas</h3>
+        <div id="grid-mapa-calor" class="grid grid-cols-6 sm:grid-cols-10 gap-1.5"></div>
       </div>
     </section>
   </main>
@@ -951,7 +948,6 @@
           <span class="text-amber-400 bg-amber-950/60 py-0.5 rounded border border-amber-900/80">Q3 (31-55)</span>
           <span class="text-purple-400 bg-purple-950/60 py-0.5 rounded border border-purple-900/80">Q4 (36-60)</span>
         `;
-        document.getElementById('card-vitorio-integrado').classList.remove('hidden');
       } else {
         grid.className = 'grid grid-cols-5 gap-1.5 text-center max-w-xs mx-auto font-mono';
         document.getElementById('volante-titulo-tipo').innerText = 'Volante Lotofácil (5x5)';
@@ -959,7 +955,6 @@
           <span class="col-span-2 text-purple-400 bg-purple-950/60 py-0.5 rounded border border-purple-900/80">Moldura Externa (16)</span>
           <span class="col-span-2 text-pink-400 bg-pink-950/60 py-0.5 rounded border border-pink-900/80">Miolo Centro (9)</span>
         `;
-        document.getElementById('card-vitorio-integrado').classList.add('hidden');
       }
 
       for (let i = 1; i <= config.totalNumeros; i++) {
@@ -1132,7 +1127,7 @@
       document.getElementById('vit-linhas').innerText = `${r} Linhas`;
       document.getElementById('vit-colunas').innerText = `${c} Colunas`;
       document.getElementById('vit-area').innerText = `${area} dezenas`;
-      document.getElementById('vit-area').className = area <= 20 ? 'text-emerald-400 text-xs block mt-0.5 font-bold' : 'text-amber-400 text-xs block mt-0.5 font-bold';
+      document.getElementById('vit-area').className = area <= 20 ? 'text-emerald-400 text-sm block mt-0.5 font-bold' : 'text-amber-400 text-sm block mt-0.5 font-bold';
 
       const qCount = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
       jogo.forEach(num => {
@@ -1141,7 +1136,7 @@
         qCount[l <= 2 ? (col <= 4 ? 'Q1' : 'Q2') : (col <= 4 ? 'Q3' : 'Q4')]++;
       });
       const vazios = Object.entries(qCount).filter(([_, count]) => count === 0).map(([q]) => q);
-      document.getElementById('vit-quad-vazios').innerText = vazios.length > 0 ? `${vazios.join(', ')} (Excluído)` : 'Nenhum (cobre os 4)';
+      document.getElementById('vit-quad-vazios').innerText = vazios.length > 0 ? `${vazios.join(', ')} (Ficou de fora)` : 'Nenhum (cobre os 4)';
     }
 
     // Bateria dos 6 Testes Estatísticos em Rigor Matemático
@@ -1927,20 +1922,20 @@
     function mudarAba(aba) {
       abaAtual = aba;
       tocarBeep('click');
-      ['volante', 'telemetria', 'fechamentos', 'carteira'].forEach(a => {
+      ['volante', 'vitorio', 'auditoria', 'carteira', 'bolao', 'fechamentos', 'calor'].forEach(a => {
         const el = document.getElementById(`view-${a}`);
         const tab = document.getElementById(`tab-${a}`);
         if (el) el.classList.add('hidden');
-        if (tab) tab.className = 'flex flex-col items-center justify-center py-2 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white font-mono text-[11px]';
+        if (tab) tab.className = 'py-1.5 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1 font-mono text-[10px]';
       });
 
       const elAtivo = document.getElementById(`view-${aba}`);
       const tabAtivo = document.getElementById(`tab-${aba}`);
       if (elAtivo) elAtivo.classList.remove('hidden');
       const cor = modalidadeAtual === 'megasena' ? 'bg-emerald-600 text-slate-950 font-black shadow' : 'bg-purple-600 text-white font-black shadow';
-      if (tabAtivo) tabAtivo.className = `flex flex-col items-center justify-center py-2 px-1 rounded-xl font-black transition ${cor} font-mono text-[11px]`;
+      if (tabAtivo) tabAtivo.className = `py-1.5 px-1 rounded-xl font-black transition ${cor} flex items-center justify-center gap-1 font-mono text-[10px]`;
       
-      if (aba === 'carteira') calcularRateioBolao();
+      if (aba === 'bolao') calcularRateioBolao();
     }
 
     function abrirModalDialog(msg, callback) {
