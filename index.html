@@ -242,14 +242,71 @@
           <div id="container-seletores-qtd" class="flex flex-wrap gap-1"></div>
         </div>
 
-        <!-- Dezenas Marcadas no Bilhete -->
+        <!-- Seletor de Quantidade de Apostas ("Quero X apostas de Y números") -->
+        <div class="pt-2.5 border-t border-slate-800/80 space-y-2 font-mono">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Quantas apostas quer gerar?</span>
+            <div class="flex items-center gap-1.5">
+              <span id="label-qtd-apostas-ativa" class="text-[10px] text-emerald-300 font-bold bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">3 apostas</span>
+              <span id="resumo-custo-apostas" class="text-[10px] text-slate-400 font-bold">(R$ 15,00)</span>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-1.5">
+            <div class="flex gap-1 flex-1">
+              <button type="button" onclick="setQtdApostas(1)" id="btn-qtd-ap-1" class="flex-1 py-1 rounded-lg text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white">1x</button>
+              <button type="button" onclick="setQtdApostas(2)" id="btn-qtd-ap-2" class="flex-1 py-1 rounded-lg text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white">2x</button>
+              <button type="button" onclick="setQtdApostas(3)" id="btn-qtd-ap-3" class="flex-1 py-1 rounded-lg text-xs font-black transition bg-emerald-600 text-slate-950 shadow">3x</button>
+              <button type="button" onclick="setQtdApostas(5)" id="btn-qtd-ap-5" class="flex-1 py-1 rounded-lg text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white">5x</button>
+              <button type="button" onclick="setQtdApostas(10)" id="btn-qtd-ap-10" class="flex-1 py-1 rounded-lg text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white">10x</button>
+            </div>
+            <div class="flex items-center gap-1">
+              <input id="input-qtd-apostas-custom" type="number" min="1" max="50" value="3" onchange="setQtdApostas(this.value)" class="w-12 bg-slate-950 border border-slate-800 rounded-lg px-1.5 py-1 text-xs text-emerald-400 font-bold text-center focus:outline-none focus:border-emerald-500" title="Outra quantidade" />
+              <span class="text-[10px] text-slate-500 font-sans">jogos</span>
+            </div>
+          </div>
+
+          <!-- Botões de Ação Dinâmicos para Geração em Lote -->
+          <div class="grid grid-cols-2 gap-2 pt-0.5">
+            <button type="button" onclick="gerarMultiplasApostas(qtdApostasDesejada, false)" id="btn-gerar-multiplas" class="py-2.5 px-2 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 text-slate-950 text-xs font-black rounded-xl shadow active:scale-95 transition flex items-center justify-center gap-1.5 font-sans">
+              <span>⚡</span> <span id="txt-btn-gerar-multiplas">Gerar 3 Apostas NASA</span>
+            </button>
+            <button type="button" onclick="gerarMultiplasApostas(qtdApostasDesejada, true)" id="btn-gerar-multiplas-vit" class="py-2.5 px-2 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 text-xs font-bold rounded-xl border border-cyan-800 active:scale-95 transition flex items-center justify-center gap-1.5 font-sans">
+              <span>📐</span> <span id="txt-btn-gerar-vitorio">Gerar 3 pela 4x4</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dezenas Marcadas no Bilhete Ativo -->
         <div id="display-meu-jogo" class="flex flex-wrap gap-1.5 min-h-[44px] p-2.5 rounded-xl bg-slate-950 border border-slate-800 items-center"></div>
 
         <!-- Custo do Bilhete Atual -->
         <div class="pt-2 border-t border-slate-800 flex justify-between items-center text-xs font-mono">
-          <span class="text-slate-400">Custo oficial CEF:</span>
+          <span class="text-slate-400">Custo do bilhete ativo:</span>
           <strong id="custo-jogo-selecionado" class="text-emerald-400 font-black text-sm">R$ 5,00</strong>
         </div>
+      </div>
+
+      <!-- PAINEL DE LOTE DE APOSTAS GERADAS (QUANDO GERA MÚLTIPLAS) -->
+      <div id="container-lote-apostas" class="p-3.5 bg-gradient-to-b from-slate-900 to-slate-950 border border-cyan-800/60 rounded-2xl space-y-3 font-mono hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <span class="text-[9px] uppercase font-black text-cyan-400 tracking-wider block">LOTE DE APOSTAS CALIBRADAS</span>
+            <h3 class="text-xs font-black text-white font-sans" id="titulo-lote-apostas">3 Apostas Geradas (NASA Telemetry)</h3>
+          </div>
+          <div class="flex gap-1.5">
+            <button type="button" onclick="salvarTodasApostasLote()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-[10px] rounded-lg shadow active:scale-95 transition flex items-center gap-1">
+              💾 Salvar Todas
+            </button>
+            <button type="button" onclick="copiarTodasApostasLote()" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-[10px] rounded-lg border border-slate-700">
+              📋 Copiar
+            </button>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-400 font-sans leading-tight">
+          Clique em qualquer aposta abaixo para testá-la e visualizá-la ao vivo no Volante:
+        </p>
+        <div id="lista-lote-apostas" class="space-y-2 max-h-72 overflow-y-auto no-scrollbar pr-1"></div>
       </div>
 
       <!-- Volante Digital com Geometria e Matriz Ativa -->
@@ -305,6 +362,86 @@
 
         <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-3">
           <div id="score-barra" class="bg-gradient-to-r from-teal-500 via-cyan-400 to-emerald-400 h-full rounded-full transition-all duration-700" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- BATERIA DOS 6 TESTES ESTATÍSTICOS NASA DIRETO NO VOLANTE -->
+      <div id="card-bateria-testes" class="bg-slate-900/95 border border-slate-800 p-4 rounded-2xl space-y-3 scroll-mt-28 transition duration-300">
+        <div class="flex justify-between items-center">
+          <div>
+            <span class="text-[9px] uppercase font-black text-cyan-400 tracking-wider block font-mono">AUDITORIA ESTATÍSTICA AO VIVO</span>
+            <h3 class="text-xs font-bold uppercase text-white flex items-center gap-1.5 font-mono">
+              <span>🛡️</span> Bateria dos 6 Testes Estatísticos NASA
+            </h3>
+          </div>
+          <span id="badge-total-testes-ok" class="text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+            6 de 6 Aprovados
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-400 leading-relaxed font-sans">
+          Validação estatística em tempo real das dezenas ativas no volante:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono">
+          <!-- 1º TESTE -->
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">1º Seq & Finais (95,2%)</span>
+              <span id="badge-status-t1" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
+            </div>
+            <strong id="val-t1" class="text-white text-xs font-bold block truncate">-</strong>
+            <p id="desc-t1" class="text-[10px] text-slate-400 leading-tight font-sans">Elimina sequências longas e colunas verticais viciadas.</p>
+          </div>
+
+          <!-- 2º TESTE -->
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">2º Entropia de Shannon (92,8%)</span>
+              <span id="badge-status-t2" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
+            </div>
+            <strong id="val-t2" class="text-white text-xs font-bold block">0.000 bits</strong>
+            <p id="desc-t2" class="text-[10px] text-slate-400 leading-tight font-sans">Dispersão termodinâmica e aleatoriedade espacial.</p>
+          </div>
+
+          <!-- 3º TESTE -->
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">3º Aderência Qui-Quadrado (87,4%)</span>
+              <span id="badge-status-t3" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
+            </div>
+            <strong id="val-t3" class="text-white text-xs font-bold block">χ² = 0.00</strong>
+            <p id="desc-t3" class="text-[10px] text-slate-400 leading-tight font-sans">Teste de homogeneidade e não-vício setorial.</p>
+          </div>
+
+          <!-- 4º TESTE -->
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">4º Paridade & Primos (83,6%)</span>
+              <span id="badge-status-t4" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
+            </div>
+            <strong id="val-t4" class="text-white text-xs font-bold block">-</strong>
+            <p id="desc-t4" class="text-[10px] text-slate-400 leading-tight font-sans">Equilíbrio harmônico entre pares, ímpares e primos.</p>
+          </div>
+
+          <!-- 5º TESTE -->
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">5º Curva Normal da Soma (81,9%)</span>
+              <span id="badge-status-t5" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
+            </div>
+            <strong id="val-t5" class="text-white text-xs font-bold block">Soma: 0</strong>
+            <p id="desc-t5" class="text-[10px] text-slate-400 leading-tight font-sans">Posição gaussiana sem reposição (&mu; &approx; 183).</p>
+          </div>
+
+          <!-- 6º TESTE -->
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-bold text-slate-400 uppercase">6º Hipergeométrica (80,8%)</span>
+              <span id="badge-status-t6" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
+            </div>
+            <strong id="val-t6" class="text-white text-xs font-bold block truncate">-</strong>
+            <p id="desc-t6" class="text-[10px] text-slate-400 leading-tight font-sans">Partição combinatória exata nos 4 quadrantes.</p>
+          </div>
         </div>
       </div>
 
@@ -367,80 +504,6 @@
         <button onclick="gerarPalpiteVitorio()" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-teal-500 hover:from-cyan-500 hover:to-teal-400 text-slate-950 font-black text-xs rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-1.5">
           <span>✨</span> GERAR PALPITE 4 LINHAS × 4 COLUNAS (16 DEZENAS)
         </button>
-      </div>
-    </section>
-
-    <!-- TELA 3: AUDITORIA DE CONFIABILIDADE DOS 6 TESTES -->
-    <section id="view-auditoria" class="space-y-4 hidden">
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-2">
-        <h3 class="text-xs font-bold uppercase text-white flex items-center gap-1.5 font-mono">
-          <span>🛡️</span> Bateria dos 6 Testes Estatísticos NASA
-        </h3>
-        <p class="text-[11px] text-slate-400 leading-relaxed font-sans">
-          Validação estatística em tempo real da distribuição combinatória e dispersão gaussiana.
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-mono">
-        <!-- 1º TESTE -->
-        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-          <div class="flex justify-between items-center">
-            <span class="text-[10px] font-bold text-slate-400 uppercase">1º Sequências & Finais (95,2%)</span>
-            <span id="badge-status-t1" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-          </div>
-          <strong id="val-t1" class="text-white text-xs font-bold block truncate">-</strong>
-          <p id="desc-t1" class="text-[10px] text-slate-400 leading-tight font-sans">Elimina sequências longas e colunas verticais viciadas.</p>
-        </div>
-
-        <!-- 2º TESTE -->
-        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-          <div class="flex justify-between items-center">
-            <span class="text-[10px] font-bold text-slate-400 uppercase">2º Entropia de Shannon (92,8%)</span>
-            <span id="badge-status-t2" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-          </div>
-          <strong id="val-t2" class="text-white text-xs font-bold block">0.000 bits</strong>
-          <p id="desc-t2" class="text-[10px] text-slate-400 leading-tight font-sans">Dispersão termodinâmica e aleatoriedade espacial.</p>
-        </div>
-
-        <!-- 3º TESTE -->
-        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-          <div class="flex justify-between items-center">
-            <span class="text-[10px] font-bold text-slate-400 uppercase">3º Aderência Qui-Quadrado (87,4%)</span>
-            <span id="badge-status-t3" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-          </div>
-          <strong id="val-t3" class="text-white text-xs font-bold block">χ² = 0.00</strong>
-          <p id="desc-t3" class="text-[10px] text-slate-400 leading-tight font-sans">Teste de homogeneidade e não-vício setorial.</p>
-        </div>
-
-        <!-- 4º TESTE -->
-        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-          <div class="flex justify-between items-center">
-            <span class="text-[10px] font-bold text-slate-400 uppercase">4º Paridade & Primos (83,6%)</span>
-            <span id="badge-status-t4" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-          </div>
-          <strong id="val-t4" class="text-white text-xs font-bold block">-</strong>
-          <p id="desc-t4" class="text-[10px] text-slate-400 leading-tight font-sans">Equilíbrio harmônico entre pares, ímpares e primos.</p>
-        </div>
-
-        <!-- 5º TESTE -->
-        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-          <div class="flex justify-between items-center">
-            <span class="text-[10px] font-bold text-slate-400 uppercase">5º Curva Normal da Soma (81,9%)</span>
-            <span id="badge-status-t5" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-          </div>
-          <strong id="val-t5" class="text-white text-xs font-bold block">Soma: 0</strong>
-          <p id="desc-t5" class="text-[10px] text-slate-400 leading-tight font-sans">Posição gaussiana sem reposição (&mu; &approx; 183).</p>
-        </div>
-
-        <!-- 6º TESTE -->
-        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
-          <div class="flex justify-between items-center">
-            <span class="text-[10px] font-bold text-slate-400 uppercase">6º Hipergeométrica (80,8%)</span>
-            <span id="badge-status-t6" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
-          </div>
-          <strong id="val-t6" class="text-white text-xs font-bold block truncate">-</strong>
-          <p id="desc-t6" class="text-[10px] text-slate-400 leading-tight font-sans">Partição combinatória exata nos 4 quadrantes.</p>
-        </div>
       </div>
     </section>
 
@@ -699,6 +762,8 @@
     let abaAtual = 'volante';
     let qtdDesejadaMega = 6;
     let qtdDesejadaLoto = 15;
+    let qtdApostasDesejada = 3;
+    let loteApostasGeradas = [];
     let audioAtivo = true;
 
     // Bilhete Padrão do Tio Vitório
@@ -886,11 +951,13 @@
 
     function renderizarTelaCompleta() {
       renderizarSeletoresQtd();
+      atualizarControlesQtdApostas();
       renderizarOpcoesFechamento();
       renderizarVolante();
       atualizarDisplayJogo();
       executarAnaliseDinamicaDoJogo();
       executarAnaliseVitorio();
+      renderizarLoteApostas();
       renderizarMapaCalor();
       atualizarPainelCarteira();
       calcularRateioBolao();
@@ -919,7 +986,8 @@
           if (modalidadeAtual === 'megasena') qtdDesejadaMega = q;
           else qtdDesejadaLoto = q;
           renderizarSeletoresQtd();
-          gerarPalpiteInteligente();
+          atualizarControlesQtdApostas();
+          gerarMultiplasApostas(qtdApostasDesejada, false);
         };
         container.appendChild(btn);
       }
@@ -1070,53 +1138,57 @@
       toast("Volante limpo.", "🧹");
     }
 
-    function gerarPalpiteInteligente() {
-      tocarBeep('success');
-      vibrarHaptico(20);
-      const config = getConfigAtual();
-      const fixos = getFixos();
-      const proibidos = getProibidos();
-      const sorteio = new Set(fixos);
-      const k = modalidadeAtual === 'megasena' ? qtdDesejadaMega : qtdDesejadaLoto;
+    function setQtdApostas(qtd) {
+      qtdApostasDesejada = Math.max(1, Math.min(50, parseInt(qtd) || 1));
+      atualizarControlesQtdApostas();
+      tocarBeep('click');
+    }
 
-      while (sorteio.size < k) {
-        const n = Math.floor(Math.random() * config.totalNumeros) + 1;
-        if (!proibidos.includes(n)) sorteio.add(n);
+    function atualizarControlesQtdApostas() {
+      [1, 2, 3, 5, 10].forEach(q => {
+        const btn = document.getElementById(`btn-qtd-ap-${q}`);
+        if (btn) {
+          const ativo = q === qtdApostasDesejada;
+          const cor = modalidadeAtual === 'megasena' ? 'bg-emerald-600 text-slate-950 font-black shadow' : 'bg-purple-600 text-white font-black shadow';
+          btn.className = ativo ? `flex-1 py-1 rounded-lg text-xs font-black transition ${cor}` : 'flex-1 py-1 rounded-lg text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white';
+        }
+      });
+
+      const inputCustom = document.getElementById('input-qtd-apostas-custom');
+      if (inputCustom) inputCustom.value = qtdApostasDesejada;
+
+      const labelApostas = document.getElementById('label-qtd-apostas-ativa');
+      if (labelApostas) {
+        labelApostas.innerText = `${qtdApostasDesejada} aposta${qtdApostasDesejada > 1 ? 's' : ''}`;
       }
 
-      setJogoAtual(Array.from(sorteio).sort((a,b)=>a-b));
-      atualizarDisplayJogo();
-      renderizarVolante();
-      executarAnaliseDinamicaDoJogo();
-      executarAnaliseVitorio();
-      toast(`Palpite inteligente gerado (${k} dezenas)!`, "🚀");
+      const config = getConfigAtual();
+      const k = modalidadeAtual === 'megasena' ? qtdDesejadaMega : qtdDesejadaLoto;
+      const kMin = modalidadeAtual === 'megasena' ? 6 : 15;
+      const combinacoes = combinacao(k, kMin);
+      const custoUnitario = combinacoes * config.precoBase;
+      const custoTotal = qtdApostasDesejada * custoUnitario;
+
+      const elResumo = document.getElementById('resumo-custo-apostas');
+      if (elResumo) elResumo.innerText = `(${formatarReais(custoTotal)})`;
+
+      const txtBtnMultiplas = document.getElementById('txt-btn-gerar-multiplas');
+      if (txtBtnMultiplas) {
+        txtBtnMultiplas.innerText = `Gerar ${qtdApostasDesejada} Aposta${qtdApostasDesejada > 1 ? 's' : ''} NASA`;
+      }
+
+      const txtBtnVit = document.getElementById('txt-btn-gerar-vitorio');
+      if (txtBtnVit) {
+        txtBtnVit.innerText = `Gerar ${qtdApostasDesejada} pela 4x4`;
+      }
+    }
+
+    function gerarPalpiteInteligente() {
+      gerarMultiplasApostas(qtdApostasDesejada, false);
     }
 
     function gerarPalpiteVitorio() {
-      tocarBeep('success');
-      vibrarHaptico(20);
-      if (modalidadeAtual !== 'megasena') {
-        toast("Teoria 4x4 aplicada à Mega-Sena!", "ℹ️");
-        return;
-      }
-      const linhas = [1, 2, 3, 4, 5, 6].sort(() => 0.5 - Math.random()).slice(0, 4);
-      const colunas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].sort(() => 0.5 - Math.random()).slice(0, 4);
-      
-      const subgrid16 = [];
-      linhas.forEach(l => {
-        colunas.forEach(c => {
-          subgrid16.push((l - 1) * 10 + c);
-        });
-      });
-
-      const k = qtdDesejadaMega;
-      const sorteados = subgrid16.sort(() => 0.5 - Math.random()).slice(0, k).sort((a,b)=>a-b);
-      setJogoAtual(sorteados);
-      atualizarDisplayJogo();
-      renderizarVolante();
-      executarAnaliseDinamicaDoJogo();
-      executarAnaliseVitorio();
-      toast(`Palpite da Matriz gerado (${k} nºs no subgrid 4x4)!`, "📐");
+      gerarMultiplasApostas(qtdApostasDesejada, true);
     }
 
     function executarAnaliseVitorio() {
@@ -1130,10 +1202,17 @@
       const c = colunasSet.size;
       const area = r * c;
 
-      document.getElementById('vit-linhas').innerText = `${r} Linhas`;
-      document.getElementById('vit-colunas').innerText = `${c} Colunas`;
-      document.getElementById('vit-area').innerText = `${area} dezenas`;
-      document.getElementById('vit-area').className = area <= 20 ? 'text-emerald-400 text-sm block mt-0.5 font-bold' : 'text-amber-400 text-sm block mt-0.5 font-bold';
+      const elLinhas = document.getElementById('vit-linhas');
+      const elColunas = document.getElementById('vit-colunas');
+      const elArea = document.getElementById('vit-area');
+      const elVazios = document.getElementById('vit-quad-vazios');
+
+      if (elLinhas) elLinhas.innerText = `${r} Linhas`;
+      if (elColunas) elColunas.innerText = `${c} Colunas`;
+      if (elArea) {
+        elArea.innerText = `${area} dezenas`;
+        elArea.className = area <= 20 ? 'text-emerald-400 text-sm block mt-0.5 font-bold' : 'text-amber-400 text-sm block mt-0.5 font-bold';
+      }
 
       const qCount = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
       jogo.forEach(num => {
@@ -1142,22 +1221,37 @@
         qCount[l <= 2 ? (col <= 4 ? 'Q1' : 'Q2') : (col <= 4 ? 'Q3' : 'Q4')]++;
       });
       const vazios = Object.entries(qCount).filter(([_, count]) => count === 0).map(([q]) => q);
-      document.getElementById('vit-quad-vazios').innerText = vazios.length > 0 ? `${vazios.join(', ')} (Ficou de fora)` : 'Nenhum (cobre os 4)';
+      if (elVazios) {
+        elVazios.innerText = vazios.length > 0 ? `${vazios.join(', ')} (Ficou de fora)` : 'Nenhum (cobre os 4)';
+      }
     }
 
-    // Bateria dos 6 Testes Estatísticos em Rigor Matemático
-    function executarAnaliseDinamicaDoJogo() {
-      const jogo = getJogoAtual();
-      const config = getConfigAtual();
+    // Avaliador Central e Rigoroso dos 6 Testes Estatísticos NASA
+    function avaliarJogo(jogo, modalidade) {
+      const config = modalidade === 'megasena' ? MEGA_CONFIG : LOTO_CONFIG;
       const n = jogo.length;
-
       if (n < config.minDezenas) {
-        document.getElementById('score-numero').innerText = '--';
-        document.getElementById('score-barra').style.width = '0%';
-        document.getElementById('score-diagnostico-texto').innerText = `Selecione pelo menos ${config.minDezenas} números para calibrar os instrumentos.`;
-        document.getElementById('conteudo-sugestao-troca').innerHTML = '<span class="text-slate-500 italic font-mono">Complete o bilhete para receber telemetria de troca.</span>';
-        for(let t = 1; t <= 6; t++) document.getElementById(`val-t${t}`).innerText = '-';
-        return;
+        return {
+          score: 0,
+          valido: false,
+          dezenasEmDatas: 0,
+          pctDatas: 0,
+          statusManada: 'Incompleto',
+          testes: [
+            { v: '-', s: 'Aguardando' },
+            { v: '-', s: 'Aguardando' },
+            { v: '-', s: 'Aguardando' },
+            { v: '-', s: 'Aguardando' },
+            { v: '-', s: 'Aguardando' },
+            { v: '-', s: 'Aguardando' }
+          ],
+          qCount: { Q1: 0, Q2: 0, Q3: 0, Q4: 0 },
+          zscore: 0,
+          maxSeq: 1,
+          maxRepFinal: 1,
+          finaisCount: {},
+          aprovadosCount: 0
+        };
       }
 
       let score = 50;
@@ -1168,39 +1262,33 @@
       // Análise Anti-Manada (Datas de Aniversário 01 a 31)
       const dezenasEmDatas = jogo.filter(x => x <= 31).length;
       const pctDatas = Math.round((dezenasEmDatas / n) * 100);
-      document.getElementById('manada-qtd-datas').innerText = `${dezenasEmDatas} de ${n} (${pctDatas}%)`;
-      document.getElementById('barra-anti-manada').style.width = `${pctDatas}%`;
-
-      const badgeManada = document.getElementById('badge-anti-manada');
+      let statusManada = 'Protegido';
       if (dezenasEmDatas >= n - 1 && n >= 6) {
-        badgeManada.innerText = 'Risco de Manada (Prêmio Diluído)';
-        badgeManada.className = 'text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-rose-950 text-rose-400 border border-rose-800';
+        statusManada = 'Risco';
         score -= 15;
       } else {
-        badgeManada.innerText = 'Anti-Manada Protegido';
-        badgeManada.className = 'text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800';
         score += 10;
       }
 
       let t1_status = 'Aprovado', t2_status = 'Aprovado', t3_status = 'Aprovado', t4_status = 'Aprovado', t5_status = 'Aprovado', t6_status = 'Aprovado';
       let t1_val = '', t2_val = '', t3_val = '', t4_val = '', t5_val = '', t6_val = '';
+      let qCount = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
+      let zscore = 0, maxSeq = 1, maxRepFinal = 1, finaisCount = {};
 
-      if (modalidadeAtual === 'megasena') {
-        const qCount = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
+      if (modalidade === 'megasena') {
         jogo.forEach(num => {
           const l = Math.floor((num - 1) / 10);
           const c = (num - 1) % 10;
           qCount[l <= 2 ? (c <= 4 ? 'Q1' : 'Q2') : (c <= 4 ? 'Q3' : 'Q4')]++;
         });
 
-        // 1º TESTE (PRIORIDADE MÁXIMA - 95,2%): Sequências & Finais
-        let maxSeq = 1, seq = 1;
+        // 1º TESTE (95,2%): Sequências & Finais
+        let seq = 1;
         for (let i = 1; i < jogo.length; i++) {
           if (jogo[i] === jogo[i-1] + 1) { seq++; if (seq > maxSeq) maxSeq = seq; } else seq = 1;
         }
-        const finaisCount = {};
         jogo.forEach(x => { const f = x % 10; finaisCount[f] = (finaisCount[f] || 0) + 1; });
-        const maxRepFinal = Math.max(...Object.values(finaisCount));
+        maxRepFinal = Math.max(...Object.values(finaisCount));
         t1_val = `Max Seq: ${maxSeq} | Finais: ${new Set(jogo.map(x=>x%10)).size}`;
         if (maxSeq >= 3 || maxRepFinal >= 3) {
           t1_status = 'Alerta';
@@ -1209,7 +1297,7 @@
           score += 15;
         }
 
-        // 2º TESTE (MUITO ALTA - 92,8%): Entropia de Shannon (H)
+        // 2º TESTE (92,8%): Entropia de Shannon (H)
         const k = [qCount.Q1, qCount.Q2, qCount.Q3, qCount.Q4];
         let H = 0;
         k.forEach(qtd => { if (qtd > 0) { const p = qtd / n; H -= p * Math.log2(p); } });
@@ -1221,7 +1309,7 @@
           score += 12;
         }
 
-        // 3º TESTE (ALTA - 87,4%): Qui-Quadrado (χ²)
+        // 3º TESTE (87,4%): Qui-Quadrado (χ²)
         const esp = n / 4;
         let chi2 = 0;
         k.forEach(obs => { chi2 += Math.pow(obs - esp, 2) / esp; });
@@ -1233,7 +1321,7 @@
           score += 10;
         }
 
-        // 4º TESTE (ALTA - 83,6%): Paridade & Primos
+        // 4º TESTE (83,6%): Paridade & Primos
         const qtdPrimos = jogo.filter(x => MEGA_CONFIG.primos.includes(x)).length;
         t4_val = `${pares}P / ${impares}I (${qtdPrimos} Primos)`;
         if (pares === 0 || pares === 6) {
@@ -1243,10 +1331,10 @@
           score += 8;
         }
 
-        // 5º TESTE (ALTA - 81,9%): Curva Normal da Soma
+        // 5º TESTE (81,9%): Curva Normal da Soma
         const varSemReposicao = n * ((60*60 - 1) / 12) * ((60 - n) / 59);
         const desvioExato = Math.sqrt(varSemReposicao);
-        const zscore = (soma - (n * 30.5)) / desvioExato;
+        zscore = (soma - (n * 30.5)) / desvioExato;
         t5_val = `Soma: ${soma} (Z: ${zscore.toFixed(2)}σ)`;
         if (Math.abs(zscore) > 1.6) {
           t5_status = 'Alerta';
@@ -1255,7 +1343,7 @@
           score += 8;
         }
 
-        // 6º TESTE (BOA - 80,8%): Hipergeométrica Setorial
+        // 6º TESTE (80,8%): Hipergeométrica Setorial
         const combFav = combinacao(15, k[0]) * combinacao(15, k[1]) * combinacao(15, k[2]) * combinacao(15, k[3]);
         t6_val = `${((combFav / config.totalCombinacoes) * 100).toFixed(4)}% (${[...k].sort((a,b)=>b-a).join('-')})`;
         if (k.some(x => x >= 4)) {
@@ -1264,8 +1352,6 @@
         } else {
           score += 7;
         }
-
-        gerarRecomendacaoTrocaMega(jogo, qCount, zscore, maxSeq, maxRepFinal, finaisCount, dezenasEmDatas);
       } else {
         const molduraCount = jogo.filter(x => LOTO_CONFIG.moldura.includes(x)).length;
         const mioloCount = n - molduraCount;
@@ -1275,25 +1361,313 @@
         t4_val = `${pares}P / ${impares}I (${jogo.filter(x => LOTO_CONFIG.primos.includes(x)).length} Primos)`;
         t5_val = `Soma: ${soma} (Ideal: 180-220)`;
         t6_val = `${molduraCount} Moldura / ${mioloCount} Miolo`;
-        gerarRecomendacaoTrocaLoto(jogo, molduraCount);
         score += 25;
       }
 
+      score = Math.min(99, Math.max(25, score));
       const testes = [
         { v: t1_val, s: t1_status }, { v: t2_val, s: t2_status }, { v: t3_val, s: t3_status },
         { v: t4_val, s: t4_status }, { v: t5_val, s: t5_status }, { v: t6_val, s: t6_status }
       ];
-      testes.forEach((t, idx) => {
-        document.getElementById(`val-t${idx+1}`).innerText = t.v;
+      const aprovadosCount = testes.filter(t => t.s === 'Aprovado').length;
+
+      return {
+        score,
+        valido: true,
+        dezenasEmDatas,
+        pctDatas,
+        statusManada,
+        testes,
+        qCount,
+        zscore,
+        maxSeq,
+        maxRepFinal,
+        finaisCount,
+        aprovadosCount
+      };
+    }
+
+    // Bateria dos 6 Testes Estatísticos em Tempo Real no Volante
+    function executarAnaliseDinamicaDoJogo() {
+      const jogo = getJogoAtual();
+      const config = getConfigAtual();
+      const n = jogo.length;
+
+      if (n < config.minDezenas) {
+        document.getElementById('score-numero').innerText = '--';
+        document.getElementById('score-barra').style.width = '0%';
+        document.getElementById('score-diagnostico-texto').innerText = `Selecione pelo menos ${config.minDezenas} números para calibrar os instrumentos.`;
+        document.getElementById('conteudo-sugestao-troca').innerHTML = '<span class="text-slate-500 italic font-mono">Complete o bilhete para receber telemetria de troca.</span>';
+        for (let t = 1; t <= 6; t++) {
+          const el = document.getElementById(`val-t${t}`);
+          if (el) el.innerText = '-';
+          const badge = document.getElementById(`badge-status-t${t}`);
+          if (badge) {
+            badge.innerText = 'Aguardando';
+            badge.className = 'text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-slate-900 text-slate-500 border border-slate-800';
+          }
+        }
+        const badgeTotal = document.getElementById('badge-total-testes-ok');
+        if (badgeTotal) badgeTotal.innerText = 'Aguardando';
+        return;
+      }
+
+      const analise = avaliarJogo(jogo, modalidadeAtual);
+
+      document.getElementById('manada-qtd-datas').innerText = `${analise.dezenasEmDatas} de ${n} (${analise.pctDatas}%)`;
+      document.getElementById('barra-anti-manada').style.width = `${analise.pctDatas}%`;
+      const badgeManada = document.getElementById('badge-anti-manada');
+      if (analise.statusManada === 'Risco') {
+        badgeManada.innerText = 'Risco de Manada (Prêmio Diluído)';
+        badgeManada.className = 'text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-rose-950 text-rose-400 border border-rose-800';
+      } else {
+        badgeManada.innerText = 'Anti-Manada Protegido';
+        badgeManada.className = 'text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800';
+      }
+
+      analise.testes.forEach((t, idx) => {
+        const elVal = document.getElementById(`val-t${idx+1}`);
+        if (elVal) elVal.innerText = t.v;
         const badge = document.getElementById(`badge-status-t${idx+1}`);
-        badge.innerText = t.s;
-        badge.className = t.s === 'Aprovado' ? 'text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800' : 'text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-rose-950 text-rose-400 border border-rose-800';
+        if (badge) {
+          badge.innerText = t.s;
+          badge.className = t.s === 'Aprovado' 
+            ? 'text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800' 
+            : 'text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-rose-950 text-rose-400 border border-rose-800';
+        }
       });
 
-      score = Math.min(99, Math.max(25, score));
-      document.getElementById('score-numero').innerText = score;
-      document.getElementById('score-barra').style.width = `${score}%`;
-      document.getElementById('score-diagnostico-texto').innerHTML = `Score de Telemetria: <strong>${score}/100</strong>. Calibrado por pesos ponderados.`;
+      const badgeTotal = document.getElementById('badge-total-testes-ok');
+      if (badgeTotal) {
+        badgeTotal.innerText = `${analise.aprovadosCount} de 6 Aprovados`;
+        badgeTotal.className = analise.aprovadosCount === 6 
+          ? 'text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800' 
+          : 'text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-amber-950 text-amber-300 border border-amber-800';
+      }
+
+      document.getElementById('score-numero').innerText = analise.score;
+      document.getElementById('score-barra').style.width = `${analise.score}%`;
+      document.getElementById('score-diagnostico-texto').innerHTML = `Score de Telemetria: <strong>${analise.score}/100</strong>. Calibrado por pesos ponderados.`;
+
+      if (modalidadeAtual === 'megasena') {
+        gerarRecomendacaoTrocaMega(jogo, analise.qCount, analise.zscore, analise.maxSeq, analise.maxRepFinal, analise.finaisCount, analise.dezenasEmDatas);
+      } else {
+        const molduraCount = jogo.filter(x => LOTO_CONFIG.moldura.includes(x)).length;
+        gerarRecomendacaoTrocaLoto(jogo, molduraCount);
+      }
+    }
+
+    // Gerador de Jogo Único de Alta Qualidade
+    function gerarJogoCalibradoUnico(modalidade, k, usarVitorio = false) {
+      const config = modalidade === 'megasena' ? MEGA_CONFIG : LOTO_CONFIG;
+      const fixos = modalidade === 'megasena' ? fixosMega : fixosLoto;
+      const proibidos = modalidade === 'megasena' ? proibidosMega : proibidosLoto;
+
+      let melhorJogo = null;
+      let melhorScore = -1;
+
+      for (let tentativa = 0; tentativa < 80; tentativa++) {
+        let dezenas = new Set(fixos);
+
+        if (usarVitorio && modalidade === 'megasena') {
+          const linhas = [1, 2, 3, 4, 5, 6].sort(() => 0.5 - Math.random()).slice(0, 4);
+          const colunas = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].sort(() => 0.5 - Math.random()).slice(0, 4);
+          const subgrid16 = [];
+          linhas.forEach(l => colunas.forEach(c => subgrid16.push((l - 1) * 10 + c)));
+          const disponiveis = subgrid16.filter(n => !proibidos.includes(n));
+          while (dezenas.size < k && disponiveis.length > 0) {
+            const rand = disponiveis[Math.floor(Math.random() * disponiveis.length)];
+            dezenas.add(rand);
+          }
+        }
+
+        while (dezenas.size < k) {
+          const n = Math.floor(Math.random() * config.totalNumeros) + 1;
+          if (!proibidos.includes(n)) dezenas.add(n);
+        }
+
+        const jogoArr = Array.from(dezenas).sort((a,b)=>a-b);
+        const analise = avaliarJogo(jogoArr, modalidade);
+        
+        if (analise.score > melhorScore) {
+          melhorScore = analise.score;
+          melhorJogo = { dezenas: jogoArr, analise };
+        }
+
+        if (analise.score >= 94 && analise.aprovadosCount === 6) break;
+      }
+
+      return melhorJogo;
+    }
+
+    // Gerador de Múltiplas Apostas ("Quero X apostas de Y números")
+    function gerarMultiplasApostas(qtd = qtdApostasDesejada, usarVitorio = false) {
+      tocarBeep('success');
+      vibrarHaptico(25);
+      const k = modalidadeAtual === 'megasena' ? qtdDesejadaMega : qtdDesejadaLoto;
+      const apostas = [];
+      const hashSet = new Set();
+
+      for (let i = 0; i < qtd; i++) {
+        let jogoObj = null;
+        for (let t = 0; t < 30; t++) {
+          jogoObj = gerarJogoCalibradoUnico(modalidadeAtual, k, usarVitorio);
+          const chave = jogoObj.dezenas.join('-');
+          if (!hashSet.has(chave)) {
+            hashSet.add(chave);
+            break;
+          }
+        }
+        apostas.push({
+          id: i + 1,
+          dezenas: jogoObj.dezenas,
+          analise: jogoObj.analise,
+          tipo: usarVitorio ? 'Matriz 4x4' : 'NASA IA'
+        });
+      }
+
+      loteApostasGeradas = apostas;
+      
+      // Carrega automaticamente a 1ª aposta no volante
+      setJogoAtual([...apostas[0].dezenas]);
+      atualizarDisplayJogo();
+      renderizarVolante();
+      executarAnaliseDinamicaDoJogo();
+      executarAnaliseVitorio();
+
+      // Renderiza o lote
+      renderizarLoteApostas();
+
+      toast(`${qtd} aposta${qtd > 1 ? 's' : ''} de ${k} números gerada${qtd > 1 ? 's' : ''}!`, "🚀");
+    }
+
+    function renderizarLoteApostas() {
+      const container = document.getElementById('container-lote-apostas');
+      const lista = document.getElementById('lista-lote-apostas');
+      const titulo = document.getElementById('titulo-lote-apostas');
+      if (!container || !lista) return;
+
+      if (!loteApostasGeradas || loteApostasGeradas.length === 0) {
+        container.classList.add('hidden');
+        return;
+      }
+
+      const k = modalidadeAtual === 'megasena' ? qtdDesejadaMega : qtdDesejadaLoto;
+      if (titulo) titulo.innerText = `${loteApostasGeradas.length} Aposta${loteApostasGeradas.length > 1 ? 's' : ''} de ${k} Números`;
+      container.classList.remove('hidden');
+
+      const jogoAtualStr = getJogoAtual().join('-');
+
+      lista.innerHTML = loteApostasGeradas.map((aposta, idx) => {
+        const estaNoVolante = aposta.dezenas.join('-') === jogoAtualStr;
+        const borderCor = estaNoVolante ? 'border-emerald-500 bg-emerald-950/30' : 'border-slate-800 bg-slate-950/90';
+
+        return `
+          <div class="p-2.5 rounded-xl border ${borderCor} flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition">
+            <div class="space-y-1.5">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-bold text-white text-xs">#${aposta.id}</span>
+                ${estaNoVolante ? '<span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[9px] font-bold">🎯 Ativa no Volante</span>' : ''}
+                <span class="text-[10px] text-cyan-300 font-bold">Score: ${aposta.analise.score}/100</span>
+                <span class="text-[9px] text-slate-400">(${aposta.analise.aprovadosCount}/6 testes OK)</span>
+                <span class="text-[9px] text-slate-500 font-mono">[${aposta.tipo}]</span>
+              </div>
+              <div class="flex flex-wrap gap-1">
+                ${aposta.dezenas.map(d => `<span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-black text-[11px] flex items-center justify-center border border-slate-700 shadow-sm">${String(d).padStart(2,'0')}</span>`).join('')}
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 self-end sm:self-center">
+              <button type="button" onclick="carregarApostaDoLote(${idx})" class="px-2.5 py-1.5 ${estaNoVolante ? 'bg-cyan-600 text-slate-950 font-black' : 'bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold'} text-xs rounded-lg border border-slate-700 transition flex items-center gap-1">
+                🎯 ${estaNoVolante ? 'No Volante' : 'Ver no Volante'}
+              </button>
+              <button type="button" onclick="salvarApostaIndividualLote(${idx})" class="px-2 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-lg shadow transition">
+                💾 Salvar
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function carregarApostaDoLote(idx) {
+      if (!loteApostasGeradas[idx]) return;
+      tocarBeep('click');
+      vibrarHaptico(15);
+      setJogoAtual([...loteApostasGeradas[idx].dezenas]);
+      atualizarDisplayJogo();
+      renderizarVolante();
+      executarAnaliseDinamicaDoJogo();
+      executarAnaliseVitorio();
+      renderizarLoteApostas();
+      toast(`Aposta #${idx + 1} carregada no Volante!`, "🎯");
+    }
+
+    function salvarApostaIndividualLote(idx) {
+      if (!loteApostasGeradas[idx]) return;
+      const config = getConfigAtual();
+      const jogo = loteApostasGeradas[idx].dezenas;
+      const inputData = document.getElementById('input-data-jogo-alvo')?.value;
+      let dataFormatada = new Date().toLocaleDateString('pt-BR');
+      if (inputData) {
+        const [ano, mes, dia] = inputData.split('-');
+        dataFormatada = `${dia}/${mes}/${ano}`;
+      }
+      carteiraJogos.unshift({
+        id: Date.now() + Math.random(),
+        modalidade: modalidadeAtual,
+        dezenas: [...jogo],
+        data: dataFormatada,
+        custo: config.precoBase,
+        premioGanho: 0,
+        conferido: false,
+        status: 'Pendente'
+      });
+      salvarCarteiraStorage();
+      atualizarPainelCarteira();
+      tocarBeep('success');
+      toast(`Aposta #${idx + 1} salva na Carteira!`, "💾");
+    }
+
+    function salvarTodasApostasLote() {
+      if (!loteApostasGeradas || loteApostasGeradas.length === 0) return;
+      const config = getConfigAtual();
+      const inputData = document.getElementById('input-data-jogo-alvo')?.value;
+      let dataFormatada = new Date().toLocaleDateString('pt-BR');
+      if (inputData) {
+        const [ano, mes, dia] = inputData.split('-');
+        dataFormatada = `${dia}/${mes}/${ano}`;
+      }
+
+      loteApostasGeradas.forEach(aposta => {
+        carteiraJogos.unshift({
+          id: Date.now() + Math.random(),
+          modalidade: modalidadeAtual,
+          dezenas: [...aposta.dezenas],
+          data: dataFormatada,
+          custo: config.precoBase,
+          premioGanho: 0,
+          conferido: false,
+          status: 'Pendente'
+        });
+      });
+
+      salvarCarteiraStorage();
+      atualizarPainelCarteira();
+      tocarBeep('success');
+      toast(`Todas as ${loteApostasGeradas.length} apostas salvas na Carteira!`, "💾");
+    }
+
+    function copiarTodasApostasLote() {
+      if (!loteApostasGeradas || loteApostasGeradas.length === 0) return;
+      const txt = loteApostasGeradas.map(a => a.dezenas.map(d => String(d).padStart(2,'0')).join(', ')).join('\n');
+      const temp = document.createElement('textarea');
+      temp.value = txt;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      tocarBeep('success');
+      toast(`${loteApostasGeradas.length} apostas copiadas para a Área de Transferência!`, "📋");
     }
 
     function gerarRecomendacaoTrocaMega(jogo, qCount, zscore, maxSeq = 1, maxRepFinal = 1, finaisCount = {}, dezenasEmDatas = 0) {
@@ -1926,14 +2300,32 @@
     }
 
     function mudarAba(aba) {
+      if (aba === 'auditoria') {
+        mudarAba('volante');
+        setTimeout(() => {
+          const el = document.getElementById('card-bateria-testes');
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('ring-2', 'ring-cyan-400');
+            setTimeout(() => el.classList.remove('ring-2', 'ring-cyan-400'), 2500);
+          }
+        }, 80);
+        return;
+      }
+
       abaAtual = aba;
       tocarBeep('click');
-      ['volante', 'vitorio', 'auditoria', 'carteira', 'bolao', 'fechamentos', 'calor'].forEach(a => {
+      ['volante', 'vitorio', 'carteira', 'bolao', 'fechamentos', 'calor'].forEach(a => {
         const el = document.getElementById(`view-${a}`);
         const tab = document.getElementById(`tab-${a}`);
         if (el) el.classList.add('hidden');
         if (tab) tab.className = 'py-1.5 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1 font-mono text-[10px]';
       });
+
+      const tabAuditoria = document.getElementById('tab-auditoria');
+      if (tabAuditoria) {
+        tabAuditoria.className = 'py-1.5 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1 font-mono text-[10px]';
+      }
 
       const elAtivo = document.getElementById(`view-${aba}`);
       const tabAtivo = document.getElementById(`tab-${aba}`);
