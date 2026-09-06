@@ -204,6 +204,112 @@
     </div>
   </div>
 
+  <!-- MODAL CHECKOUT & ASSINATURA NASA VIP PRO -->
+  <div id="modal-paywall-pro" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
+    <div class="bg-slate-900 border border-amber-500/80 rounded-3xl p-5 max-w-md w-full space-y-4 shadow-2xl relative my-auto font-sans">
+      <!-- Glow effect -->
+      <div class="w-40 h-40 bg-amber-500/10 rounded-full blur-3xl absolute -top-10 -right-10 pointer-events-none"></div>
+
+      <!-- Fechar Modal -->
+      <button type="button" onclick="fecharModalPaywall()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm font-bold transition">
+        ✕
+      </button>
+
+      <!-- Cabeçalho do Paywall -->
+      <div class="text-center space-y-1.5 pt-1">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">
+          👑
+        </div>
+        <div class="inline-block px-2.5 py-0.5 rounded-full bg-amber-950 border border-amber-800 text-[9px] font-mono font-black text-amber-300 tracking-wider uppercase">
+          Acesso Completo & Sem Limites
+        </div>
+        <h2 class="text-lg font-black text-white">Desbloqueie o NASA VIP PRO</h2>
+        <p id="paywall-motivo-texto" class="text-xs text-slate-300 leading-relaxed max-w-xs mx-auto">
+          Pare de fazer apostas aleatórias. Utilize algoritmos de telemetria e análise combinatória para calibrar seus jogos.
+        </p>
+      </div>
+
+      <!-- Vantagens do Plano VIP -->
+      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1.5 text-xs text-slate-200">
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400 font-bold">✓</span>
+          <span><strong>Múltiplas Apostas:</strong> gere 1 a 10 apostas calibradas de uma só vez</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400 font-bold">✓</span>
+          <span><strong>Bateria dos 6 Testes Orbitais:</strong> com IA de substituição em tempo real</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400 font-bold">✓</span>
+          <span><strong>Matriz 4x4 Completa:</strong> escolha quadrantes para focar ou excluir</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400 font-bold">✓</span>
+          <span><strong>Simulador Histórico:</strong> retro-conferência nos 50 concursos oficiais</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-emerald-400 font-bold">✓</span>
+          <span><strong>Gestor de Bolões:</strong> divisão de cotas e comprovantes no WhatsApp</span>
+        </div>
+      </div>
+
+      <!-- Escolha de Planos -->
+      <div class="grid grid-cols-2 gap-2">
+        <div id="card-plano-anual" onclick="selecionarPlanoCheckout('anual')" class="p-3 rounded-2xl border-2 border-amber-400 bg-amber-950/30 cursor-pointer text-center relative transition">
+          <span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
+            58% OFF • MAIS VENDIDO
+          </span>
+          <span class="text-[10px] font-bold text-slate-300 block">PLANO ANUAL</span>
+          <div class="text-lg font-black text-white mt-0.5">R$ 147<span class="text-xs text-slate-400 font-normal">,00</span></div>
+          <span class="text-[9px] text-amber-300 font-bold block mt-0.5">R$ 12,25/mês à vista</span>
+        </div>
+
+        <div id="card-plano-mensal" onclick="selecionarPlanoCheckout('mensal')" class="p-3 rounded-2xl border border-slate-800 bg-slate-950 cursor-pointer text-center relative transition opacity-80 hover:opacity-100">
+          <span class="text-[10px] font-bold text-slate-400 block">PLANO MENSAL</span>
+          <div class="text-lg font-black text-white mt-0.5">R$ 29<span class="text-xs text-slate-400 font-normal">,90</span></div>
+          <span class="text-[9px] text-slate-400 block mt-0.5">Cobrança mensal</span>
+        </div>
+      </div>
+
+      <!-- Área de Pagamento PIX -->
+      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2.5 font-mono">
+        <div class="flex justify-between items-center text-[10px]">
+          <span class="text-emerald-400 font-bold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> PAGAMENTO VIA PIX
+          </span>
+          <span class="text-slate-400">Liberação Instantânea</span>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input id="input-pix-copia-cola" type="text" readonly value="00020126580014br.gov.bcb.pix0136loterias-nasa-pro-vip@pagamento.com5204000053039865802BR5920LOTERIAS NASA PRO6009SAO PAULO62070503***6304E8A1" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-[10px] text-slate-300 font-mono truncate focus:outline-none" />
+          <button type="button" onclick="copiarPixCopiaCola()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-black text-xs rounded-xl border border-slate-700 whitespace-nowrap active:scale-95 transition">
+            📋 Copiar
+          </button>
+        </div>
+
+        <!-- Botão de Simulação / Ativação Imediata -->
+        <button type="button" onclick="confirmarPagamentoPixSimulado()" class="w-full py-3 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-xl shadow-emerald-500/20 active:scale-95 transition flex items-center justify-center gap-2 font-sans tracking-wider uppercase">
+          <span>⚡</span> Confirmar Pagamento PIX (Ativar VIP)
+        </button>
+
+        <div class="flex items-center justify-center gap-3 text-[9px] text-slate-500 pt-1 font-sans">
+          <span>🔒 Criptografia SSL</span>
+          <span>•</span>
+          <span>🛡️ Garantia de 7 Dias</span>
+          <span>•</span>
+          <span>Cancelamento Fácil</span>
+        </div>
+      </div>
+
+      <!-- Alternador de Demonstração (Para Testar os 2 modos) -->
+      <div class="text-center pt-1 border-t border-slate-800/80">
+        <button type="button" onclick="alternarPlanoDev()" class="text-[10px] text-slate-500 hover:text-slate-300 underline font-mono">
+          [Alternar Plano FREE / PRO para Demonstração]
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TELA DE LOGIN & SEGURANÇA -->
   <div id="screen-auth" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4">
     <div class="bg-slate-900/95 border border-cyan-800/60 rounded-3xl p-6 max-w-sm w-full space-y-5 shadow-2xl relative overflow-hidden backdrop-blur-xl">
@@ -250,8 +356,11 @@
         <span class="text-cyan-500 font-bold hidden sm:inline">// DEEP SPACE NETWORK</span>
       </div>
       <div class="flex items-center gap-2 text-slate-300">
-        <span id="api-status-badge" class="text-emerald-400 font-bold">CAIXA API 🟢 ONLINE</span>
+        <button type="button" id="btn-status-plano" onclick="abrirModalPaywall('header')" class="cursor-pointer text-[9px] px-2 py-0.5 rounded font-black border transition active:scale-95 flex items-center gap-1 bg-amber-950/80 border-amber-500 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.25)] animate-pulse" title="Clique para ver opções de assinatura">
+          <span id="icone-plano-topo">⚡</span> <span id="label-plano-topo">FREE • SEJA PRO</span>
+        </button>
         <span class="text-slate-600">•</span>
+        <span id="api-status-badge" class="text-emerald-400 font-bold hidden sm:inline">CAIXA API 🟢</span>
         <span class="text-cyan-300 font-bold">TELEMETRIA NOMINAL</span>
       </div>
     </div>
@@ -345,10 +454,30 @@
           </div>
           <div class="grid grid-cols-4 gap-1.5 text-center">
             <button type="button" id="btn-qtd-jogos-1" onclick="setQtdJogosParaGerar(1)" class="py-1 rounded-xl text-xs font-black transition bg-emerald-600 text-slate-950 shadow">1 Jogo</button>
-            <button type="button" id="btn-qtd-jogos-2" onclick="setQtdJogosParaGerar(2)" class="py-1 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white">2 Jogos</button>
-            <button type="button" id="btn-qtd-jogos-3" onclick="setQtdJogosParaGerar(3)" class="py-1 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white">3 Jogos</button>
-            <button type="button" id="btn-qtd-jogos-5" onclick="setQtdJogosParaGerar(5)" class="py-1 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white">5 Jogos</button>
+            <button type="button" id="btn-qtd-jogos-2" onclick="setQtdJogosParaGerar(2)" class="py-1 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
+              <span>2 Jogos</span><span id="selo-pro-qtd-2" class="text-[8px] bg-amber-500 text-slate-950 px-1 rounded font-black">VIP</span>
+            </button>
+            <button type="button" id="btn-qtd-jogos-3" onclick="setQtdJogosParaGerar(3)" class="py-1 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
+              <span>3 Jogos</span><span id="selo-pro-qtd-3" class="text-[8px] bg-amber-500 text-slate-950 px-1 rounded font-black">VIP</span>
+            </button>
+            <button type="button" id="btn-qtd-jogos-5" onclick="setQtdJogosParaGerar(5)" class="py-1 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
+              <span>5 Jogos</span><span id="selo-pro-qtd-5" class="text-[8px] bg-amber-500 text-slate-950 px-1 rounded font-black">VIP</span>
+            </button>
           </div>
+        </div>
+
+        <!-- BANNER DE CONVERSÃO PLANO NASA VIP PRO -->
+        <div id="banner-cta-pro-volante" onclick="abrirModalPaywall('banner_volante')" class="p-2.5 rounded-2xl bg-gradient-to-r from-amber-950/70 via-slate-900 to-amber-950/70 border border-amber-500/70 cursor-pointer shadow-lg hover:border-amber-400 transition flex items-center justify-between gap-2 active:scale-98">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">👑</span>
+            <div>
+              <span class="text-[10px] uppercase font-black text-amber-400 tracking-wider block">DESBLOQUEAR PLANO NASA VIP</span>
+              <span class="text-[11px] text-slate-200 font-bold block">Gere múltiplos jogos e telemetria sem limites</span>
+            </div>
+          </div>
+          <span class="px-2.5 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-[10px] rounded-xl shadow whitespace-nowrap">
+            SEJA PRO
+          </span>
         </div>
 
         <!-- BOTÃO DE AÇÃO PRINCIPAL: GERAR APOSTAS NASA (MATRIZ 4x4 + 6 TESTES) -->
@@ -1113,8 +1242,116 @@
       }
     }
 
+    // GESTÃO DE PLANOS SAAS (FREE vs. PRO)
+    let planoUsuario = localStorage.getItem('nasa_plano_usuario') || 'free';
+    let planoCheckoutSelecionado = 'anual';
+
+    function abrirModalPaywall(origem = 'geral') {
+      const modal = document.getElementById('modal-paywall-pro');
+      const motivoEl = document.getElementById('paywall-motivo-texto');
+      if (!modal) return;
+
+      if (origem === 'multi_jogos') {
+        if (motivoEl) motivoEl.innerText = "A geração simultânea de 2, 3 ou 5 apostas com verificação cruzada é exclusiva do Plano NASA VIP PRO.";
+      } else if (origem === 'carteira_limite') {
+        if (motivoEl) motivoEl.innerText = "Você atingiu o limite de 2 bilhetes salvos no Plano Grátis. Faça upgrade para salvar bilhetes ilimitados.";
+      } else if (origem === 'lote_salvar') {
+        if (motivoEl) motivoEl.innerText = "O salvamento e exportação em lote de todas as apostas requer a ativação do Plano VIP.";
+      } else {
+        if (motivoEl) motivoEl.innerText = "Pare de fazer apostas aleatórias. Utilize algoritmos de telemetria e análise combinatória para calibrar seus jogos.";
+      }
+
+      modal.classList.remove('hidden');
+      tocarBeep('alert');
+    }
+
+    function fecharModalPaywall() {
+      const modal = document.getElementById('modal-paywall-pro');
+      if (modal) modal.classList.add('hidden');
+      tocarBeep('click');
+    }
+
+    function selecionarPlanoCheckout(tipo) {
+      planoCheckoutSelecionado = tipo;
+      const cardAnual = document.getElementById('card-plano-anual');
+      const cardMensal = document.getElementById('card-plano-mensal');
+      const inputPix = document.getElementById('input-pix-copia-cola');
+
+      if (tipo === 'anual') {
+        if (cardAnual) cardAnual.className = 'p-3 rounded-2xl border-2 border-amber-400 bg-amber-950/30 cursor-pointer text-center relative transition';
+        if (cardMensal) cardMensal.className = 'p-3 rounded-2xl border border-slate-800 bg-slate-950 cursor-pointer text-center relative transition opacity-80 hover:opacity-100';
+        if (inputPix) inputPix.value = '00020126580014br.gov.bcb.pix0136loterias-nasa-pro-anual@pagamento.com5204000053039865406147.005802BR5920LOTERIAS NASA PRO6009SAO PAULO62070503***6304A1B2';
+      } else {
+        if (cardMensal) cardMensal.className = 'p-3 rounded-2xl border-2 border-amber-400 bg-amber-950/30 cursor-pointer text-center relative transition';
+        if (cardAnual) cardAnual.className = 'p-3 rounded-2xl border border-slate-800 bg-slate-950 cursor-pointer text-center relative transition opacity-80 hover:opacity-100';
+        if (inputPix) inputPix.value = '00020126580014br.gov.bcb.pix0136loterias-nasa-pro-mensal@pagamento.com520400005303986540529.905802BR5920LOTERIAS NASA PRO6009SAO PAULO62070503***6304C3D4';
+      }
+      tocarBeep('click');
+    }
+
+    function copiarPixCopiaCola() {
+      const input = document.getElementById('input-pix-copia-cola');
+      if (!input) return;
+      input.select();
+      document.execCommand('copy');
+      tocarBeep('success');
+      toast("Código PIX Copiado! Cole no aplicativo do seu banco.", "📋");
+    }
+
+    function confirmarPagamentoPixSimulado() {
+      planoUsuario = 'pro';
+      localStorage.setItem('nasa_plano_usuario', 'pro');
+      atualizarVisualPlano();
+      fecharModalPaywall();
+      tocarBeep('success');
+      vibrarHaptico(40);
+      toast("🚀 Acesso NASA VIP PRO ativado com sucesso! Aproveite!", "👑");
+    }
+
+    function alternarPlanoDev() {
+      planoUsuario = planoUsuario === 'pro' ? 'free' : 'pro';
+      localStorage.setItem('nasa_plano_usuario', planoUsuario);
+      atualizarVisualPlano();
+      if (planoUsuario === 'pro') {
+        toast("Modo Demonstrativo: NASA VIP PRO Ativado!", "👑");
+        tocarBeep('success');
+      } else {
+        toast("Modo Demonstrativo: Plano FREE (Teste) Ativado.", "ℹ️");
+        tocarBeep('alert');
+      }
+    }
+
+    function atualizarVisualPlano() {
+      const btnStatus = document.getElementById('btn-status-plano');
+      const labelTopo = document.getElementById('label-plano-topo');
+      const iconeTopo = document.getElementById('icone-plano-topo');
+      const bannerCta = document.getElementById('banner-cta-pro-volante');
+
+      if (planoUsuario === 'pro') {
+        if (btnStatus) {
+          btnStatus.className = 'cursor-pointer text-[9px] px-2 py-0.5 rounded font-black border transition active:scale-95 flex items-center gap-1 bg-emerald-950/80 border-emerald-500 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.3)]';
+        }
+        if (iconeTopo) iconeTopo.innerText = '👑';
+        if (labelTopo) labelTopo.innerText = 'NASA VIP PRO';
+        if (bannerCta) bannerCta.classList.add('hidden');
+      } else {
+        if (btnStatus) {
+          btnStatus.className = 'cursor-pointer text-[9px] px-2 py-0.5 rounded font-black border transition active:scale-95 flex items-center gap-1 bg-amber-950/80 border-amber-500 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.25)] animate-pulse';
+        }
+        if (iconeTopo) iconeTopo.innerText = '⚡';
+        if (labelTopo) labelTopo.innerText = 'FREE • SEJA PRO';
+        if (bannerCta) bannerCta.classList.remove('hidden');
+      }
+
+      [2, 3, 5].forEach(q => {
+        const selo = document.getElementById(`selo-pro-qtd-${q}`);
+        if (selo) selo.style.display = planoUsuario === 'pro' ? 'none' : 'inline-block';
+      });
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       carregarTemaSalvo();
+      atualizarVisualPlano();
       if (sessionStorage.getItem('loterias_auth_session') === 'true') {
         const screenAuth = document.getElementById('screen-auth');
         if (screenAuth) screenAuth.classList.add('hidden');
@@ -1177,6 +1414,10 @@
     }
 
     function setQtdJogosParaGerar(qtd) {
+      if (qtd > 1 && planoUsuario !== 'pro') {
+        abrirModalPaywall('multi_jogos');
+        return;
+      }
       qtdApostasDesejada = qtd;
       tocarBeep('click');
       vibrarHaptico(15);
@@ -2204,6 +2445,10 @@ function gerarPalpiteInteligente() {
     }
 
     function salvarTodasApostasLote() {
+      if (planoUsuario !== 'pro') {
+        abrirModalPaywall('lote_salvar');
+        return;
+      }
       if (!loteApostasGeradas || loteApostasGeradas.length === 0) return;
       const config = getConfigAtual();
       const inputData = document.getElementById('input-data-jogo-alvo')?.value;
@@ -2469,12 +2714,17 @@ function gerarPalpiteInteligente() {
       });
 
       txt += `\n━━━━━━━━━━━━━━━━━━━━\n`;
-      txt += `⚡ *Gerado com precisão via Loterias Analytics NASA Pro*`;
+      txt += `⚡ *Gerado e auditado via Loterias NASA Pro*\n`;
+      txt += `🔗 *Audite seu jogo grátis:* https://vitoriobergamobrazil.github.io/loterias-nasa-pro/\n`;
 
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`, '_blank');
     }
 
     function salvarJogoNaCarteira() {
+      if (planoUsuario !== 'pro' && carteiraJogos.length >= 2) {
+        abrirModalPaywall('carteira_limite');
+        return;
+      }
       const jogo = getJogoAtual();
       const config = getConfigAtual();
       if (jogo.length < config.minDezenas) { toast(`Mínimo de ${config.minDezenas} dezenas!`, "⚠️"); tocarBeep('alert'); return; }
@@ -2852,6 +3102,9 @@ function gerarPalpiteInteligente() {
       carteiraJogos.forEach((b, idx) => {
         txt += `*Jogo ${idx+1} (${b.modalidade.toUpperCase()}):*\n${b.dezenas.map(d => String(d).padStart(2,'0')).join(' - ')}\n\n`;
       });
+      txt += `━━━━━━━━━━━━━━━━━━━━\n`;
+      txt += `🚀 *Auditado via Loterias NASA Pro*\n`;
+      txt += `🔗 *Audite seu jogo grátis:* https://vitoriobergamobrazil.github.io/loterias-nasa-pro/\n`;
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`, '_blank');
     }
 
