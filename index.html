@@ -127,9 +127,23 @@
     </div>
   </div>
 
-  <!-- Header Superior -->
+  <!-- Header Superior com Telemetria NASA Mission Control -->
   <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 safe-top">
-    <div class="px-4 h-14 flex items-center justify-between max-w-lg mx-auto">
+    <!-- BARRA SUPERIOR DE FLIGHT OPS & TELEMETRIA NASA -->
+    <div class="px-4 py-1 bg-slate-950/90 border-b border-cyan-900/40 flex items-center justify-between text-[9px] font-mono text-cyan-400">
+      <div class="flex items-center gap-1.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="font-black tracking-wider text-white">NASA MISSION CONTROL</span>
+        <span class="text-cyan-500 font-bold hidden sm:inline">// DEEP SPACE NETWORK</span>
+      </div>
+      <div class="flex items-center gap-2 text-slate-300">
+        <span id="api-status-badge" class="text-emerald-400 font-bold">CAIXA API 🟢 ONLINE</span>
+        <span class="text-slate-600">•</span>
+        <span class="text-cyan-300 font-bold">TELEMETRIA NOMINAL</span>
+      </div>
+    </div>
+
+    <div class="px-4 h-13 py-1.5 flex items-center justify-between max-w-lg mx-auto">
       <div class="flex items-center gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
         <button id="btn-mod-mega" onclick="trocarModalidade('megasena')" class="px-3 py-1 rounded-lg text-xs font-black transition bg-emerald-600 text-slate-950 shadow">
           Mega-Sena
@@ -140,7 +154,7 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-800 font-bold">v2.4</span>
+        <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-800 font-bold">v2.5</span>
         <button onclick="alternarAudio()" id="btn-audio-toggle" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs border border-slate-700 flex items-center justify-center text-slate-300 transition" title="Alternar Efeitos Sonoros">
           <span id="audio-icon">🔊</span>
         </button>
@@ -234,6 +248,28 @@
             <span>Matriz 4x4 do Tio Vitório Ativa</span>
           </label>
         </div>
+
+        <!-- BARRA DE MODO DE CALIBRAÇÃO (NORMAL, FIXAR, PROIBIR/EXCLUIR) -->
+        <div class="p-2 bg-slate-950 rounded-2xl border border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-1">
+            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider mr-1">Modo:</span>
+            <button type="button" id="btn-modo-normal" onclick="setModoToque('normal')" class="px-2.5 py-1 rounded-xl bg-cyan-500 text-slate-950 font-black text-[10px] border border-cyan-300 shadow">
+              🎯 Normal
+            </button>
+            <button type="button" id="btn-modo-fixo" onclick="setModoToque('fixo')" class="px-2.5 py-1 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-[10px] border border-slate-800">
+              📌 Fixar
+            </button>
+            <button type="button" id="btn-modo-proibido" onclick="setModoToque('proibido')" class="px-2.5 py-1 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-[10px] border border-slate-800">
+              🚫 Proibir
+            </button>
+          </div>
+          <button type="button" onclick="limparFixosEProibidos()" class="px-2.5 py-1 rounded-xl bg-slate-900 text-rose-400 hover:bg-rose-950/70 text-[10px] font-bold border border-rose-900/60 active:scale-95 transition ml-auto flex items-center gap-1" title="Liberar todos os números fixados e proibidos">
+            <span>🧹</span> Resetar Regras
+          </button>
+        </div>
+
+        <!-- PAINEL DE TELEMETRIA: NÚMEROS FIXOS E PROIBIDOS ATIVOS -->
+        <div id="painel-regras-ativas" class="text-[10px] text-slate-400 flex flex-wrap items-center gap-1.5 px-1 min-h-[22px]"></div>
 
         <div id="volante-grid" class="grid grid-cols-10 gap-1 text-center"></div>
         <div id="legenda-volante" class="grid grid-cols-4 gap-1 pt-2 border-t border-slate-800/80 text-[9px] text-center"></div>
@@ -860,11 +896,57 @@
     function setModoToque(modo) {
       modoToque = modo;
       tocarBeep('click');
+      vibrarHaptico(15);
       ['normal', 'fixo', 'proibido'].forEach(m => {
         const btn = document.getElementById(`btn-modo-${m}`);
-        btn.className = m === modo ? 'px-2.5 py-0.5 rounded bg-slate-800 text-white font-bold text-[10px] border border-slate-600 shadow' : 'px-2.5 py-0.5 rounded bg-slate-900 text-slate-400 font-bold text-[10px] border border-slate-800';
+        if (btn) {
+          if (m === modo) {
+            btn.className = m === 'normal'
+              ? 'px-2.5 py-1 rounded-xl bg-cyan-500 text-slate-950 font-black text-[10px] border border-cyan-300 shadow'
+              : m === 'fixo'
+              ? 'px-2.5 py-1 rounded-xl bg-emerald-500 text-slate-950 font-black text-[10px] border border-emerald-300 shadow'
+              : 'px-2.5 py-1 rounded-xl bg-rose-600 text-white font-black text-[10px] border border-rose-400 shadow';
+          } else {
+            btn.className = 'px-2.5 py-1 rounded-xl bg-slate-900 text-slate-400 hover:text-white font-bold text-[10px] border border-slate-800';
+          }
+        }
       });
-      toast(`Modo de toque: ${modo.toUpperCase()}`, "🎯");
+      toast(`Modo Volante: ${modo === 'normal' ? 'SELEÇÃO NORMAL' : (modo === 'fixo' ? 'FIXAR DEZENAS' : 'PROIBIR/EXCLUIR')}`, "🎯");
+    }
+
+    function limparFixosEProibidos() {
+      if (modalidadeAtual === 'megasena') {
+        fixosMega = [];
+        proibidosMega = [];
+      } else {
+        fixosLoto = [];
+        proibidosLoto = [];
+      }
+      tocarBeep('click');
+      vibrarHaptico(20);
+      renderizarVolante();
+      executarAnaliseDinamicaDoJogo();
+      toast("Regras de Fixos e Proibidos limpas com sucesso!", "🧹");
+    }
+
+    function removerFixo(num) {
+      const fixos = getFixos();
+      const idx = fixos.indexOf(num);
+      if (idx !== -1) fixos.splice(idx, 1);
+      tocarBeep('click');
+      renderizarVolante();
+      executarAnaliseDinamicaDoJogo();
+      toast(`Dezena ${String(num).padStart(2,'0')} desmarcada de fixa.`, "📌");
+    }
+
+    function removerProibido(num) {
+      const proibidos = getProibidos();
+      const idx = proibidos.indexOf(num);
+      if (idx !== -1) proibidos.splice(idx, 1);
+      tocarBeep('click');
+      renderizarVolante();
+      executarAnaliseDinamicaDoJogo();
+      toast(`Dezena ${String(num).padStart(2,'0')} liberada dos proibidos!`, "🔓");
     }
 
     function renderizarTelaCompleta() {
@@ -891,11 +973,13 @@
       const qtdAtiva = modalidadeAtual === 'megasena' ? qtdDesejadaMega : qtdDesejadaLoto;
       labelAtiva.innerText = `${qtdAtiva} números`;
 
+      const corAtiva = modalidadeAtual === 'megasena'
+        ? 'bg-emerald-600 text-slate-950 font-black shadow-lg shadow-emerald-500/20'
+        : 'bg-purple-600 text-white font-black shadow-lg shadow-purple-500/20';
+
       for (let q = config.minDezenas; q <= config.maxDezenas; q++) {
         const btn = document.createElement('button');
         const ativo = q === qtdAtiva;
-        const corAtiva = modalidadeAtual === 'megasena' ? 'bg-emerald-600 text-slate-950 font-black shadow' : 'bg-purple-600 text-white font-black shadow';
-
         btn.innerText = `${q} nºs`;
         btn.className = `px-2 py-1 rounded-lg text-[10px] font-mono font-bold transition ${
           ativo ? corAtiva : 'bg-slate-950 text-slate-400 border border-slate-800 hover:text-white'
@@ -915,9 +999,11 @@
     function renderizarOpcoesFechamento() {
       const config = getConfigAtual();
       const select = document.getElementById('select-tipo-fechamento');
-      select.innerHTML = config.fechamentos.map(f => `
-        <option value="${f.id}">${f.nome} - ${f.jogos} apostas (${formatarReais(f.jogos * config.precoBase)})</option>
-      `).join('');
+      if (select) {
+        select.innerHTML = config.fechamentos.map(f => `
+          <option value="${f.id}">${f.nome} - ${f.jogos} apostas (${formatarReais(f.jogos * config.precoBase)})</option>
+        `).join('');
+      }
     }
 
     function renderizarVolante() {
@@ -928,6 +1014,27 @@
       const grid = document.getElementById('volante-grid');
       const destacarSubgrid = document.getElementById('chk-destaque-subgrid')?.checked ?? true;
       grid.innerHTML = '';
+
+      // Renderiza o painel de status de regras ativas
+      const painelRegras = document.getElementById('painel-regras-ativas');
+      if (painelRegras) {
+        const chips = [];
+        if (fixos.length > 0) {
+          chips.push(`
+            <span class="text-emerald-400 font-bold">Fixos (${fixos.length}):</span>
+            ${fixos.map(f => `<button type="button" onclick="removerFixo(${f})" class="px-1.5 py-0.5 rounded bg-emerald-950 border border-emerald-700 text-emerald-300 font-bold hover:bg-rose-950 hover:text-rose-300 transition" title="Clique para desmarcar fixo">${String(f).padStart(2,'0')} ✕</button>`).join(' ')}
+          `);
+        }
+        if (proibidos.length > 0) {
+          chips.push(`
+            <span class="text-rose-400 font-bold">Proibidos (${proibidos.length}):</span>
+            ${proibidos.map(p => `<button type="button" onclick="removerProibido(${p})" class="px-1.5 py-0.5 rounded bg-rose-950 border border-rose-700 text-rose-300 font-bold hover:bg-emerald-950 hover:text-emerald-300 transition" title="Clique para liberar dezena">${String(p).padStart(2,'0')} ✕</button>`).join(' ')}
+          `);
+        }
+        painelRegras.innerHTML = chips.length > 0 
+          ? chips.join('<span class="text-slate-600 mx-1">•</span>')
+          : '<span class="text-[10px] text-slate-500 italic">Dica: Use "Fixar" para dezenas obrigatórias ou "Proibir" para excluir. Clique em qualquer dezena para alternar.</span>';
+      }
 
       const linhasAtivas = new Set(jogo.map(n => Math.floor((n - 1) / 10) + 1));
       const colunasAtivas = new Set(jogo.map(n => ((n - 1) % 10) + 1));
@@ -967,7 +1074,7 @@
         }
 
         if (ehFixo) estilo = 'bg-emerald-900/90 text-emerald-300 border-2 border-emerald-400 font-black shadow';
-        else if (ehProibido) estilo = 'bg-rose-950/90 text-rose-400 border-2 border-rose-600 line-through opacity-50';
+        else if (ehProibido) estilo = 'bg-rose-950/90 text-rose-400 border-2 border-rose-600 line-through opacity-60';
         else if (marcado) estilo = modalidadeAtual === 'megasena' ? 'bg-emerald-500 text-slate-950 font-black scale-105 border-white shadow-md' : 'bg-purple-500 text-white font-black scale-105 border-white shadow-md';
 
         btn.innerText = numStr;
@@ -985,23 +1092,34 @@
       let jogo = [...getJogoAtual()];
 
       if (modoToque === 'fixo') {
-        if (fixos.includes(num)) fixos.splice(fixos.indexOf(num), 1);
-        else {
+        if (fixos.includes(num)) {
+          fixos.splice(fixos.indexOf(num), 1);
+          toast(`Dezena ${String(num).padStart(2,'0')} desmarcada de fixa.`, "📌");
+        } else {
           fixos.push(num);
           if (proibidos.includes(num)) proibidos.splice(proibidos.indexOf(num), 1);
           if (!jogo.includes(num)) jogo.push(num);
+          toast(`Dezena ${String(num).padStart(2,'0')} fixada no bilhete!`, "📌");
         }
       } else if (modoToque === 'proibido') {
-        if (proibidos.includes(num)) proibidos.splice(proibidos.indexOf(num), 1);
-        else {
+        if (proibidos.includes(num)) {
+          proibidos.splice(proibidos.indexOf(num), 1);
+          toast(`Dezena ${String(num).padStart(2,'0')} liberada dos proibidos!`, "🔓");
+        } else {
           proibidos.push(num);
           if (fixos.includes(num)) fixos.splice(fixos.indexOf(num), 1);
           if (jogo.includes(num)) jogo = jogo.filter(n => n !== num);
+          toast(`Dezena ${String(num).padStart(2,'0')} excluída/proibida!`, "🚫");
         }
       } else {
-        if (jogo.includes(num)) jogo = jogo.filter(n => n !== num);
-        else {
-          if (proibidos.includes(num)) { toast("Número marcado como proibido!", "🚫"); tocarBeep('alert'); return; }
+        // Modo Normal: se o usuário clicar num número proibido, desmarca ele imediatamente!
+        if (proibidos.includes(num)) {
+          proibidos.splice(proibidos.indexOf(num), 1);
+          toast(`Dezena ${String(num).padStart(2,'0')} liberada dos proibidos!`, "🔓");
+        } else if (jogo.includes(num)) {
+          jogo = jogo.filter(n => n !== num);
+          if (fixos.includes(num)) fixos.splice(fixos.indexOf(num), 1);
+        } else {
           jogo.push(num);
         }
       }
@@ -1324,16 +1442,23 @@ function gerarPalpiteInteligente() {
     }
 
     // Bateria dos 6 Testes Estatísticos em Tempo Real no Volante
+    // Bateria dos 6 Testes Estatísticos em Tempo Real no Volante com Telemetria NASA
     function executarAnaliseDinamicaDoJogo() {
       const jogo = getJogoAtual();
       const config = getConfigAtual();
       const n = jogo.length;
 
+      const elScoreNum = document.getElementById('score-numero');
+      const elScoreBarra = document.getElementById('score-barra');
+      const elScoreDiag = document.getElementById('score-diagnostico-texto');
+      const elSugestao = document.getElementById('conteudo-sugestao-troca');
+      const badgeTotal = document.getElementById('badge-total-testes-ok');
+
       if (n < config.minDezenas) {
-        document.getElementById('score-numero').innerText = '--';
-        document.getElementById('score-barra').style.width = '0%';
-        document.getElementById('score-diagnostico-texto').innerText = `Selecione pelo menos ${config.minDezenas} números para calibrar os instrumentos.`;
-        document.getElementById('conteudo-sugestao-troca').innerHTML = '<span class="text-slate-500 italic font-mono">Complete o bilhete para receber telemetria de troca.</span>';
+        if (elScoreNum) elScoreNum.innerText = '--';
+        if (elScoreBarra) elScoreBarra.style.width = '0%';
+        if (elScoreDiag) elScoreDiag.innerText = `Selecione pelo menos ${config.minDezenas} números para calibrar os instrumentos de voo.`;
+        if (elSugestao) elSugestao.innerHTML = '<span class="text-slate-500 italic font-mono text-xs">Complete o bilhete para receber telemetria de troca e calibração.</span>';
         for (let t = 1; t <= 6; t++) {
           const el = document.getElementById(`val-t${t}`);
           if (el) el.innerText = '-';
@@ -1343,22 +1468,28 @@ function gerarPalpiteInteligente() {
             badge.className = 'text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-slate-900 text-slate-500 border border-slate-800';
           }
         }
-        const badgeTotal = document.getElementById('badge-total-testes-ok');
-        if (badgeTotal) badgeTotal.innerText = 'Aguardando';
+        if (badgeTotal) {
+          badgeTotal.innerText = 'Aguardando';
+          badgeTotal.className = 'text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-900 text-slate-500 border border-slate-800';
+        }
         return;
       }
 
       const analise = avaliarJogo(jogo, modalidadeAtual);
 
-      document.getElementById('manada-qtd-datas').innerText = `${analise.dezenasEmDatas} de ${n} (${analise.pctDatas}%)`;
-      document.getElementById('barra-anti-manada').style.width = `${analise.pctDatas}%`;
+      const elManada = document.getElementById('manada-qtd-datas');
+      if (elManada) elManada.innerText = `${analise.dezenasEmDatas} de ${n} (${analise.pctDatas}%)`;
+      const barraManada = document.getElementById('barra-anti-manada');
+      if (barraManada) barraManada.style.width = `${analise.pctDatas}%`;
       const badgeManada = document.getElementById('badge-anti-manada');
-      if (analise.statusManada === 'Risco') {
-        badgeManada.innerText = 'Risco de Manada (Prêmio Diluído)';
-        badgeManada.className = 'text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-rose-950 text-rose-400 border border-rose-800';
-      } else {
-        badgeManada.innerText = 'Anti-Manada Protegido';
-        badgeManada.className = 'text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800';
+      if (badgeManada) {
+        if (analise.statusManada === 'Risco') {
+          badgeManada.innerText = 'Risco de Manada (Prêmio Diluído)';
+          badgeManada.className = 'text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-rose-950 text-rose-400 border border-rose-800';
+        } else {
+          badgeManada.innerText = 'Anti-Manada Protegido';
+          badgeManada.className = 'text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800';
+        }
       }
 
       analise.testes.forEach((t, idx) => {
@@ -1369,11 +1500,10 @@ function gerarPalpiteInteligente() {
           badge.innerText = t.s;
           badge.className = t.s === 'Aprovado' 
             ? 'text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-400 border border-emerald-800' 
-            : 'text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-rose-950 text-rose-400 border border-rose-800';
+            : 'text-[9px] px-1.5 py-0.5 rounded font-mono font-bold bg-rose-950 text-rose-400 border border-rose-800 animate-pulse';
         }
       });
 
-      const badgeTotal = document.getElementById('badge-total-testes-ok');
       if (badgeTotal) {
         badgeTotal.innerText = `${analise.aprovadosCount} de 6 Aprovados`;
         badgeTotal.className = analise.aprovadosCount === 6 
@@ -1381,9 +1511,11 @@ function gerarPalpiteInteligente() {
           : 'text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-amber-950 text-amber-300 border border-amber-800';
       }
 
-      document.getElementById('score-numero').innerText = analise.score;
-      document.getElementById('score-barra').style.width = `${analise.score}%`;
-      document.getElementById('score-diagnostico-texto').innerHTML = `Score de Telemetria: <strong>${analise.score}/100</strong>. Calibrado por pesos ponderados.`;
+      if (elScoreNum) elScoreNum.innerText = analise.score;
+      if (elScoreBarra) elScoreBarra.style.width = `${analise.score}%`;
+      if (elScoreDiag) {
+        elScoreDiag.innerHTML = `Score de Telemetria: <strong class="text-cyan-300 font-bold">${analise.score}/100</strong> • Conformidade: <strong class="text-emerald-400 font-bold">${analise.aprovadosCount} de 6 Testes Orbitais Aprovados</strong>.`;
+      }
 
       if (modalidadeAtual === 'megasena') {
         gerarRecomendacaoTrocaMega(jogo, analise.qCount, analise.zscore, analise.maxSeq, analise.maxRepFinal, analise.finaisCount, analise.dezenasEmDatas);
@@ -1676,24 +1808,38 @@ function gerarPalpiteInteligente() {
 
       if (sai && entra) {
         container.innerHTML = `
-          <div class="p-3 bg-slate-950 rounded-xl border border-cyan-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono">
+          <div class="p-3.5 bg-slate-950 rounded-2xl border border-cyan-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono shadow-lg shadow-cyan-950/30">
             <div>
-              <div class="flex items-center gap-2 text-xs font-bold text-white">
+              <div class="flex items-center gap-2 text-xs font-bold text-white flex-wrap">
+                <span class="text-amber-400 font-black flex items-center gap-1">⚡ AJUSTE NASA:</span>
                 <span>Substituir</span>
-                <span class="w-6 h-6 rounded bg-rose-600 text-white font-black flex items-center justify-center">${String(sai).padStart(2,'0')}</span>
+                <span class="w-6 h-6 rounded-lg bg-rose-600 text-white font-black flex items-center justify-center shadow">${String(sai).padStart(2,'0')}</span>
                 <span class="text-slate-400 font-sans">por</span>
-                <span class="w-6 h-6 rounded bg-emerald-600 text-slate-950 font-black flex items-center justify-center">${String(entra).padStart(2,'0')}</span>
-                <span class="text-[10px] text-emerald-400 font-bold ml-1">+15 Score</span>
+                <span class="w-6 h-6 rounded-lg bg-emerald-500 text-slate-950 font-black flex items-center justify-center shadow">${String(entra).padStart(2,'0')}</span>
+                <span class="text-[10px] text-emerald-400 font-bold ml-1 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800">+15 Score</span>
               </div>
-              <p class="text-[11px] text-slate-400 mt-1 font-sans">${motivo}</p>
+              <p class="text-[11px] text-slate-300 mt-1 font-sans leading-snug">${motivo}</p>
             </div>
-            <button onclick="aplicarSubstituicao(${sai}, ${entra})" class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-slate-950 font-black text-xs rounded-lg shadow whitespace-nowrap transition">
-              Substituir Agora
+            <button onclick="aplicarSubstituicao(${sai}, ${entra})" class="px-3.5 py-2 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 active:scale-95 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/20 whitespace-nowrap transition flex items-center gap-1.5 self-start sm:self-center">
+              <span>🚀</span> Substituir Agora
             </button>
           </div>
         `;
       } else {
-        container.innerHTML = `<div class="p-2.5 bg-slate-950 rounded-xl border border-emerald-800/40 text-emerald-400 font-semibold text-xs font-mono">✓ Bilhete calibrado com alta conformidade estatística.</div>`;
+        container.innerHTML = `
+          <div class="p-3.5 bg-slate-950 rounded-2xl border border-emerald-500/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-mono shadow-lg shadow-emerald-500/10">
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-500 text-emerald-400 flex items-center justify-center text-base shadow">🚀</span>
+              <div>
+                <strong class="text-emerald-400 text-xs block font-mono uppercase tracking-wider">TELEMETRIA NOMINAL • 100% EM CONFORMIDADE</strong>
+                <span class="text-[11px] text-slate-300 font-sans block">A aposta passou com êxito em todos os 6 testes estatísticos aeroespaciais.</span>
+              </div>
+            </div>
+            <button onclick="gerarApostaNasaComMatriz4x4()" class="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 font-bold text-xs rounded-xl border border-cyan-800/80 active:scale-95 transition ml-auto whitespace-nowrap flex items-center gap-1.5">
+              <span>⚡</span> Gerar Outra Aposta
+            </button>
+          </div>
+        `;
       }
     }
 
