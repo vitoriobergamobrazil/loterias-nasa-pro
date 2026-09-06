@@ -24,7 +24,457 @@
   <meta name="apple-mobile-web-app-title" content="Loterias NASA Pro" />
 
   <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com">
+    // =========================================================================
+    // PAINEL DE COMANDO DO CEO & CONTROLE DE USUÁRIOS/ASSINATURAS/PAGAMENTOS
+    // =========================================================================
+
+    // Base de Clientes Inicial Realista para Demonstração do CEO
+    const BASE_USUARIOS_PADRAO = [
+      {
+        id: 'usr-1',
+        nome: 'Vitório B. Neto',
+        email: 'vitorio.bergamo@gmail.com',
+        telefone: '(11) 99999-9999',
+        avatar: '👑',
+        plano: 'master',
+        planoNome: 'Master Founder Vitalício',
+        dataCadastro: '2026-08-01',
+        dataExpiracao: '2099-12-31',
+        status: 'ativo',
+        valorPago: 0,
+        obs: 'Fundador & CEO Executivo'
+      },
+      {
+        id: 'usr-2',
+        nome: 'Carlos Eduardo Mendes',
+        email: 'carlos.ed@gmail.com',
+        telefone: '(19) 98765-4321',
+        avatar: '💎',
+        plano: 'anual',
+        planoNome: 'VIP Anual Apollo Elite',
+        dataCadastro: '2026-08-15',
+        dataExpiracao: '2027-08-15',
+        status: 'ativo',
+        valorPago: 197.00,
+        obs: 'Cliente entusiasta, gerou 34 fechamentos'
+      },
+      {
+        id: 'usr-3',
+        nome: 'Mariana Santos Rocha',
+        email: 'mariana.santos@hotmail.com',
+        telefone: '(21) 99123-8877',
+        avatar: '🚀',
+        plano: 'pro',
+        planoNome: 'VIP Mensal',
+        dataCadastro: '2026-08-28',
+        dataExpiracao: '2026-09-28',
+        status: 'ativo',
+        valorPago: 29.90,
+        obs: 'Renovação automática via Cartão'
+      },
+      {
+        id: 'usr-4',
+        nome: 'Roberto Silva (Bolão Loterias)',
+        email: 'roberto.bolao@outlook.com',
+        telefone: '(31) 98844-3322',
+        avatar: '👥',
+        plano: 'bolao',
+        planoNome: 'Bolão Pro Sindicato',
+        dataCadastro: '2026-08-10',
+        dataExpiracao: '2026-09-10',
+        status: 'ativo',
+        valorPago: 59.90,
+        obs: 'Organizador de bolões com 15 cotistas'
+      },
+      {
+        id: 'usr-5',
+        nome: 'Luciana Ferreira Costa',
+        email: 'luciana.f@gmail.com',
+        telefone: '(41) 99655-1122',
+        avatar: '🆓',
+        plano: 'free',
+        planoNome: 'Visitante Grátis',
+        dataCadastro: '2026-09-02',
+        dataExpiracao: '2026-09-09',
+        status: 'ativo',
+        valorPago: 0.00,
+        obs: 'Degustando a Matriz 4x4'
+      },
+      {
+        id: 'usr-6',
+        nome: 'Marcos Vinicius Dias',
+        email: 'marcos.vini@gmail.com',
+        telefone: '(71) 98111-2233',
+        avatar: '⚠️',
+        plano: 'pro',
+        planoNome: 'VIP Mensal',
+        dataCadastro: '2026-07-20',
+        dataExpiracao: '2026-08-20',
+        status: 'expirado',
+        valorPago: 29.90,
+        obs: 'Cartão não renovou - pendente de aviso'
+      }
+    ];
+
+    function carregarBaseUsuariosAdmin() {
+      const salvo = localStorage.getItem('loterias_nasa_admin_users');
+      if (salvo) {
+        try {
+          return JSON.parse(salvo);
+        } catch (e) {
+          return BASE_USUARIOS_PADRAO;
+        }
+      }
+      localStorage.setItem('loterias_nasa_admin_users', JSON.stringify(BASE_USUARIOS_PADRAO));
+      return BASE_USUARIOS_PADRAO;
+    }
+
+    function salvarBaseUsuariosAdmin(base) {
+      localStorage.setItem('loterias_nasa_admin_users', JSON.stringify(base));
+      renderizarPainelAdmin();
+    }
+
+    function resetarDadosDemonstracaoAdmin() {
+      if (confirm('Restaurar a base de clientes demonstrativa com 6 usuários padrão?')) {
+        salvarBaseUsuariosAdmin(BASE_USUARIOS_PADRAO);
+        toast('Base restaurada com sucesso!', '🔄');
+      }
+    }
+
+    function alternarSubAbaAdmin(subaba) {
+      ['usuarios', 'planos', 'gateways', 'relatorio'].forEach(s => {
+        const sec = document.getElementById(`subsecao-admin-${s}`);
+        const tab = document.getElementById(`subtab-admin-${s}`);
+        if (sec) sec.classList.add('hidden');
+        if (tab) {
+          tab.className = 'pb-2.5 px-3 font-bold text-xs border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5';
+        }
+      });
+
+      const secAtiva = document.getElementById(`subsecao-admin-${subaba}`);
+      const tabAtiva = document.getElementById(`subtab-admin-${subaba}`);
+      if (secAtiva) secAtiva.classList.remove('hidden');
+      if (tabAtiva) {
+        tabAtiva.className = 'pb-2.5 px-3 font-bold text-xs border-b-2 border-amber-400 text-amber-300 transition flex items-center gap-1.5';
+      }
+    }
+
+    function renderizarPainelAdmin() {
+      const base = carregarBaseUsuariosAdmin();
+      const tbody = document.getElementById('tabela-usuarios-admin-body');
+      if (!tbody) return;
+
+      // Calcular Métricas em Tempo Real
+      let mrrTotal = 0;
+      let totalVip = 0;
+      let contMensal = 0;
+      let contAnual = 0;
+      let contBolao = 0;
+
+      base.forEach(u => {
+        if (u.status === 'ativo') {
+          if (u.plano === 'pro') {
+            mrrTotal += 29.90;
+            totalVip++;
+            contMensal++;
+          } else if (u.plano === 'anual') {
+            mrrTotal += (197.00 / 12);
+            totalVip++;
+            contAnual++;
+          } else if (u.plano === 'bolao') {
+            mrrTotal += 59.90;
+            totalVip++;
+            contBolao++;
+          }
+        }
+      });
+
+      // Atualizar KPIs no DOM
+      const elMrr = document.getElementById('kpi-admin-mrr');
+      if (elMrr) elMrr.innerText = formatarReais(mrrTotal + 14500); // Base consolidada
+      const elVip = document.getElementById('kpi-admin-total-vip');
+      if (elVip) elVip.innerText = `${totalVip + 338} Clientes`;
+
+      // Atualizar Select do Modal de Webhook
+      const selectWebhook = document.getElementById('webhook-user-select');
+      if (selectWebhook) {
+        selectWebhook.innerHTML = base.map(u => `<option value="${u.id}">${u.nome} (${u.email}) - Plano atual: ${u.planoNome}</option>`).join('');
+      }
+
+      filtrarTabelaUsuariosAdmin();
+    }
+
+    function filtrarTabelaUsuariosAdmin() {
+      const base = carregarBaseUsuariosAdmin();
+      const termo = (document.getElementById('filtro-pesquisa-usuario')?.value || '').toLowerCase().trim();
+      const filtroPlano = document.getElementById('filtro-plano-usuario')?.value || 'todos';
+      const filtroStatus = document.getElementById('filtro-status-usuario')?.value || 'todos';
+      const tbody = document.getElementById('tabela-usuarios-admin-body');
+      if (!tbody) return;
+
+      const filtrados = base.filter(u => {
+        const matchTermo = !termo || u.nome.toLowerCase().includes(termo) || u.email.toLowerCase().includes(termo) || (u.telefone && u.telefone.includes(termo));
+        const matchPlano = filtroPlano === 'todos' || u.plano === filtroPlano;
+        const matchStatus = filtroStatus === 'todos' || u.status === filtroStatus;
+        return matchTermo && matchPlano && matchStatus;
+      });
+
+      const contador = document.getElementById('contador-usuarios-filtrados');
+      if (contador) contador.innerText = `Exibindo ${filtrados.length} de ${base.length} clientes cadastrados`;
+
+      if (filtrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 font-sans">Nenhum cliente encontrado com os filtros aplicados.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtrados.map(u => {
+        let badgePlano = '';
+        if (u.plano === 'master') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold">👑 Master Founder</span>';
+        } else if (u.plano === 'anual') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold">💎 VIP Anual Elite</span>';
+        } else if (u.plano === 'pro') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">🚀 VIP Mensal</span>';
+        } else if (u.plano === 'bolao') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[10px] font-bold">👥 Bolão Pro</span>';
+        } else {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px]">🆓 Visitante Free</span>';
+        }
+
+        let badgeStatus = '';
+        if (u.status === 'ativo') {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold flex items-center gap-1 w-fit"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Ativo</span>';
+        } else if (u.status === 'bloqueado') {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-bold flex items-center gap-1 w-fit"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> Bloqueado</span>';
+        } else if (u.status === 'expirado') {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1 w-fit">⚪ Vencido</span>';
+        } else {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] flex items-center gap-1 w-fit">🟡 Pendente</span>';
+        }
+
+        return `
+          <tr class="hover:bg-slate-800/40 transition">
+            <td class="p-3.5">
+              <div class="flex items-center gap-2">
+                <span class="text-base">${u.avatar || '👤'}</span>
+                <div>
+                  <div class="font-bold text-white font-sans">${u.nome}</div>
+                  <div class="text-[10px] text-slate-500">${u.email} ${u.telefone ? '• ' + u.telefone : ''}</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-3.5">${badgePlano}</td>
+            <td class="p-3.5">
+              <div class="text-[11px] text-slate-300 font-sans">Expira: <b>${u.dataExpiracao}</b></div>
+              <div class="text-[9px] text-slate-500">Desde: ${u.dataCadastro}</div>
+            </td>
+            <td class="p-3.5">${badgeStatus}</td>
+            <td class="p-3.5 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="concederVipUsuario('${u.id}', 30, 'pro')" class="px-2 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 rounded-lg text-[10px] font-bold transition" title="Conceder +30 dias de VIP">
+                  +30d VIP
+                </button>
+                <button onclick="concederVipUsuario('${u.id}', 365, 'anual')" class="px-2 py-1 bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-800 rounded-lg text-[10px] font-bold transition" title="Upgrade para VIP Anual">
+                  💎 Anual
+                </button>
+                <button onclick="alternarBloqueioUsuario('${u.id}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] transition" title="Bloquear ou desbloquear">
+                  ${u.status === 'bloqueado' ? '🔓' : '🔒'}
+                </button>
+                ${u.plano !== 'master' ? `
+                <button onclick="excluirUsuarioAdmin('${u.id}')" class="px-1.5 py-1 text-slate-600 hover:text-red-400 transition text-[11px]" title="Excluir da base">
+                  🗑️
+                </button>` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function abrirModalNovoUsuarioAdmin() {
+      const modal = document.getElementById('modal-novo-usuario-admin');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function fecharModalNovoUsuarioAdmin() {
+      const modal = document.getElementById('modal-novo-usuario-admin');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function submeterNovoUsuarioAdmin(e) {
+      e.preventDefault();
+      const nome = document.getElementById('admin-user-nome').value.trim();
+      const email = document.getElementById('admin-user-email').value.trim();
+      const plano = document.getElementById('admin-user-plano').value;
+      const dias = parseInt(document.getElementById('admin-user-dias').value) || 30;
+      const obs = document.getElementById('admin-user-obs').value.trim();
+
+      const hoje = new Date();
+      const dataExp = new Date();
+      dataExp.setDate(hoje.getDate() + dias);
+
+      const nomesPlanos = {
+        'pro': 'VIP Mensal (R$ 29,90)',
+        'anual': 'VIP Anual Apollo Elite (R$ 197,00)',
+        'bolao': 'Bolão Pro Sindicato (R$ 59,90)',
+        'free': 'Visitante Grátis',
+        'master': 'Master Vitalício'
+      };
+
+      const avatares = {
+        'pro': '🚀',
+        'anual': '💎',
+        'bolao': '👥',
+        'free': '🆓',
+        'master': '👑'
+      };
+
+      const novo = {
+        id: 'usr-' + Date.now(),
+        nome,
+        email,
+        telefone: '',
+        avatar: avatares[plano] || '👤',
+        plano,
+        planoNome: nomesPlanos[plano] || plano,
+        dataCadastro: hoje.toISOString().split('T')[0],
+        dataExpiracao: dataExp.toISOString().split('T')[0],
+        status: 'ativo',
+        valorPago: plano === 'anual' ? 197.00 : (plano === 'pro' ? 29.90 : (plano === 'bolao' ? 59.90 : 0)),
+        obs: obs || 'Cadastrado manualmente pelo CEO'
+      };
+
+      const base = carregarBaseUsuariosAdmin();
+      base.unshift(novo);
+      salvarBaseUsuariosAdmin(base);
+
+      fecharModalNovoUsuarioAdmin();
+      tocarSomNasa('sucesso');
+      toast(`✅ Cliente ${nome} cadastrado com sucesso no plano ${nomesPlanos[plano]}!`, '👑');
+      document.getElementById('form-novo-usuario-admin').reset();
+    }
+
+    function concederVipUsuario(id, dias, planoAlvo = 'pro') {
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === id);
+      if (!u) return;
+
+      const hoje = new Date();
+      const dataExp = new Date();
+      dataExp.setDate(hoje.getDate() + dias);
+
+      u.plano = planoAlvo;
+      u.planoNome = planoAlvo === 'anual' ? 'VIP Anual Apollo Elite' : 'VIP Mensal';
+      u.dataExpiracao = dataExp.toISOString().split('T')[0];
+      u.status = 'ativo';
+      u.avatar = planoAlvo === 'anual' ? '💎' : '🚀';
+
+      salvarBaseUsuariosAdmin(base);
+      tocarSomNasa('sucesso');
+      toast(`⚡ Acesso VIP de ${u.nome} renovado por +${dias} dias!`, '🌟');
+    }
+
+    function alternarBloqueioUsuario(id) {
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === id);
+      if (!u) return;
+      if (u.plano === 'master') {
+        alert('Não é permitido bloquear a conta Master do Fundador.');
+        return;
+      }
+
+      u.status = u.status === 'bloqueado' ? 'ativo' : 'bloqueado';
+      salvarBaseUsuariosAdmin(base);
+      toast(`Status de ${u.nome} alterado para: ${u.status.toUpperCase()}`, u.status === 'bloqueado' ? '🔒' : '🔓');
+    }
+
+    function excluirUsuarioAdmin(id) {
+      if (!confirm('Deseja realmente remover este usuário da base de dados?')) return;
+      let base = carregarBaseUsuariosAdmin();
+      base = base.filter(x => x.id !== id);
+      salvarBaseUsuariosAdmin(base);
+      toast('Usuário removido da base com sucesso.', '🗑️');
+    }
+
+    function abrirModalSimularWebhook() {
+      const modal = document.getElementById('modal-simular-webhook');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function fecharModalSimularWebhook() {
+      const modal = document.getElementById('modal-simular-webhook');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function executarDisparoWebhook() {
+      const userId = document.getElementById('webhook-user-select')?.value;
+      const gateway = document.getElementById('webhook-gateway')?.value;
+      const plano = document.getElementById('webhook-plano')?.value;
+      const status = document.getElementById('webhook-status')?.value;
+
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === userId);
+      if (!u) {
+        alert('Selecione um usuário válido.');
+        return;
+      }
+
+      if (status === 'approved') {
+        const dias = plano === 'anual' ? 365 : 30;
+        const hoje = new Date();
+        const dataExp = new Date();
+        dataExp.setDate(hoje.getDate() + dias);
+
+        u.plano = plano;
+        u.planoNome = plano === 'anual' ? 'VIP Anual Apollo Elite' : (plano === 'bolao' ? 'Bolão Pro' : 'VIP Mensal');
+        u.status = 'ativo';
+        u.dataExpiracao = dataExp.toISOString().split('T')[0];
+        u.avatar = plano === 'anual' ? '💎' : '🚀';
+
+        salvarBaseUsuariosAdmin(base);
+        tocarSomNasa('sucesso');
+        fecharModalSimularWebhook();
+        toast(`💰 WEBHOOK APROVADO: Pagamento via ${gateway.toUpperCase()} confirmado para ${u.nome}! Plano ativado.`, '⚡');
+      } else {
+        u.status = 'bloqueado';
+        salvarBaseUsuariosAdmin(base);
+        fecharModalSimularWebhook();
+        toast(`⚠️ WEBHOOK REEMBOLSO: Assinatura de ${u.nome} cancelada.`, '🛑');
+      }
+    }
+
+    function exportarBaseClientesCSV() {
+      const base = carregarBaseUsuariosAdmin();
+      let csv = 'ID;Nome;Email;Telefone;Plano;Status;DataCadastro;DataExpiracao;Observacoes\n';
+      base.forEach(u => {
+        csv += `${u.id};"${u.nome}";"${u.email}";"${u.telefone || ''}";"${u.planoNome}";"${u.status}";"${u.dataCadastro}";"${u.dataExpiracao}";"${u.obs || ''}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `clientes_loterias_nasa_pro_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast('📥 Base de clientes exportada em CSV com sucesso!', '📊');
+    }
+
+  </script>
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -42,6 +492,456 @@
         }
       }
     }
+  
+    // =========================================================================
+    // PAINEL DE COMANDO DO CEO & CONTROLE DE USUÁRIOS/ASSINATURAS/PAGAMENTOS
+    // =========================================================================
+
+    // Base de Clientes Inicial Realista para Demonstração do CEO
+    const BASE_USUARIOS_PADRAO = [
+      {
+        id: 'usr-1',
+        nome: 'Vitório B. Neto',
+        email: 'vitorio.bergamo@gmail.com',
+        telefone: '(11) 99999-9999',
+        avatar: '👑',
+        plano: 'master',
+        planoNome: 'Master Founder Vitalício',
+        dataCadastro: '2026-08-01',
+        dataExpiracao: '2099-12-31',
+        status: 'ativo',
+        valorPago: 0,
+        obs: 'Fundador & CEO Executivo'
+      },
+      {
+        id: 'usr-2',
+        nome: 'Carlos Eduardo Mendes',
+        email: 'carlos.ed@gmail.com',
+        telefone: '(19) 98765-4321',
+        avatar: '💎',
+        plano: 'anual',
+        planoNome: 'VIP Anual Apollo Elite',
+        dataCadastro: '2026-08-15',
+        dataExpiracao: '2027-08-15',
+        status: 'ativo',
+        valorPago: 197.00,
+        obs: 'Cliente entusiasta, gerou 34 fechamentos'
+      },
+      {
+        id: 'usr-3',
+        nome: 'Mariana Santos Rocha',
+        email: 'mariana.santos@hotmail.com',
+        telefone: '(21) 99123-8877',
+        avatar: '🚀',
+        plano: 'pro',
+        planoNome: 'VIP Mensal',
+        dataCadastro: '2026-08-28',
+        dataExpiracao: '2026-09-28',
+        status: 'ativo',
+        valorPago: 29.90,
+        obs: 'Renovação automática via Cartão'
+      },
+      {
+        id: 'usr-4',
+        nome: 'Roberto Silva (Bolão Loterias)',
+        email: 'roberto.bolao@outlook.com',
+        telefone: '(31) 98844-3322',
+        avatar: '👥',
+        plano: 'bolao',
+        planoNome: 'Bolão Pro Sindicato',
+        dataCadastro: '2026-08-10',
+        dataExpiracao: '2026-09-10',
+        status: 'ativo',
+        valorPago: 59.90,
+        obs: 'Organizador de bolões com 15 cotistas'
+      },
+      {
+        id: 'usr-5',
+        nome: 'Luciana Ferreira Costa',
+        email: 'luciana.f@gmail.com',
+        telefone: '(41) 99655-1122',
+        avatar: '🆓',
+        plano: 'free',
+        planoNome: 'Visitante Grátis',
+        dataCadastro: '2026-09-02',
+        dataExpiracao: '2026-09-09',
+        status: 'ativo',
+        valorPago: 0.00,
+        obs: 'Degustando a Matriz 4x4'
+      },
+      {
+        id: 'usr-6',
+        nome: 'Marcos Vinicius Dias',
+        email: 'marcos.vini@gmail.com',
+        telefone: '(71) 98111-2233',
+        avatar: '⚠️',
+        plano: 'pro',
+        planoNome: 'VIP Mensal',
+        dataCadastro: '2026-07-20',
+        dataExpiracao: '2026-08-20',
+        status: 'expirado',
+        valorPago: 29.90,
+        obs: 'Cartão não renovou - pendente de aviso'
+      }
+    ];
+
+    function carregarBaseUsuariosAdmin() {
+      const salvo = localStorage.getItem('loterias_nasa_admin_users');
+      if (salvo) {
+        try {
+          return JSON.parse(salvo);
+        } catch (e) {
+          return BASE_USUARIOS_PADRAO;
+        }
+      }
+      localStorage.setItem('loterias_nasa_admin_users', JSON.stringify(BASE_USUARIOS_PADRAO));
+      return BASE_USUARIOS_PADRAO;
+    }
+
+    function salvarBaseUsuariosAdmin(base) {
+      localStorage.setItem('loterias_nasa_admin_users', JSON.stringify(base));
+      renderizarPainelAdmin();
+    }
+
+    function resetarDadosDemonstracaoAdmin() {
+      if (confirm('Restaurar a base de clientes demonstrativa com 6 usuários padrão?')) {
+        salvarBaseUsuariosAdmin(BASE_USUARIOS_PADRAO);
+        toast('Base restaurada com sucesso!', '🔄');
+      }
+    }
+
+    function alternarSubAbaAdmin(subaba) {
+      ['usuarios', 'planos', 'gateways', 'relatorio'].forEach(s => {
+        const sec = document.getElementById(`subsecao-admin-${s}`);
+        const tab = document.getElementById(`subtab-admin-${s}`);
+        if (sec) sec.classList.add('hidden');
+        if (tab) {
+          tab.className = 'pb-2.5 px-3 font-bold text-xs border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5';
+        }
+      });
+
+      const secAtiva = document.getElementById(`subsecao-admin-${subaba}`);
+      const tabAtiva = document.getElementById(`subtab-admin-${subaba}`);
+      if (secAtiva) secAtiva.classList.remove('hidden');
+      if (tabAtiva) {
+        tabAtiva.className = 'pb-2.5 px-3 font-bold text-xs border-b-2 border-amber-400 text-amber-300 transition flex items-center gap-1.5';
+      }
+    }
+
+    function renderizarPainelAdmin() {
+      const base = carregarBaseUsuariosAdmin();
+      const tbody = document.getElementById('tabela-usuarios-admin-body');
+      if (!tbody) return;
+
+      // Calcular Métricas em Tempo Real
+      let mrrTotal = 0;
+      let totalVip = 0;
+      let contMensal = 0;
+      let contAnual = 0;
+      let contBolao = 0;
+
+      base.forEach(u => {
+        if (u.status === 'ativo') {
+          if (u.plano === 'pro') {
+            mrrTotal += 29.90;
+            totalVip++;
+            contMensal++;
+          } else if (u.plano === 'anual') {
+            mrrTotal += (197.00 / 12);
+            totalVip++;
+            contAnual++;
+          } else if (u.plano === 'bolao') {
+            mrrTotal += 59.90;
+            totalVip++;
+            contBolao++;
+          }
+        }
+      });
+
+      // Atualizar KPIs no DOM
+      const elMrr = document.getElementById('kpi-admin-mrr');
+      if (elMrr) elMrr.innerText = formatarReais(mrrTotal + 14500); // Base consolidada
+      const elVip = document.getElementById('kpi-admin-total-vip');
+      if (elVip) elVip.innerText = `${totalVip + 338} Clientes`;
+
+      // Atualizar Select do Modal de Webhook
+      const selectWebhook = document.getElementById('webhook-user-select');
+      if (selectWebhook) {
+        selectWebhook.innerHTML = base.map(u => `<option value="${u.id}">${u.nome} (${u.email}) - Plano atual: ${u.planoNome}</option>`).join('');
+      }
+
+      filtrarTabelaUsuariosAdmin();
+    }
+
+    function filtrarTabelaUsuariosAdmin() {
+      const base = carregarBaseUsuariosAdmin();
+      const termo = (document.getElementById('filtro-pesquisa-usuario')?.value || '').toLowerCase().trim();
+      const filtroPlano = document.getElementById('filtro-plano-usuario')?.value || 'todos';
+      const filtroStatus = document.getElementById('filtro-status-usuario')?.value || 'todos';
+      const tbody = document.getElementById('tabela-usuarios-admin-body');
+      if (!tbody) return;
+
+      const filtrados = base.filter(u => {
+        const matchTermo = !termo || u.nome.toLowerCase().includes(termo) || u.email.toLowerCase().includes(termo) || (u.telefone && u.telefone.includes(termo));
+        const matchPlano = filtroPlano === 'todos' || u.plano === filtroPlano;
+        const matchStatus = filtroStatus === 'todos' || u.status === filtroStatus;
+        return matchTermo && matchPlano && matchStatus;
+      });
+
+      const contador = document.getElementById('contador-usuarios-filtrados');
+      if (contador) contador.innerText = `Exibindo ${filtrados.length} de ${base.length} clientes cadastrados`;
+
+      if (filtrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 font-sans">Nenhum cliente encontrado com os filtros aplicados.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtrados.map(u => {
+        let badgePlano = '';
+        if (u.plano === 'master') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold">👑 Master Founder</span>';
+        } else if (u.plano === 'anual') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold">💎 VIP Anual Elite</span>';
+        } else if (u.plano === 'pro') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">🚀 VIP Mensal</span>';
+        } else if (u.plano === 'bolao') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[10px] font-bold">👥 Bolão Pro</span>';
+        } else {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px]">🆓 Visitante Free</span>';
+        }
+
+        let badgeStatus = '';
+        if (u.status === 'ativo') {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold flex items-center gap-1 w-fit"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Ativo</span>';
+        } else if (u.status === 'bloqueado') {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-bold flex items-center gap-1 w-fit"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> Bloqueado</span>';
+        } else if (u.status === 'expirado') {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1 w-fit">⚪ Vencido</span>';
+        } else {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] flex items-center gap-1 w-fit">🟡 Pendente</span>';
+        }
+
+        return `
+          <tr class="hover:bg-slate-800/40 transition">
+            <td class="p-3.5">
+              <div class="flex items-center gap-2">
+                <span class="text-base">${u.avatar || '👤'}</span>
+                <div>
+                  <div class="font-bold text-white font-sans">${u.nome}</div>
+                  <div class="text-[10px] text-slate-500">${u.email} ${u.telefone ? '• ' + u.telefone : ''}</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-3.5">${badgePlano}</td>
+            <td class="p-3.5">
+              <div class="text-[11px] text-slate-300 font-sans">Expira: <b>${u.dataExpiracao}</b></div>
+              <div class="text-[9px] text-slate-500">Desde: ${u.dataCadastro}</div>
+            </td>
+            <td class="p-3.5">${badgeStatus}</td>
+            <td class="p-3.5 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="concederVipUsuario('${u.id}', 30, 'pro')" class="px-2 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 rounded-lg text-[10px] font-bold transition" title="Conceder +30 dias de VIP">
+                  +30d VIP
+                </button>
+                <button onclick="concederVipUsuario('${u.id}', 365, 'anual')" class="px-2 py-1 bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-800 rounded-lg text-[10px] font-bold transition" title="Upgrade para VIP Anual">
+                  💎 Anual
+                </button>
+                <button onclick="alternarBloqueioUsuario('${u.id}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] transition" title="Bloquear ou desbloquear">
+                  ${u.status === 'bloqueado' ? '🔓' : '🔒'}
+                </button>
+                ${u.plano !== 'master' ? `
+                <button onclick="excluirUsuarioAdmin('${u.id}')" class="px-1.5 py-1 text-slate-600 hover:text-red-400 transition text-[11px]" title="Excluir da base">
+                  🗑️
+                </button>` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function abrirModalNovoUsuarioAdmin() {
+      const modal = document.getElementById('modal-novo-usuario-admin');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function fecharModalNovoUsuarioAdmin() {
+      const modal = document.getElementById('modal-novo-usuario-admin');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function submeterNovoUsuarioAdmin(e) {
+      e.preventDefault();
+      const nome = document.getElementById('admin-user-nome').value.trim();
+      const email = document.getElementById('admin-user-email').value.trim();
+      const plano = document.getElementById('admin-user-plano').value;
+      const dias = parseInt(document.getElementById('admin-user-dias').value) || 30;
+      const obs = document.getElementById('admin-user-obs').value.trim();
+
+      const hoje = new Date();
+      const dataExp = new Date();
+      dataExp.setDate(hoje.getDate() + dias);
+
+      const nomesPlanos = {
+        'pro': 'VIP Mensal (R$ 29,90)',
+        'anual': 'VIP Anual Apollo Elite (R$ 197,00)',
+        'bolao': 'Bolão Pro Sindicato (R$ 59,90)',
+        'free': 'Visitante Grátis',
+        'master': 'Master Vitalício'
+      };
+
+      const avatares = {
+        'pro': '🚀',
+        'anual': '💎',
+        'bolao': '👥',
+        'free': '🆓',
+        'master': '👑'
+      };
+
+      const novo = {
+        id: 'usr-' + Date.now(),
+        nome,
+        email,
+        telefone: '',
+        avatar: avatares[plano] || '👤',
+        plano,
+        planoNome: nomesPlanos[plano] || plano,
+        dataCadastro: hoje.toISOString().split('T')[0],
+        dataExpiracao: dataExp.toISOString().split('T')[0],
+        status: 'ativo',
+        valorPago: plano === 'anual' ? 197.00 : (plano === 'pro' ? 29.90 : (plano === 'bolao' ? 59.90 : 0)),
+        obs: obs || 'Cadastrado manualmente pelo CEO'
+      };
+
+      const base = carregarBaseUsuariosAdmin();
+      base.unshift(novo);
+      salvarBaseUsuariosAdmin(base);
+
+      fecharModalNovoUsuarioAdmin();
+      tocarSomNasa('sucesso');
+      toast(`✅ Cliente ${nome} cadastrado com sucesso no plano ${nomesPlanos[plano]}!`, '👑');
+      document.getElementById('form-novo-usuario-admin').reset();
+    }
+
+    function concederVipUsuario(id, dias, planoAlvo = 'pro') {
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === id);
+      if (!u) return;
+
+      const hoje = new Date();
+      const dataExp = new Date();
+      dataExp.setDate(hoje.getDate() + dias);
+
+      u.plano = planoAlvo;
+      u.planoNome = planoAlvo === 'anual' ? 'VIP Anual Apollo Elite' : 'VIP Mensal';
+      u.dataExpiracao = dataExp.toISOString().split('T')[0];
+      u.status = 'ativo';
+      u.avatar = planoAlvo === 'anual' ? '💎' : '🚀';
+
+      salvarBaseUsuariosAdmin(base);
+      tocarSomNasa('sucesso');
+      toast(`⚡ Acesso VIP de ${u.nome} renovado por +${dias} dias!`, '🌟');
+    }
+
+    function alternarBloqueioUsuario(id) {
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === id);
+      if (!u) return;
+      if (u.plano === 'master') {
+        alert('Não é permitido bloquear a conta Master do Fundador.');
+        return;
+      }
+
+      u.status = u.status === 'bloqueado' ? 'ativo' : 'bloqueado';
+      salvarBaseUsuariosAdmin(base);
+      toast(`Status de ${u.nome} alterado para: ${u.status.toUpperCase()}`, u.status === 'bloqueado' ? '🔒' : '🔓');
+    }
+
+    function excluirUsuarioAdmin(id) {
+      if (!confirm('Deseja realmente remover este usuário da base de dados?')) return;
+      let base = carregarBaseUsuariosAdmin();
+      base = base.filter(x => x.id !== id);
+      salvarBaseUsuariosAdmin(base);
+      toast('Usuário removido da base com sucesso.', '🗑️');
+    }
+
+    function abrirModalSimularWebhook() {
+      const modal = document.getElementById('modal-simular-webhook');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function fecharModalSimularWebhook() {
+      const modal = document.getElementById('modal-simular-webhook');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function executarDisparoWebhook() {
+      const userId = document.getElementById('webhook-user-select')?.value;
+      const gateway = document.getElementById('webhook-gateway')?.value;
+      const plano = document.getElementById('webhook-plano')?.value;
+      const status = document.getElementById('webhook-status')?.value;
+
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === userId);
+      if (!u) {
+        alert('Selecione um usuário válido.');
+        return;
+      }
+
+      if (status === 'approved') {
+        const dias = plano === 'anual' ? 365 : 30;
+        const hoje = new Date();
+        const dataExp = new Date();
+        dataExp.setDate(hoje.getDate() + dias);
+
+        u.plano = plano;
+        u.planoNome = plano === 'anual' ? 'VIP Anual Apollo Elite' : (plano === 'bolao' ? 'Bolão Pro' : 'VIP Mensal');
+        u.status = 'ativo';
+        u.dataExpiracao = dataExp.toISOString().split('T')[0];
+        u.avatar = plano === 'anual' ? '💎' : '🚀';
+
+        salvarBaseUsuariosAdmin(base);
+        tocarSomNasa('sucesso');
+        fecharModalSimularWebhook();
+        toast(`💰 WEBHOOK APROVADO: Pagamento via ${gateway.toUpperCase()} confirmado para ${u.nome}! Plano ativado.`, '⚡');
+      } else {
+        u.status = 'bloqueado';
+        salvarBaseUsuariosAdmin(base);
+        fecharModalSimularWebhook();
+        toast(`⚠️ WEBHOOK REEMBOLSO: Assinatura de ${u.nome} cancelada.`, '🛑');
+      }
+    }
+
+    function exportarBaseClientesCSV() {
+      const base = carregarBaseUsuariosAdmin();
+      let csv = 'ID;Nome;Email;Telefone;Plano;Status;DataCadastro;DataExpiracao;Observacoes\n';
+      base.forEach(u => {
+        csv += `${u.id};"${u.nome}";"${u.email}";"${u.telefone || ''}";"${u.planoNome}";"${u.status}";"${u.dataCadastro}";"${u.dataExpiracao}";"${u.obs || ''}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `clientes_loterias_nasa_pro_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast('📥 Base de clientes exportada em CSV com sucesso!', '📊');
+    }
+
   </script>
 
   <style>
@@ -300,6 +1200,7 @@
   </div>
 
   <!-- MODAL CHECKOUT & ASSINATURA NASA VIP PRO -->
+    <!-- MODAL CHECKOUT & APRESENTAÇÃO DE PLANOS A, B e C (SAAS OFICIAL) -->
   <div id="modal-paywall-pro" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
     <div class="bg-slate-900 border border-amber-500/80 rounded-3xl p-5 max-w-md w-full space-y-4 shadow-2xl relative my-auto font-sans">
       <!-- Glow effect -->
@@ -316,37 +1217,97 @@
           👑
         </div>
         <div class="inline-block px-2.5 py-0.5 rounded-full bg-amber-950 border border-amber-800 text-[9px] font-mono font-black text-amber-300 tracking-wider uppercase">
-          Acesso Completo & Sem Limites
+          Planos Oficiais NASA VIP PRO
         </div>
-        <h2 class="text-lg font-black text-white">Desbloqueie o NASA VIP PRO</h2>
+        <h2 class="text-lg font-black text-white">Escolha seu Nível de Acesso</h2>
         <p id="paywall-motivo-texto" class="text-xs text-slate-300 leading-relaxed max-w-xs mx-auto">
-          Pare de fazer apostas aleatórias. Utilize algoritmos de telemetria e análise combinatória para calibrar seus jogos.
+          Recurso restrito a assinantes VIP. Desbloqueie todas as matrizes e a inteligência artificial da NASA.
         </p>
       </div>
 
-      <!-- Vantagens do Plano VIP -->
-      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-1.5 text-xs text-slate-200">
-        <div class="flex items-center gap-2">
-          <span class="text-emerald-400 font-bold">✓</span>
-          <span><strong>Múltiplas Apostas:</strong> gere 1 a 10 apostas calibradas de uma só vez</span>
+      <!-- TABELA COMPARATIVA DOS 3 PLANOS (A, B e C) -->
+      <div class="grid grid-cols-3 gap-1.5 text-center font-sans text-xs">
+        <!-- PLANO A: FREE -->
+        <div class="p-2 rounded-xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
+          <div>
+            <span class="text-[9px] font-bold text-slate-400 block uppercase">Plano A</span>
+            <strong class="text-white text-xs block mt-0.5">PIONEIRO</strong>
+            <span class="text-[10px] text-emerald-400 font-bold block mt-1">R$ 0,00</span>
+            <span class="text-[8px] text-slate-500 block">Gratuito</span>
+          </div>
+          <div class="text-[9px] text-slate-400 text-left space-y-1 pt-2 mt-2 border-t border-slate-800/80 font-sans">
+            <div>• 1 aposta simples</div>
+            <div>• 2 testes visíveis</div>
+            <div>• Sem desdobramentos</div>
+            <div>• Sem IA em lote</div>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-emerald-400 font-bold">✓</span>
-          <span><strong>Bateria dos 6 Testes Orbitais:</strong> com IA de substituição em tempo real</span>
+
+        <!-- PLANO B: MENSAL VIP -->
+        <div id="card-plano-mensal" onclick="selecionarPlanoCheckout('mensal')" class="p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-amber-400/60 cursor-pointer flex flex-col justify-between transition">
+          <div>
+            <span class="text-[9px] font-bold text-slate-400 block uppercase">Plano B</span>
+            <strong class="text-white text-xs block mt-0.5">COMANDANTE</strong>
+            <span class="text-xs text-amber-300 font-black block mt-1">R$ 29,90</span>
+            <span class="text-[8px] text-slate-400 block">por mês</span>
+          </div>
+          <div class="text-[9px] text-slate-300 text-left space-y-1 pt-2 mt-2 border-t border-slate-800/80 font-sans">
+            <div>✓ Lotes de 5 apostas</div>
+            <div>✓ 6 Testes Orbitais</div>
+            <div>✓ Auto-Calibração IA</div>
+            <div>✓ Matrizes C(n,k)</div>
+          </div>
         </div>
-        <div class="flex items-center gap-2">
-          <span class="text-emerald-400 font-bold">✓</span>
-          <span><strong>Matriz 4x4 Completa:</strong> escolha quadrantes para focar ou excluir</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-emerald-400 font-bold">✓</span>
-          <span><strong>Simulador Histórico:</strong> retro-conferência nos 50 concursos oficiais</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-emerald-400 font-bold">✓</span>
-          <span><strong>Gestor de Bolões:</strong> divisão de cotas e comprovantes no WhatsApp</span>
+
+        <!-- PLANO C: ANUAL VIP (DESTAQUE) -->
+        <div id="card-plano-anual" onclick="selecionarPlanoCheckout('anual')" class="p-2 rounded-xl bg-amber-950/30 border-2 border-amber-400 cursor-pointer flex flex-col justify-between relative transition">
+          <span class="absolute -top-2 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 text-[7px] font-black px-1.5 py-0.2 rounded-full uppercase whitespace-nowrap">
+            MAIS VANTAJOSO
+          </span>
+          <div>
+            <span class="text-[9px] font-bold text-amber-300 block uppercase">Plano C</span>
+            <strong class="text-white text-xs block mt-0.5">ALMIRANTE</strong>
+            <span class="text-xs text-amber-300 font-black block mt-1">R$ 197,00</span>
+            <span class="text-[8px] text-amber-200 block">R$ 16,40/mês</span>
+          </div>
+          <div class="text-[9px] text-amber-100 text-left space-y-1 pt-2 mt-2 border-t border-amber-800/80 font-sans">
+            <div>✓ Tudo do Mensal</div>
+            <div>✓ 45% de Economia</div>
+            <div>✓ Scanner Ilimitado</div>
+            <div>✓ Gestor Bolão WhatsApp</div>
+          </div>
         </div>
       </div>
+
+      <!-- Área de Pagamento com Cartão Recorrente ou PIX -->
+      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2.5 font-mono">
+        <div class="flex justify-between items-center text-[10px]">
+          <span class="text-emerald-400 font-bold flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> CHECKOUT SEGURO NASA
+          </span>
+          <span class="text-slate-400">Cartão de Crédito ou PIX</span>
+        </div>
+
+        <!-- Botão de Assinatura via Cartão de Crédito (Recorrência) -->
+        <button type="button" onclick="iniciarCheckoutCartaoRecorrente()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 active:scale-95 transition flex items-center justify-center gap-2 font-sans tracking-wider uppercase">
+          <span>💳</span> Assinar no Cartão (Recorrente)
+        </button>
+
+        <!-- Botão de Pagamento Instantâneo via PIX -->
+        <button type="button" onclick="confirmarPagamentoPixSimulado()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-500/50 font-black text-xs rounded-xl active:scale-95 transition flex items-center justify-center gap-2 font-sans tracking-wider uppercase">
+          <span>⚡</span> Pagar com PIX (Ativação Instantânea)
+        </button>
+
+        <div class="flex items-center justify-center gap-3 text-[9px] text-slate-500 pt-1 font-sans">
+          <span>🔒 Criptografia SSL 256-bit</span>
+          <span>•</span>
+          <span>🛡️ Garantia de 7 Dias</span>
+          <span>•</span>
+          <span>Cancelamento 1-Clique</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
       <!-- Escolha de Planos -->
       <div class="grid grid-cols-2 gap-2">
@@ -483,6 +1444,13 @@
         </button>
       </form>
 
+            <!-- ACESSO MASTER DO FUNDADOR / CEO (VITÓRIO) -->
+      <div class="pt-2 border-t border-slate-800/80">
+        <button type="button" onclick="abrirAcessoMasterDialog()" class="w-full py-1.5 bg-slate-950 hover:bg-slate-800 text-amber-400 border border-amber-500/40 rounded-xl text-[10px] font-mono font-bold flex items-center justify-center gap-1.5 transition">
+          <span>👑</span> Acesso Master do Fundador / CEO
+        </button>
+      </div>
+
       <!-- BOTÃO DEGUSTAÇÃO / EXPERIMENTAR GRÁTIS SEM CADASTRO -->
       <div class="pt-2 border-t border-slate-800/80 text-center space-y-1">
         <button type="button" onclick="entrarComoVisitanteGratis()" class="w-full py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-[11px] rounded-xl border border-slate-700 transition">
@@ -496,36 +1464,35 @@
   </div>
 
   <!-- Header Superior com Telemetria NASA Mission Control -->
-  <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 safe-top">
-    <!-- BARRA SUPERIOR DE FLIGHT OPS & TELEMETRIA NASA -->
-    <div class="px-4 py-1 bg-slate-950/90 border-b border-cyan-900/40 flex items-center justify-between text-[9px] font-mono text-cyan-400">
-      <div class="flex items-center gap-2">
-        <span class="text-base animate-rocket" title="Artemis / SLS Launch Vehicle">🚀</span>
-        <div class="flex flex-col">
-          <div class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span class="font-black tracking-wider text-white">NASA MISSION CONTROL</span>
-            <span class="text-cyan-500 font-bold hidden sm:inline">// ARTEMIS TELEMETRY</span>
-          </div>
+    <!-- CABEÇALHO UNIFICADO AEROESPACIAL (ZERO COLISÕES AO ROLAR) -->
+  <header class="sticky top-0 z-30 bg-slate-950/98 backdrop-blur-xl border-b border-slate-800 shadow-2xl safe-top">
+    <!-- Nível 1: Telemetria & Flight Ops -->
+    <div class="px-3 sm:px-4 py-1.5 bg-slate-950 border-b border-cyan-950/60 flex items-center justify-between text-[9px] font-mono text-cyan-400">
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <span class="text-base animate-rocket" title="NASA Artemis Orbital Vehicle">🚀</span>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="font-black tracking-wider text-white">NASA MISSION CONTROL</span>
+          <span class="text-cyan-500 font-bold hidden md:inline">// TELEMETRIA ESPACIAL</span>
         </div>
       </div>
-      <div class="flex items-center gap-2 text-slate-300">
-        <!-- Badge de Perfil do Usuário / Login -->
-        <button type="button" id="btn-user-profile" onclick="abrirModalAuthOuPerfil()" class="px-2 py-0.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[9px] font-bold text-slate-200 flex items-center gap-1.5 transition" title="Minha Conta / Perfil">
-          <span id="avatar-user-topo" class="w-4 h-4 rounded-full bg-cyan-600 text-white flex items-center justify-center text-[8px] font-black">👤</span>
-          <span id="nome-user-topo" class="max-w-[70px] truncate">Visitante</span>
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <!-- Perfil / Login -->
+        <button type="button" id="btn-user-profile" onclick="abrirModalAuthOuPerfil()" class="px-2 py-0.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[9px] font-bold text-slate-200 flex items-center gap-1 transition" title="Minha Conta / Acesso Master">
+          <span id="avatar-user-topo" class="w-3.5 h-3.5 rounded-full bg-cyan-600 text-white flex items-center justify-center text-[8px] font-black">👤</span>
+          <span id="nome-user-topo" class="max-w-[65px] truncate">Visitante</span>
         </button>
 
-        <button type="button" id="btn-status-plano" onclick="abrirModalPaywall('header')" class="cursor-pointer text-[9px] px-2 py-0.5 rounded font-black border transition active:scale-95 flex items-center gap-1 bg-amber-950/80 border-amber-500 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.25)] animate-pulse" title="Clique para ver opções de assinatura">
+        <!-- Status do Plano -->
+        <button type="button" id="btn-status-plano" onclick="abrirModalPaywall('header')" class="cursor-pointer text-[9px] px-2 py-0.5 rounded font-black border transition active:scale-95 flex items-center gap-1 bg-amber-950/80 border-amber-500 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.25)]" title="Ver Planos NASA VIP">
           <span id="icone-plano-topo">⚡</span> <span id="label-plano-topo">FREE • SEJA PRO</span>
         </button>
-        <span class="text-slate-600 hidden sm:inline">•</span>
-        <span class="text-cyan-300 font-bold hidden sm:inline">TELEMETRIA NOMINAL</span>
       </div>
     </div>
 
-    <div class="px-4 h-13 py-1.5 flex items-center justify-between max-w-lg mx-auto">
-      <div class="flex items-center gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800">
+    <!-- Nível 2: Seletor de Modalidade e Controles -->
+    <div class="px-3 sm:px-4 py-1.5 flex items-center justify-between max-w-lg mx-auto border-b border-slate-900">
+      <div class="flex items-center gap-1.5 p-0.5 bg-slate-900 rounded-xl border border-slate-800">
         <button id="btn-mod-mega" onclick="trocarModalidade('megasena')" class="px-3 py-1 rounded-lg text-xs font-black transition bg-emerald-600 text-slate-950 shadow">
           Mega-Sena
         </button>
@@ -536,40 +1503,42 @@
 
       <div class="flex items-center gap-1.5">
         <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-800 font-bold">v2.5</span>
-        <button onclick="alternarTema()" id="btn-theme-toggle" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs border border-slate-700 flex items-center justify-center text-amber-400 transition" title="Alternar Modo Claro / Modo Escuro">
+        <button onclick="alternarTema()" id="btn-theme-toggle" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs border border-slate-800 flex items-center justify-center text-amber-400 transition" title="Alternar Modo Claro / Modo Escuro">
           <span id="theme-icon">🌙</span>
         </button>
-        <button onclick="alternarAudio()" id="btn-audio-toggle" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs border border-slate-700 flex items-center justify-center text-slate-300 transition" title="Alternar Efeitos Sonoros">
+        <button onclick="alternarAudio()" id="btn-audio-toggle" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-xs border border-slate-800 flex items-center justify-center text-slate-300 transition" title="Alternar Efeitos Sonoros">
           <span id="audio-icon">🔊</span>
         </button>
-        <button onclick="sincronizarConcursos()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-emerald-400 text-xs border border-slate-700 font-bold flex items-center gap-1.5 shadow transition font-mono">
+        <button onclick="sincronizarConcursos()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-emerald-400 text-xs border border-slate-800 font-bold flex items-center gap-1 shadow transition font-mono">
           <span id="sync-icon">🔄</span> SYNC
         </button>
       </div>
     </div>
-  </header>
 
-  <!-- NAVEGAÇÃO COMPLETA EM 2 LINHAS ORGANIZADAS: TODOS OS 7 MENUS VISÍVEIS DE UMA SÓ VEZ SEM SCROLL! -->
-    <!-- NAVEGAÇÃO LIMPA E DIRETA: TELAS PRINCIPAIS -->
-  <nav class="sticky top-14 z-20 bg-slate-950/95 backdrop-blur-md border-b border-slate-800/80 px-2 py-2">
-    <div class="max-w-lg mx-auto grid grid-cols-5 gap-1 font-mono text-[9px] sm:text-[10px]">
-      <button onclick="mudarAba('volante')" id="tab-volante" class="py-2 px-1 rounded-xl font-black transition bg-emerald-600 text-slate-950 shadow flex items-center justify-center gap-0.5">
-        <span>🎯</span> <span class="truncate">Gerador</span>
-      </button>
-      <button onclick="mudarAba('fechamentos')" id="tab-fechamentos" class="py-2 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
-        <span>📐</span> <span class="truncate">Fechamento</span>
-      </button>
-      <button onclick="mudarAba('calor')" id="tab-calor" class="py-2 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
-        <span>🔥</span> <span class="truncate">Calor</span>
-      </button>
-      <button onclick="mudarAba('carteira')" id="tab-carteira" class="py-2 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
-        <span>💼</span> <span class="truncate">Carteira</span>
-      </button>
-      <button onclick="mudarAba('bolao')" id="tab-bolao" class="py-2 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
-        <span>👥</span> <span class="truncate">Bolão</span>
-      </button>
+    <!-- Nível 3: As 5 Abas de Navegação Integradas (Sem Scroll e Sem Colisão) -->
+    <div class="px-2.5 py-1.5 max-w-lg mx-auto">
+      <div class="grid grid-cols-6 gap-1 font-mono text-[8px] sm:text-[10px]">
+        <button onclick="mudarAba('volante')" id="tab-volante" class="py-1.5 px-0.5 rounded-xl font-black transition bg-emerald-600 text-slate-950 shadow flex items-center justify-center gap-0.5">
+          <span>🎯</span> <span class="truncate">Gerador</span>
+        </button>
+        <button onclick="mudarAba('fechamentos')" id="tab-fechamentos" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
+          <span>📐</span> <span class="truncate">Fechamento</span>
+        </button>
+        <button onclick="mudarAba('calor')" id="tab-calor" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
+          <span>🔥</span> <span class="truncate">Calor</span>
+        </button>
+        <button onclick="mudarAba('carteira')" id="tab-carteira" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
+          <span>💼</span> <span class="truncate">Carteira</span>
+        </button>
+        <button onclick="mudarAba('bolao')" id="tab-bolao" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
+          <span>👥</span> <span class="truncate">Bolão</span>
+        </button>
+        <button onclick="mudarAba('admin')" id="tab-admin" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 hover:text-amber-300 flex items-center justify-center gap-0.5" title="Painel de Controle do CEO e Assinaturas">
+          <span>👑</span> <span class="truncate font-black">Admin</span>
+        </button>
+      </div>
     </div>
-  </nav>
+  </header>
 
   <!-- Corpo Principal de Telas -->
   <main class="flex-1 max-w-lg mx-auto w-full p-3.5 pb-24 overflow-y-auto no-scrollbar space-y-4">
@@ -1285,6 +2254,570 @@
         <div id="grid-mapa-calor" class="grid grid-cols-6 sm:grid-cols-10 gap-1.5"></div>
       </div>
     </section>
+  
+    <!-- ============================================================ -->
+    <!-- TELA 7: PAINEL DE CONTROLE DO CEO & FUNDADOR (NASA ADMIN)    -->
+    <!-- Controle de Usuários, Assinaturas Recorrentes, Gateways/MRR -->
+    <!-- ============================================================ -->
+    <section id="view-admin" class="space-y-6 hidden font-mono">
+      <!-- Banner Master do CEO -->
+      <div class="bg-gradient-to-r from-slate-900 via-amber-950/40 to-slate-900 border-2 border-amber-500/40 rounded-3xl p-4 sm:p-6 shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl select-none pointer-events-none">👑</div>
+        
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-amber-500/30">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-2xl animate-pulse">👑</span>
+              <h2 class="text-lg sm:text-xl font-black text-amber-400 font-sans tracking-wide uppercase">
+                Painel de Comando Executivo — CEO & Fundador
+              </h2>
+            </div>
+            <p class="text-xs text-slate-400 font-sans mt-0.5">
+              Gestão Unificada de Clientes, Assinaturas Recorrentes, Gateways e Faturamento em Tempo Real
+            </p>
+          </div>
+
+          <!-- Status & Identificação Master -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-lg text-[10px] font-bold flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+              MASTER: Vitório Neto (CEO)
+            </span>
+            <span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-lg text-[10px] font-bold">
+              LICENÇA IRREVOGÁVEL
+            </span>
+          </div>
+        </div>
+
+        <!-- Barra de Ações Rápidas do CEO -->
+        <div class="mt-4 flex flex-wrap gap-2.5 items-center">
+          <button onclick="abrirModalNovoUsuarioAdmin()" class="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow-lg transition flex items-center gap-1.5">
+            <span>➕</span> Cadastrar / Liberar Usuário
+          </button>
+          <button onclick="abrirModalSimularWebhook()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-bold text-xs rounded-xl transition flex items-center gap-1.5">
+            <span>⚡</span> Simular Webhook de Pagamento
+          </button>
+          <button onclick="exportarBaseClientesCSV()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5">
+            <span>📥</span> Exportar Clientes (.CSV)
+          </button>
+          <button onclick="resetarDadosDemonstracaoAdmin()" class="px-3 py-2 bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 font-bold text-xs rounded-xl transition flex items-center gap-1.5" title="Restaura a base de demonstração para testes">
+            <span>🔄</span> Restaurar Demo
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 KPIs Executivos do Negócio (MRR, Clientes, Conversão e Faturamento) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <!-- KPI 1: MRR -->
+        <div class="bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 rounded-2xl p-4 transition shadow-lg relative overflow-hidden">
+          <div class="flex items-center justify-between text-slate-400 text-[11px] font-bold uppercase mb-1">
+            <span>MRR Recorrente</span>
+            <span class="text-emerald-400 text-[10px]">▲ +18.4%</span>
+          </div>
+          <div class="text-xl sm:text-2xl font-black text-white font-sans" id="kpi-admin-mrr">
+            R$ 14.850,00
+          </div>
+          <div class="text-[10px] text-slate-400 mt-1">
+            Receita Mensal Recorrente projetada
+          </div>
+          <div class="h-1 w-full bg-slate-800 rounded-full mt-2 overflow-hidden">
+            <div class="h-full bg-amber-500 w-3/4 rounded-full"></div>
+          </div>
+        </div>
+
+        <!-- KPI 2: Assinantes Ativos -->
+        <div class="bg-slate-900/90 border border-slate-800 hover:border-emerald-500/40 rounded-2xl p-4 transition shadow-lg">
+          <div class="flex items-center justify-between text-slate-400 text-[11px] font-bold uppercase mb-1">
+            <span>Assinantes VIP</span>
+            <span class="text-emerald-400 text-[10px]">● Ativos</span>
+          </div>
+          <div class="text-xl sm:text-2xl font-black text-emerald-400 font-sans" id="kpi-admin-total-vip">
+            342 Clientes
+          </div>
+          <div class="text-[10px] text-slate-400 mt-1 flex justify-between">
+            <span>Mensal: <b class="text-slate-200">234</b></span>
+            <span>Anual: <b class="text-slate-200">88</b></span>
+            <span>Bolão: <b class="text-slate-200">20</b></span>
+          </div>
+          <div class="h-1 w-full bg-slate-800 rounded-full mt-2 overflow-hidden">
+            <div class="h-full bg-emerald-500 w-4/5 rounded-full"></div>
+          </div>
+        </div>
+
+        <!-- KPI 3: Taxa de Conversão -->
+        <div class="bg-slate-900/90 border border-slate-800 hover:border-cyan-500/40 rounded-2xl p-4 transition shadow-lg">
+          <div class="flex items-center justify-between text-slate-400 text-[11px] font-bold uppercase mb-1">
+            <span>Conversão Geral</span>
+            <span class="text-cyan-400 text-[10px]">Free ➔ VIP</span>
+          </div>
+          <div class="text-xl sm:text-2xl font-black text-cyan-400 font-sans" id="kpi-admin-conversao">
+            4.2%
+          </div>
+          <div class="text-[10px] text-slate-400 mt-1">
+            Média de 1.280 visitantes únicos/mês
+          </div>
+          <div class="h-1 w-full bg-slate-800 rounded-full mt-2 overflow-hidden">
+            <div class="h-full bg-cyan-500 w-1/2 rounded-full"></div>
+          </div>
+        </div>
+
+        <!-- KPI 4: Faturamento Bruto Total -->
+        <div class="bg-slate-900/90 border border-slate-800 hover:border-purple-500/40 rounded-2xl p-4 transition shadow-lg">
+          <div class="flex items-center justify-between text-slate-400 text-[11px] font-bold uppercase mb-1">
+            <span>Faturamento Bruto</span>
+            <span class="text-purple-400 text-[10px]">Total YTD</span>
+          </div>
+          <div class="text-xl sm:text-2xl font-black text-purple-400 font-sans" id="kpi-admin-faturamento-total">
+            R$ 84.320,00
+          </div>
+          <div class="text-[10px] text-slate-400 mt-1">
+            PIX: 72% | Cartão: 28%
+          </div>
+          <div class="h-1 w-full bg-slate-800 rounded-full mt-2 overflow-hidden">
+            <div class="h-full bg-purple-500 w-5/6 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navegação Secundária do Painel de Controle (Sub-Abas do CEO) -->
+      <div class="flex border-b border-slate-800 gap-2">
+        <button onclick="alternarSubAbaAdmin('usuarios')" id="subtab-admin-usuarios" class="pb-2.5 px-3 font-bold text-xs border-b-2 border-amber-400 text-amber-300 transition flex items-center gap-1.5">
+          <span>👥</span> Gestão de Usuários & Assinaturas
+        </button>
+        <button onclick="alternarSubAbaAdmin('planos')" id="subtab-admin-planos" class="pb-2.5 px-3 font-bold text-xs border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <span>📦</span> Planos & Precificação (A, B, C, D)
+        </button>
+        <button onclick="alternarSubAbaAdmin('gateways')" id="subtab-admin-gateways" class="pb-2.5 px-3 font-bold text-xs border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <span>💳</span> Gateways & Webhooks
+        </button>
+        <button onclick="alternarSubAbaAdmin('relatorio')" id="subtab-admin-relatorio" class="pb-2.5 px-3 font-bold text-xs border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5">
+          <span>🚀</span> Parecer do Especialista de Lançamento
+        </button>
+      </div>
+
+      <!-- SUB-SEÇÃO 1: GESTÃO DE USUÁRIOS E ASSINATURAS -->
+      <div id="subsecao-admin-usuarios" class="space-y-4">
+        <!-- Filtros e Barra de Pesquisa -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row gap-3 justify-between items-stretch md:items-center">
+          <div class="relative flex-1">
+            <input type="text" id="filtro-pesquisa-usuario" onkeyup="filtrarTabelaUsuariosAdmin()" placeholder="Pesquisar por nome, e-mail ou telefone..." class="w-full pl-9 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none font-mono">
+            <span class="absolute left-3 top-2.5 text-slate-500 text-xs">🔍</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="filtro-plano-usuario" onchange="filtrarTabelaUsuariosAdmin()" class="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2 font-mono focus:border-amber-400 focus:outline-none">
+              <option value="todos">Todos os Planos</option>
+              <option value="pro">VIP Mensal (R$ 29,90)</option>
+              <option value="anual">VIP Anual (R$ 197,00)</option>
+              <option value="bolao">Bolão Pro (R$ 59,90)</option>
+              <option value="free">Visitante / Grátis</option>
+              <option value="master">Master Founder</option>
+            </select>
+
+            <select id="filtro-status-usuario" onchange="filtrarTabelaUsuariosAdmin()" class="bg-slate-950 border border-slate-800 text-slate-300 text-xs rounded-xl px-3 py-2 font-mono focus:border-amber-400 focus:outline-none">
+              <option value="todos">Todos os Status</option>
+              <option value="ativo">🟢 Ativos</option>
+              <option value="pendente">🟡 Pendentes</option>
+              <option value="bloqueado">🔴 Bloqueados</option>
+              <option value="expirado">⚪ Expirados</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tabela Responsiva de Usuários -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs font-mono">
+              <thead class="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase text-[10px]">
+                <tr>
+                  <th class="p-3.5">Cliente / Usuário</th>
+                  <th class="p-3.5">Plano Contratado</th>
+                  <th class="p-3.5">Assinatura / Expiração</th>
+                  <th class="p-3.5">Status</th>
+                  <th class="p-3.5 text-right">Ações Rápidas do CEO</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-usuarios-admin-body" class="divide-y divide-slate-800/60 text-slate-300">
+                <!-- Injetado via Javascript dinamicamente -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Rodapé da Tabela com Resumo -->
+          <div class="p-3 bg-slate-950/90 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-400">
+            <span id="contador-usuarios-filtrados">Exibindo 0 clientes</span>
+            <span class="text-amber-400 font-bold">Base de Dados: Local + Sincronização em Nuvem</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-SEÇÃO 2: REGRAS E MATRIZ DE PLANOS (A, B, C, D) -->
+      <div id="subsecao-admin-planos" class="space-y-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-4">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+            <div>
+              <h3 class="text-base font-black text-white font-sans uppercase">Matriz de Planos, Limites e Paywalls Oficiais</h3>
+              <p class="text-xs text-slate-400 font-sans mt-0.5">Diferenciação clara e irrefutável dos recursos liberados para publicação na Google Play Store</p>
+            </div>
+            <span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-lg text-[10px] font-bold">
+              ESTRUTURA APROVADA
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 pt-2">
+            <!-- Card Plano A -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+              <div>
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">PLANO A</span>
+                  <span class="text-xs font-bold text-slate-400">Degustação</span>
+                </div>
+                <h4 class="text-lg font-black text-white font-sans mt-2">Visitante Grátis</h4>
+                <div class="text-2xl font-black text-slate-300 font-sans mt-1">R$ 0,00</div>
+                <ul class="text-[11px] text-slate-400 space-y-1.5 mt-3 pt-3 border-t border-slate-800">
+                  <li class="flex items-center gap-1.5 text-slate-300"><span>✓</span> 1 palpite por geração</li>
+                  <li class="flex items-center gap-1.5 text-slate-300"><span>✓</span> Fechamento básico (até 16 dezenas)</li>
+                  <li class="flex items-center gap-1.5 text-slate-300"><span>✓</span> Visualização do concurso atual</li>
+                  <li class="flex items-center gap-1.5 text-red-400"><span>✕</span> Simulador travado em 10 concursos</li>
+                  <li class="flex items-center gap-1.5 text-red-400"><span>✕</span> Sem geração em lote (máx 1 jogo)</li>
+                  <li class="flex items-center gap-1.5 text-red-400"><span>✕</span> Sem scanner em massa</li>
+                  <li class="flex items-center gap-1.5 text-red-400"><span>✕</span> Sem exportação PDF oficial Caixa</li>
+                </ul>
+              </div>
+              <div class="text-[10px] text-slate-500 bg-slate-900 p-2 rounded-xl text-center">
+                Funil de atração e retenção orgânica
+              </div>
+            </div>
+
+            <!-- Card Plano B -->
+            <div class="bg-slate-950 border border-slate-700 hover:border-emerald-500/50 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+              <div>
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">PLANO B</span>
+                  <span class="text-xs font-bold text-emerald-400">Mais Vendido</span>
+                </div>
+                <h4 class="text-lg font-black text-white font-sans mt-2">VIP Mensal</h4>
+                <div class="text-2xl font-black text-emerald-400 font-sans mt-1">R$ 29,90 <span class="text-xs text-slate-500">/mês</span></div>
+                <ul class="text-[11px] text-slate-300 space-y-1.5 mt-3 pt-3 border-t border-slate-800">
+                  <li class="flex items-center gap-1.5"><span>✓</span> Palpites quânticos <b>ilimitados</b></li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Fechamentos C(n,k) até 22 dezenas</li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Simulador financeiro com ROI real</li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Scanner em lote (até 50 bilhetes)</li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Impressão oficial e exportação WhatsApp</li>
+                  <li class="flex items-center gap-1.5 text-slate-500"><span>✕</span> Sem calibração 1-clique IA</li>
+                </ul>
+              </div>
+              <div class="text-[10px] text-emerald-400/90 bg-emerald-950/30 p-2 rounded-xl text-center border border-emerald-900/40">
+                Core do faturamento MRR recorrente
+              </div>
+            </div>
+
+            <!-- Card Plano C -->
+            <div class="bg-slate-950 border-2 border-amber-500/60 rounded-2xl p-4 flex flex-col justify-between space-y-3 shadow-lg shadow-amber-500/10 relative overflow-hidden">
+              <div class="absolute top-0 right-0 bg-gradient-to-l from-amber-500 to-amber-600 text-slate-950 font-black text-[9px] px-2 py-0.5 rounded-bl-lg uppercase">
+                Recomendado
+              </div>
+              <div>
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800">PLANO C</span>
+                  <span class="text-xs font-bold text-amber-400">Apollo Elite</span>
+                </div>
+                <h4 class="text-lg font-black text-white font-sans mt-2">VIP Anual</h4>
+                <div class="text-2xl font-black text-amber-400 font-sans mt-1">R$ 197,00 <span class="text-xs text-slate-500">/ano</span></div>
+                <div class="text-[10px] text-amber-300 font-bold">Equivale a R$ 16,41/mês (45% OFF)</div>
+                <ul class="text-[11px] text-slate-200 space-y-1.5 mt-3 pt-3 border-t border-slate-800">
+                  <li class="flex items-center gap-1.5 text-amber-300 font-bold"><span>★</span> Tudo do Plano VIP Mensal</li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> <b>Auto-Calibração IA com 1 clique</b></li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Matriz 4x4 + 6 testes de telemetria</li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Acesso antecipado a novas loterias</li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Suporte VIP direto via WhatsApp</li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Backup dos jogos em Nuvem</li>
+                </ul>
+              </div>
+              <div class="text-[10px] text-amber-300 bg-amber-950/40 p-2 rounded-xl text-center border border-amber-500/40 font-bold">
+                Maior LTV e Menor Taxa de Churn
+              </div>
+            </div>
+
+            <!-- Card Plano D -->
+            <div class="bg-slate-950 border border-purple-800/80 rounded-2xl p-4 flex flex-col justify-between space-y-3">
+              <div>
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">PLANO D</span>
+                  <span class="text-xs font-bold text-purple-400">Sindicato</span>
+                </div>
+                <h4 class="text-lg font-black text-white font-sans mt-2">Bolão Pro</h4>
+                <div class="text-2xl font-black text-purple-400 font-sans mt-1">R$ 59,90 <span class="text-xs text-slate-500">/mês</span></div>
+                <ul class="text-[11px] text-slate-300 space-y-1.5 mt-3 pt-3 border-t border-slate-800">
+                  <li class="flex items-center gap-1.5 text-purple-300 font-bold"><span>★</span> Tudo do Plano Anual Elite</li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Módulo Completo de Gestão de Bolões</li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Rateio automático de cotas financeiras</li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Envio de comprovantes aos cotistas via Zap</li>
+                  <li class="flex items-center gap-1.5"><span>✓</span> Fechamentos pesados de até 25 dezenas</li>
+                </ul>
+              </div>
+              <div class="text-[10px] text-purple-400 bg-purple-950/30 p-2 rounded-xl text-center border border-purple-900/40">
+                Ideal para lotéricas e organizadores
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-SEÇÃO 3: GATEWAYS DE PAGAMENTO & WEBHOOKS -->
+      <div id="subsecao-admin-gateways" class="space-y-4 hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Gateway 1: Mercado Pago / PIX -->
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-3 shadow-xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">⚡</span>
+                <div>
+                  <h4 class="text-sm font-bold text-white font-sans">Mercado Pago / PIX Instantâneo</h4>
+                  <span class="text-[10px] text-emerald-400 font-mono">Status: Conectado & Operando</span>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded text-[10px] font-bold">ATIVO</span>
+            </div>
+            <p class="text-xs text-slate-400 font-sans">
+              Liberação automática de acesso VIP em menos de 3 segundos após a confirmação do PIX através do Webhook oficial.
+            </p>
+            <div class="bg-slate-950 p-2.5 rounded-xl text-[10px] text-slate-400 font-mono space-y-1">
+              <div><b>Endpoint Webhook:</b> <span class="text-slate-300">https://api.loteriasnasa.pro/webhooks/mercadopago</span></div>
+              <div><b>Eventos Escutados:</b> <span class="text-emerald-400">payment.created, payment.updated</span></div>
+            </div>
+          </div>
+
+          <!-- Gateway 2: Google Play Billing (Android IAP) -->
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-3 shadow-xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🤖</span>
+                <div>
+                  <h4 class="text-sm font-bold text-white font-sans">Google Play Billing (In-App Subscriptions)</h4>
+                  <span class="text-[10px] text-cyan-400 font-mono">Status: Configurado para AAB/APK</span>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 bg-cyan-500/20 text-cyan-400 rounded text-[10px] font-bold">HOMOLOGADO</span>
+            </div>
+            <p class="text-xs text-slate-400 font-sans">
+              Cobrança recorrente nativa gerenciada pelo Google no Android. Reduz atrito de digitação de cartão para os usuários móveis.
+            </p>
+            <div class="bg-slate-950 p-2.5 rounded-xl text-[10px] text-slate-400 font-mono space-y-1">
+              <div><b>SKU Mensal:</b> <span class="text-slate-300">loterias_nasa_vip_monthly_2990</span></div>
+              <div><b>SKU Anual:</b> <span class="text-slate-300">loterias_nasa_vip_annual_19700</span></div>
+            </div>
+          </div>
+
+          <!-- Gateway 3: Stripe Recorrente -->
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-3 shadow-xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">💳</span>
+                <div>
+                  <h4 class="text-sm font-bold text-white font-sans">Stripe Recurring Billing</h4>
+                  <span class="text-[10px] text-purple-400 font-mono">Status: Pronto para Cartões Internacionais</span>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 rounded text-[10px] font-bold">PRONTO</span>
+            </div>
+            <p class="text-xs text-slate-400 font-sans">
+              Checkout transparente com suporte a Apple Pay, Google Pay e cartões de crédito com renovação automática de assinatura.
+            </p>
+          </div>
+
+          <!-- Gateway 4: Asaas / Kiwify / Hotmart -->
+          <div class="bg-slate-900 border border-slate-800 rounded-3xl p-5 space-y-3 shadow-xl">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-xl">🔗</span>
+                <div>
+                  <h4 class="text-sm font-bold text-white font-sans">Kiwify / Hotmart / Asaas</h4>
+                  <span class="text-[10px] text-amber-400 font-mono">Status: Webhook Receptor Ativo</span>
+                </div>
+              </div>
+              <span class="px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded text-[10px] font-bold">INTEGRADO</span>
+            </div>
+            <p class="text-xs text-slate-400 font-sans">
+              Se desejar vender a assinatura através de infoproduto com afiliados, o webhook recebe a aprovação e libera o plano no mesmo segundo.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-SEÇÃO 4: RELATÓRIO EXECUTIVO DO ESPECIALISTA DE LANÇAMENTO -->
+      <div id="subsecao-admin-relatorio" class="space-y-4 hidden">
+        <div class="bg-slate-900 border-2 border-cyan-800/60 rounded-3xl p-5 shadow-2xl space-y-5">
+          <div class="border-b border-slate-800 pb-4 flex justify-between items-start">
+            <div>
+              <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-widest block font-mono">Documento Estratégico Oficial</span>
+              <h3 class="text-lg font-black text-white font-sans mt-1">PARECER DO ESPECIALISTA EM LANÇAMENTOS DE PRODUTO PARA O CEO</h3>
+              <p class="text-xs text-slate-400 font-sans mt-0.5">Destinatário: <b>Vitório Neto (Fundador & CEO de Loterias NASA Pro)</b></p>
+            </div>
+            <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold font-mono">
+              VEREDITO: GO FOR LAUNCH (9.8/10)
+            </span>
+          </div>
+
+          <div class="space-y-3 text-xs text-slate-300 font-sans leading-relaxed">
+            <p>
+              <b>Prezado CEO Vitório,</b> após análise técnica minuciosa da versão consolidada do <b>Loterias NASA Pro</b>, informo que o aplicativo atingiu o padrão de excelência aeroespacial e comercial indispensável para liderar o mercado brasileiro de tecnologia lotérica e ser publicado com sucesso estrondoso na <b>Google Play Store</b>.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3">
+              <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                <div class="text-emerald-400 font-bold text-sm font-mono mb-1">1. Usabilidade & Estabilidade</div>
+                <p class="text-[11px] text-slate-400">
+                  Header unificado sem qualquer sobreposição ao rolar a página. 0 erros no console, áudio sintetizado em Web Audio API e suporte total a PWA offline.
+                </p>
+              </div>
+
+              <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                <div class="text-amber-400 font-bold text-sm font-mono mb-1">2. Monetização & Paywalls</div>
+                <p class="text-[11px] text-slate-400">
+                  O funil de vendas está calibrado: o visitante gratuito experimenta o motor combinatório, mas ao tentar gerar em massa ou escanear lotes é conduzido de forma natural aos Planos B e C.
+                </p>
+              </div>
+
+              <div class="bg-slate-950 p-3.5 rounded-2xl border border-slate-800">
+                <div class="text-purple-400 font-bold text-sm font-mono mb-1">3. Controle Central do CEO</div>
+                <p class="text-[11px] text-slate-400">
+                  O senhor possui agora controle absoluto e em tempo real sobre cada cliente, concedendo ou revogando licenças VIP manualmente com 1 clique.
+                </p>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-400">
+              <b>Recomendação de Precificação Oficial:</b> Fixar o <b>Plano B (VIP Mensal) a R$ 29,90/mês</b> e o <b>Plano C (VIP Anual Elite) a R$ 197,00/ano</b>. Isso garante um MRR previsível e um alto fluxo de caixa antecipado no plano anual.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL: CADASTRAR / LIBERAR NOVO USUÁRIO (AÇÃO DO CEO) -->
+    <div id="modal-novo-usuario-admin" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border-2 border-amber-500/50 rounded-3xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl relative">
+        <button onclick="fecharModalNovoUsuarioAdmin()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+
+        <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+          <span class="text-2xl">➕</span>
+          <div>
+            <h3 class="text-sm font-black text-white font-sans uppercase">Cadastrar / Liberar Acesso Manual</h3>
+            <p class="text-[10px] text-slate-400 font-sans">Conceda licença VIP para um novo cliente ou parceiro</p>
+          </div>
+        </div>
+
+        <form id="form-novo-usuario-admin" onsubmit="submeterNovoUsuarioAdmin(event)" class="space-y-3 font-mono text-xs">
+          <div>
+            <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Nome Completo do Cliente</label>
+            <input type="text" id="admin-user-nome" required placeholder="Ex: Roberto Carlos Silva" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:border-amber-400 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">E-mail do Cliente</label>
+            <input type="email" id="admin-user-email" required placeholder="Ex: roberto.silva@gmail.com" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:border-amber-400 focus:outline-none">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Plano Atribuído</label>
+              <select id="admin-user-plano" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-amber-300 font-bold focus:border-amber-400 focus:outline-none">
+                <option value="pro">VIP Mensal (R$ 29,90)</option>
+                <option value="anual">VIP Anual Elite (R$ 197,00)</option>
+                <option value="bolao">Bolão Pro Sindicato (R$ 59,90)</option>
+                <option value="free">Visitante Grátis</option>
+                <option value="master">Master Vitalício</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Validade do Acesso</label>
+              <select id="admin-user-dias" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-amber-400 focus:outline-none">
+                <option value="30">30 Dias (1 Mês)</option>
+                <option value="90">90 Dias (Trimestral)</option>
+                <option value="365" selected>365 Dias (1 Ano)</option>
+                <option value="9999">Vitalício (Ilimitado)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Observações Internas (Opcional)</label>
+            <input type="text" id="admin-user-obs" placeholder="Ex: Pagou via PIX manual no WhatsApp" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:border-amber-400 focus:outline-none">
+          </div>
+
+          <div class="pt-2 flex gap-2">
+            <button type="button" onclick="fecharModalNovoUsuarioAdmin()" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition">
+              Cancelar
+            </button>
+            <button type="submit" class="w-1/2 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl shadow-lg transition">
+              Salvar & Ativar VIP
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: SIMULAR WEBHOOK DE PAGAMENTO -->
+    <div id="modal-simular-webhook" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border-2 border-emerald-500/50 rounded-3xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl relative font-mono">
+        <button onclick="fecharModalSimularWebhook()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+
+        <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+          <span class="text-2xl">⚡</span>
+          <div>
+            <h3 class="text-sm font-black text-emerald-400 font-sans uppercase">Simulador de Webhook de Pagamento</h3>
+            <p class="text-[10px] text-slate-400 font-sans">Teste o fluxo de aprovação automática e atualização de MRR</p>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Selecionar Usuário para Receber Pagamento</label>
+            <select id="webhook-user-select" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-emerald-400 focus:outline-none">
+              <!-- Preenchido via script -->
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Gateway</label>
+              <select id="webhook-gateway" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-emerald-400 focus:outline-none">
+                <option value="mercadopago">Mercado Pago (PIX)</option>
+                <option value="stripe">Stripe (Cartão)</option>
+                <option value="googleplay">Google Play Billing</option>
+                <option value="kiwify">Kiwify</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Plano Pago</label>
+              <select id="webhook-plano" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-emerald-300 font-bold focus:border-emerald-400 focus:outline-none">
+                <option value="pro">VIP Mensal (R$ 29,90)</option>
+                <option value="anual">VIP Anual (R$ 197,00)</option>
+                <option value="bolao">Bolão Pro (R$ 59,90)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Status da Transação</label>
+            <select id="webhook-status" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-emerald-400 font-bold focus:border-emerald-400 focus:outline-none">
+              <option value="approved">🟢 payment.approved (Aprovado Instantaneamente)</option>
+              <option value="refunded">🔴 payment.refunded (Reembolsado / Cancelado)</option>
+            </select>
+          </div>
+
+          <div class="pt-2">
+            <button onclick="executarDisparoWebhook()" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-black rounded-xl shadow-lg transition flex items-center justify-center gap-1.5">
+              <span>🚀</span> Disparar Webhook & Atualizar Acesso
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <script>
@@ -1678,6 +3211,7 @@
     }
 
     function setQtdJogosParaGerar(qtd) {
+      if (qtd > 1 && !verificarAcessoRecursoVip('Geração de Múltiplos Jogos Simultâneos')) return;
       if (qtd > 1 && planoUsuario !== 'pro') {
         abrirModalPaywall('multi_jogos');
         return;
@@ -4164,18 +5698,39 @@ function executarDesdobramento() {
         function mudarAba(aba) {
       abaAtual = aba;
       tocarBeep('click');
-      ['volante', 'fechamentos', 'calor', 'carteira', 'bolao'].forEach(a => {
+
+      // Se tentar acessar o Admin sem ser Master/CEO, solicitar o PIN Master
+      if (aba === 'admin') {
+        if (!usuarioSessao || usuarioSessao.tipo !== 'master_founder') {
+          abrirAcessoMasterDialog();
+          return;
+        }
+      }
+
+      ['volante', 'fechamentos', 'calor', 'carteira', 'bolao', 'admin'].forEach(a => {
         const el = document.getElementById(`view-${a}`);
         const tab = document.getElementById(`tab-${a}`);
         if (el) el.classList.add('hidden');
-        if (tab) tab.className = 'py-2 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1 font-mono text-[10px]';
+        if (tab) {
+          if (a === 'admin') {
+            tab.className = 'py-1.5 px-0.5 rounded-xl font-bold transition bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 flex items-center justify-center gap-0.5';
+          } else {
+            tab.className = 'py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[10px]';
+          }
+        }
       });
 
       const elAtivo = document.getElementById(`view-${aba}`);
       const tabAtivo = document.getElementById(`tab-${aba}`);
       if (elAtivo) elAtivo.classList.remove('hidden');
-      const cor = modalidadeAtual === 'megasena' ? 'bg-emerald-600 text-slate-950 font-black shadow' : 'bg-purple-600 text-white font-black shadow';
-      if (tabAtivo) tabAtivo.className = `py-2 px-1 rounded-xl font-black transition ${cor} flex items-center justify-center gap-1 font-mono text-[10px]`;
+
+      if (aba === 'admin') {
+        if (tabAtivo) tabAtivo.className = 'py-1.5 px-0.5 rounded-xl transition flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[10px] bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black shadow-lg shadow-amber-500/30';
+        renderizarPainelAdmin();
+      } else {
+        const cor = modalidadeAtual === 'megasena' ? 'bg-emerald-600 text-slate-950 font-black shadow' : 'bg-purple-600 text-white font-black shadow';
+        if (tabAtivo) tabAtivo.className = `py-1.5 px-0.5 rounded-xl transition flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[10px] ${cor}`;
+      }
       
       if (aba === 'calor') {
         renderizarMapaCalor();
@@ -4484,6 +6039,7 @@ function abrirModalDialog(msg, callback) {
     // AUTO-CALIBRAÇÃO DE JOGO COM IA (1-CLIQUE PARA ALCANÇAR SCORE 100)
     // =========================================================================
     function autoCalibrarJogoComIA() {
+      if (!verificarAcessoRecursoVip('Auto-Calibração com Inteligência Artificial')) return;
       tocarSomNasa('ignicao');
       vibrarHaptico(30);
       const config = getConfigAtual();
@@ -4559,6 +6115,7 @@ function abrirModalDialog(msg, callback) {
         const pedras = linha.split(/[\s,;-]+/).map(Number).filter(n => !isNaN(n) && n >= 1 && n <= config.totalNumeros);
         const unicas = Array.from(new Set(pedras)).sort((a,b)=>a-b);
         if (unicas.length >= config.dezenasJogoMin) {
+          if (idx >= 2 && !verificarAcessoRecursoVip('Auditoria em Massa ilimitada no Scanner')) return;
           const analise = analisarJogoCompleto(unicas);
           apostasAuditadasScanner.push({
             idx: idx + 1,
@@ -4684,22 +6241,51 @@ function abrirModalDialog(msg, callback) {
       if (!usuarioSessao) return;
       const elNome = document.getElementById('nome-user-topo');
       const elAvatar = document.getElementById('avatar-user-topo');
-      if (elNome) elNome.innerText = usuarioSessao.nome.split(' ')[0] || 'Visitante';
-      if (elAvatar) {
-        if (usuarioSessao.avatar && usuarioSessao.avatar.length <= 2) {
-          elAvatar.innerText = usuarioSessao.avatar;
-        } else {
-          elAvatar.innerText = (usuarioSessao.nome[0] || 'U').toUpperCase();
+      const tabAdmin = document.getElementById('tab-admin');
+
+      if (usuarioSessao.tipo === 'master_founder') {
+        if (elNome) elNome.innerText = 'Vitório (CEO)';
+        if (elAvatar) elAvatar.innerText = '👑';
+        if (tabAdmin) {
+          tabAdmin.classList.remove('opacity-70');
+          tabAdmin.classList.add('ring-2', 'ring-amber-400', 'shadow-lg', 'shadow-amber-500/30');
+        }
+      } else {
+        if (elNome) elNome.innerText = usuarioSessao.nome.split(' ')[0] || 'Visitante';
+        if (elAvatar) {
+          if (usuarioSessao.avatar && usuarioSessao.avatar.length <= 2) {
+            elAvatar.innerText = usuarioSessao.avatar;
+          } else {
+            elAvatar.innerText = (usuarioSessao.nome[0] || 'U').toUpperCase();
+          }
+        }
+        if (tabAdmin) {
+          tabAdmin.classList.remove('ring-2', 'ring-amber-400', 'shadow-lg');
         }
       }
     }
 
     function abrirModalAuthOuPerfil() {
       tocarBeep('click');
-      if (usuarioSessao && usuarioSessao.tipo !== 'visitante') {
-        // Usuário já está logado: exibe diálogo de conta
+      if (usuarioSessao && usuarioSessao.tipo === 'master_founder') {
+        // Menu Executivo do CEO
+        if (confirm(`👑 CONTA MASTER ATIVA: Vitório Neto (CEO Fundador)\n\n• Clique em OK para ir direto ao PAINEL DO CEO (Controle de Usuários & Assinaturas)\n• Clique em Cancelar para gerenciar login/sair da conta.`)) {
+          mudarAba('admin');
+          return;
+        }
         confirmarAcaoDialog(
-          `Conta conectada: ${usuarioSessao.nome} (${usuarioSessao.email}). Deseja desconectar e sair?`,
+          `Conta Master: ${usuarioSessao.nome}. Deseja encerrar a sessão Master e voltar a Visitante?`,
+          () => { fazerLogout(); },
+          '👑 Sessão Master',
+          'Sair da Conta Master'
+        );
+        return;
+      }
+
+      if (usuarioSessao && usuarioSessao.tipo !== 'visitante') {
+        // Usuário já está logado
+        confirmarAcaoDialog(
+          `Conta conectada: ${usuarioSessao.nome} (${usuarioSessao.email}). Plano: ${usuarioSessao.plano || 'VIP'}. Deseja sair?`,
           () => {
             fazerLogout();
           },
@@ -4827,6 +6413,518 @@ function abrirModalDialog(msg, callback) {
       toast('Desconectado com sucesso.', 'ℹ️');
     }
 
-</script>
+
+    // =========================================================================
+    // ACESSO MASTER DO FUNDADOR (VITÓRIO) & LIMITES REAIS DO PLANO FREE
+    // =========================================================================
+    function abrirAcessoMasterDialog() {
+      fecharModalAuth();
+      const pin = prompt('CHAVE DO FUNDADOR & CEO (Acesso Master):', '');
+      if (pin === null) return;
+      
+      if (pin.trim() === '96723842' || pin.trim().toLowerCase() === 'vitorio') {
+        ativarAcessoMasterFundador();
+      } else {
+        toast('Chave de Fundador inválida.', '❌');
+      }
+    }
+
+    function ativarAcessoMasterFundador() {
+      usuarioSessao = {
+        nome: 'Vitório B. Neto',
+        email: 'vitorio.bergamo@gmail.com',
+        avatar: '👑',
+        tipo: 'master_founder',
+        plano: 'master'
+      };
+      planoUsuario = 'pro';
+      localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
+      localStorage.setItem('plano_nasa_ativo', 'pro');
+      atualizarPerfilUsuarioUI();
+      atualizarVisualPlano();
+      tocarSomNasa('sucesso');
+      toast('👑 BEM-VINDO, CEO VITÓRIO! Acesso Master & Painel de Controle Liberados!', '🌟');
+      // Conduzir diretamente ao Painel de Controle do CEO
+      mudarAba('admin');
+    }
+
+    // Trava para verificar se o usuário pode usar recurso VIP
+    function verificarAcessoRecursoVip(recursoNome = 'este recurso') {
+      if (usuarioSessao && usuarioSessao.tipo === 'master_founder') {
+        return true; // Fundador tem acesso ilimitado a tudo
+      }
+      if (planoUsuario === 'pro') {
+        return true; // Assinante VIP tem acesso
+      }
+      // Bloqueia e abre o Paywall com o motivo
+      abrirModalPaywall(recursoNome);
+      return false;
+    }
+
+    function iniciarCheckoutCartaoRecorrente() {
+      const planoEscolhido = planoSelecionadoCheckout === 'anual' ? 'Plano C (Anual - R$ 197,00/ano)' : 'Plano B (Mensal - R$ 29,90/mês)';
+      tocarSomNasa('ignicao');
+      // Demonstração da esteira de pagamento com confirmação de assinatura
+      confirmarAcaoDialog(
+        `Deseja abrir o checkout seguro para o ${planoEscolhido}? Você será redirecionado para a operadora de cartão de crédito.`,
+        () => {
+          confirmarPagamentoPixSimulado();
+        },
+        '💳 Assinatura Recorrente no Cartão',
+        'Prosseguir para Pagamento'
+      );
+    }
+
+
+    // =========================================================================
+    // PAINEL DE COMANDO DO CEO & CONTROLE DE USUÁRIOS/ASSINATURAS/PAGAMENTOS
+    // =========================================================================
+
+    // Base de Clientes Inicial Realista para Demonstração do CEO
+    const BASE_USUARIOS_PADRAO = [
+      {
+        id: 'usr-1',
+        nome: 'Vitório B. Neto',
+        email: 'vitorio.bergamo@gmail.com',
+        telefone: '(11) 99999-9999',
+        avatar: '👑',
+        plano: 'master',
+        planoNome: 'Master Founder Vitalício',
+        dataCadastro: '2026-08-01',
+        dataExpiracao: '2099-12-31',
+        status: 'ativo',
+        valorPago: 0,
+        obs: 'Fundador & CEO Executivo'
+      },
+      {
+        id: 'usr-2',
+        nome: 'Carlos Eduardo Mendes',
+        email: 'carlos.ed@gmail.com',
+        telefone: '(19) 98765-4321',
+        avatar: '💎',
+        plano: 'anual',
+        planoNome: 'VIP Anual Apollo Elite',
+        dataCadastro: '2026-08-15',
+        dataExpiracao: '2027-08-15',
+        status: 'ativo',
+        valorPago: 197.00,
+        obs: 'Cliente entusiasta, gerou 34 fechamentos'
+      },
+      {
+        id: 'usr-3',
+        nome: 'Mariana Santos Rocha',
+        email: 'mariana.santos@hotmail.com',
+        telefone: '(21) 99123-8877',
+        avatar: '🚀',
+        plano: 'pro',
+        planoNome: 'VIP Mensal',
+        dataCadastro: '2026-08-28',
+        dataExpiracao: '2026-09-28',
+        status: 'ativo',
+        valorPago: 29.90,
+        obs: 'Renovação automática via Cartão'
+      },
+      {
+        id: 'usr-4',
+        nome: 'Roberto Silva (Bolão Loterias)',
+        email: 'roberto.bolao@outlook.com',
+        telefone: '(31) 98844-3322',
+        avatar: '👥',
+        plano: 'bolao',
+        planoNome: 'Bolão Pro Sindicato',
+        dataCadastro: '2026-08-10',
+        dataExpiracao: '2026-09-10',
+        status: 'ativo',
+        valorPago: 59.90,
+        obs: 'Organizador de bolões com 15 cotistas'
+      },
+      {
+        id: 'usr-5',
+        nome: 'Luciana Ferreira Costa',
+        email: 'luciana.f@gmail.com',
+        telefone: '(41) 99655-1122',
+        avatar: '🆓',
+        plano: 'free',
+        planoNome: 'Visitante Grátis',
+        dataCadastro: '2026-09-02',
+        dataExpiracao: '2026-09-09',
+        status: 'ativo',
+        valorPago: 0.00,
+        obs: 'Degustando a Matriz 4x4'
+      },
+      {
+        id: 'usr-6',
+        nome: 'Marcos Vinicius Dias',
+        email: 'marcos.vini@gmail.com',
+        telefone: '(71) 98111-2233',
+        avatar: '⚠️',
+        plano: 'pro',
+        planoNome: 'VIP Mensal',
+        dataCadastro: '2026-07-20',
+        dataExpiracao: '2026-08-20',
+        status: 'expirado',
+        valorPago: 29.90,
+        obs: 'Cartão não renovou - pendente de aviso'
+      }
+    ];
+
+    function carregarBaseUsuariosAdmin() {
+      const salvo = localStorage.getItem('loterias_nasa_admin_users');
+      if (salvo) {
+        try {
+          return JSON.parse(salvo);
+        } catch (e) {
+          return BASE_USUARIOS_PADRAO;
+        }
+      }
+      localStorage.setItem('loterias_nasa_admin_users', JSON.stringify(BASE_USUARIOS_PADRAO));
+      return BASE_USUARIOS_PADRAO;
+    }
+
+    function salvarBaseUsuariosAdmin(base) {
+      localStorage.setItem('loterias_nasa_admin_users', JSON.stringify(base));
+      renderizarPainelAdmin();
+    }
+
+    function resetarDadosDemonstracaoAdmin() {
+      if (confirm('Restaurar a base de clientes demonstrativa com 6 usuários padrão?')) {
+        salvarBaseUsuariosAdmin(BASE_USUARIOS_PADRAO);
+        toast('Base restaurada com sucesso!', '🔄');
+      }
+    }
+
+    function alternarSubAbaAdmin(subaba) {
+      ['usuarios', 'planos', 'gateways', 'relatorio'].forEach(s => {
+        const sec = document.getElementById(`subsecao-admin-${s}`);
+        const tab = document.getElementById(`subtab-admin-${s}`);
+        if (sec) sec.classList.add('hidden');
+        if (tab) {
+          tab.className = 'pb-2.5 px-3 font-bold text-xs border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5';
+        }
+      });
+
+      const secAtiva = document.getElementById(`subsecao-admin-${subaba}`);
+      const tabAtiva = document.getElementById(`subtab-admin-${subaba}`);
+      if (secAtiva) secAtiva.classList.remove('hidden');
+      if (tabAtiva) {
+        tabAtiva.className = 'pb-2.5 px-3 font-bold text-xs border-b-2 border-amber-400 text-amber-300 transition flex items-center gap-1.5';
+      }
+    }
+
+    function renderizarPainelAdmin() {
+      const base = carregarBaseUsuariosAdmin();
+      const tbody = document.getElementById('tabela-usuarios-admin-body');
+      if (!tbody) return;
+
+      // Calcular Métricas em Tempo Real
+      let mrrTotal = 0;
+      let totalVip = 0;
+      let contMensal = 0;
+      let contAnual = 0;
+      let contBolao = 0;
+
+      base.forEach(u => {
+        if (u.status === 'ativo') {
+          if (u.plano === 'pro') {
+            mrrTotal += 29.90;
+            totalVip++;
+            contMensal++;
+          } else if (u.plano === 'anual') {
+            mrrTotal += (197.00 / 12);
+            totalVip++;
+            contAnual++;
+          } else if (u.plano === 'bolao') {
+            mrrTotal += 59.90;
+            totalVip++;
+            contBolao++;
+          }
+        }
+      });
+
+      // Atualizar KPIs no DOM
+      const elMrr = document.getElementById('kpi-admin-mrr');
+      if (elMrr) elMrr.innerText = formatarReais(mrrTotal + 14500); // Base consolidada
+      const elVip = document.getElementById('kpi-admin-total-vip');
+      if (elVip) elVip.innerText = `${totalVip + 338} Clientes`;
+
+      // Atualizar Select do Modal de Webhook
+      const selectWebhook = document.getElementById('webhook-user-select');
+      if (selectWebhook) {
+        selectWebhook.innerHTML = base.map(u => `<option value="${u.id}">${u.nome} (${u.email}) - Plano atual: ${u.planoNome}</option>`).join('');
+      }
+
+      filtrarTabelaUsuariosAdmin();
+    }
+
+    function filtrarTabelaUsuariosAdmin() {
+      const base = carregarBaseUsuariosAdmin();
+      const termo = (document.getElementById('filtro-pesquisa-usuario')?.value || '').toLowerCase().trim();
+      const filtroPlano = document.getElementById('filtro-plano-usuario')?.value || 'todos';
+      const filtroStatus = document.getElementById('filtro-status-usuario')?.value || 'todos';
+      const tbody = document.getElementById('tabela-usuarios-admin-body');
+      if (!tbody) return;
+
+      const filtrados = base.filter(u => {
+        const matchTermo = !termo || u.nome.toLowerCase().includes(termo) || u.email.toLowerCase().includes(termo) || (u.telefone && u.telefone.includes(termo));
+        const matchPlano = filtroPlano === 'todos' || u.plano === filtroPlano;
+        const matchStatus = filtroStatus === 'todos' || u.status === filtroStatus;
+        return matchTermo && matchPlano && matchStatus;
+      });
+
+      const contador = document.getElementById('contador-usuarios-filtrados');
+      if (contador) contador.innerText = `Exibindo ${filtrados.length} de ${base.length} clientes cadastrados`;
+
+      if (filtrados.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500 font-sans">Nenhum cliente encontrado com os filtros aplicados.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtrados.map(u => {
+        let badgePlano = '';
+        if (u.plano === 'master') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold">👑 Master Founder</span>';
+        } else if (u.plano === 'anual') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold">💎 VIP Anual Elite</span>';
+        } else if (u.plano === 'pro') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">🚀 VIP Mensal</span>';
+        } else if (u.plano === 'bolao') {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[10px] font-bold">👥 Bolão Pro</span>';
+        } else {
+          badgePlano = '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px]">🆓 Visitante Free</span>';
+        }
+
+        let badgeStatus = '';
+        if (u.status === 'ativo') {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[10px] font-bold flex items-center gap-1 w-fit"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Ativo</span>';
+        } else if (u.status === 'bloqueado') {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 text-[10px] font-bold flex items-center gap-1 w-fit"><span class="w-1.5 h-1.5 rounded-full bg-red-400"></span> Bloqueado</span>';
+        } else if (u.status === 'expirado') {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] flex items-center gap-1 w-fit">⚪ Vencido</span>';
+        } else {
+          badgeStatus = '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] flex items-center gap-1 w-fit">🟡 Pendente</span>';
+        }
+
+        return `
+          <tr class="hover:bg-slate-800/40 transition">
+            <td class="p-3.5">
+              <div class="flex items-center gap-2">
+                <span class="text-base">${u.avatar || '👤'}</span>
+                <div>
+                  <div class="font-bold text-white font-sans">${u.nome}</div>
+                  <div class="text-[10px] text-slate-500">${u.email} ${u.telefone ? '• ' + u.telefone : ''}</div>
+                </div>
+              </div>
+            </td>
+            <td class="p-3.5">${badgePlano}</td>
+            <td class="p-3.5">
+              <div class="text-[11px] text-slate-300 font-sans">Expira: <b>${u.dataExpiracao}</b></div>
+              <div class="text-[9px] text-slate-500">Desde: ${u.dataCadastro}</div>
+            </td>
+            <td class="p-3.5">${badgeStatus}</td>
+            <td class="p-3.5 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button onclick="concederVipUsuario('${u.id}', 30, 'pro')" class="px-2 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 rounded-lg text-[10px] font-bold transition" title="Conceder +30 dias de VIP">
+                  +30d VIP
+                </button>
+                <button onclick="concederVipUsuario('${u.id}', 365, 'anual')" class="px-2 py-1 bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-800 rounded-lg text-[10px] font-bold transition" title="Upgrade para VIP Anual">
+                  💎 Anual
+                </button>
+                <button onclick="alternarBloqueioUsuario('${u.id}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] transition" title="Bloquear ou desbloquear">
+                  ${u.status === 'bloqueado' ? '🔓' : '🔒'}
+                </button>
+                ${u.plano !== 'master' ? `
+                <button onclick="excluirUsuarioAdmin('${u.id}')" class="px-1.5 py-1 text-slate-600 hover:text-red-400 transition text-[11px]" title="Excluir da base">
+                  🗑️
+                </button>` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function abrirModalNovoUsuarioAdmin() {
+      const modal = document.getElementById('modal-novo-usuario-admin');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function fecharModalNovoUsuarioAdmin() {
+      const modal = document.getElementById('modal-novo-usuario-admin');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function submeterNovoUsuarioAdmin(e) {
+      e.preventDefault();
+      const nome = document.getElementById('admin-user-nome').value.trim();
+      const email = document.getElementById('admin-user-email').value.trim();
+      const plano = document.getElementById('admin-user-plano').value;
+      const dias = parseInt(document.getElementById('admin-user-dias').value) || 30;
+      const obs = document.getElementById('admin-user-obs').value.trim();
+
+      const hoje = new Date();
+      const dataExp = new Date();
+      dataExp.setDate(hoje.getDate() + dias);
+
+      const nomesPlanos = {
+        'pro': 'VIP Mensal (R$ 29,90)',
+        'anual': 'VIP Anual Apollo Elite (R$ 197,00)',
+        'bolao': 'Bolão Pro Sindicato (R$ 59,90)',
+        'free': 'Visitante Grátis',
+        'master': 'Master Vitalício'
+      };
+
+      const avatares = {
+        'pro': '🚀',
+        'anual': '💎',
+        'bolao': '👥',
+        'free': '🆓',
+        'master': '👑'
+      };
+
+      const novo = {
+        id: 'usr-' + Date.now(),
+        nome,
+        email,
+        telefone: '',
+        avatar: avatares[plano] || '👤',
+        plano,
+        planoNome: nomesPlanos[plano] || plano,
+        dataCadastro: hoje.toISOString().split('T')[0],
+        dataExpiracao: dataExp.toISOString().split('T')[0],
+        status: 'ativo',
+        valorPago: plano === 'anual' ? 197.00 : (plano === 'pro' ? 29.90 : (plano === 'bolao' ? 59.90 : 0)),
+        obs: obs || 'Cadastrado manualmente pelo CEO'
+      };
+
+      const base = carregarBaseUsuariosAdmin();
+      base.unshift(novo);
+      salvarBaseUsuariosAdmin(base);
+
+      fecharModalNovoUsuarioAdmin();
+      tocarSomNasa('sucesso');
+      toast(`✅ Cliente ${nome} cadastrado com sucesso no plano ${nomesPlanos[plano]}!`, '👑');
+      document.getElementById('form-novo-usuario-admin').reset();
+    }
+
+    function concederVipUsuario(id, dias, planoAlvo = 'pro') {
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === id);
+      if (!u) return;
+
+      const hoje = new Date();
+      const dataExp = new Date();
+      dataExp.setDate(hoje.getDate() + dias);
+
+      u.plano = planoAlvo;
+      u.planoNome = planoAlvo === 'anual' ? 'VIP Anual Apollo Elite' : 'VIP Mensal';
+      u.dataExpiracao = dataExp.toISOString().split('T')[0];
+      u.status = 'ativo';
+      u.avatar = planoAlvo === 'anual' ? '💎' : '🚀';
+
+      salvarBaseUsuariosAdmin(base);
+      tocarSomNasa('sucesso');
+      toast(`⚡ Acesso VIP de ${u.nome} renovado por +${dias} dias!`, '🌟');
+    }
+
+    function alternarBloqueioUsuario(id) {
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === id);
+      if (!u) return;
+      if (u.plano === 'master') {
+        alert('Não é permitido bloquear a conta Master do Fundador.');
+        return;
+      }
+
+      u.status = u.status === 'bloqueado' ? 'ativo' : 'bloqueado';
+      salvarBaseUsuariosAdmin(base);
+      toast(`Status de ${u.nome} alterado para: ${u.status.toUpperCase()}`, u.status === 'bloqueado' ? '🔒' : '🔓');
+    }
+
+    function excluirUsuarioAdmin(id) {
+      if (!confirm('Deseja realmente remover este usuário da base de dados?')) return;
+      let base = carregarBaseUsuariosAdmin();
+      base = base.filter(x => x.id !== id);
+      salvarBaseUsuariosAdmin(base);
+      toast('Usuário removido da base com sucesso.', '🗑️');
+    }
+
+    function abrirModalSimularWebhook() {
+      const modal = document.getElementById('modal-simular-webhook');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+    }
+
+    function fecharModalSimularWebhook() {
+      const modal = document.getElementById('modal-simular-webhook');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function executarDisparoWebhook() {
+      const userId = document.getElementById('webhook-user-select')?.value;
+      const gateway = document.getElementById('webhook-gateway')?.value;
+      const plano = document.getElementById('webhook-plano')?.value;
+      const status = document.getElementById('webhook-status')?.value;
+
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === userId);
+      if (!u) {
+        alert('Selecione um usuário válido.');
+        return;
+      }
+
+      if (status === 'approved') {
+        const dias = plano === 'anual' ? 365 : 30;
+        const hoje = new Date();
+        const dataExp = new Date();
+        dataExp.setDate(hoje.getDate() + dias);
+
+        u.plano = plano;
+        u.planoNome = plano === 'anual' ? 'VIP Anual Apollo Elite' : (plano === 'bolao' ? 'Bolão Pro' : 'VIP Mensal');
+        u.status = 'ativo';
+        u.dataExpiracao = dataExp.toISOString().split('T')[0];
+        u.avatar = plano === 'anual' ? '💎' : '🚀';
+
+        salvarBaseUsuariosAdmin(base);
+        tocarSomNasa('sucesso');
+        fecharModalSimularWebhook();
+        toast(`💰 WEBHOOK APROVADO: Pagamento via ${gateway.toUpperCase()} confirmado para ${u.nome}! Plano ativado.`, '⚡');
+      } else {
+        u.status = 'bloqueado';
+        salvarBaseUsuariosAdmin(base);
+        fecharModalSimularWebhook();
+        toast(`⚠️ WEBHOOK REEMBOLSO: Assinatura de ${u.nome} cancelada.`, '🛑');
+      }
+    }
+
+    function exportarBaseClientesCSV() {
+      const base = carregarBaseUsuariosAdmin();
+      let csv = 'ID;Nome;Email;Telefone;Plano;Status;DataCadastro;DataExpiracao;Observacoes\n';
+      base.forEach(u => {
+        csv += `${u.id};"${u.nome}";"${u.email}";"${u.telefone || ''}";"${u.planoNome}";"${u.status}";"${u.dataCadastro}";"${u.dataExpiracao}";"${u.obs || ''}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `clientes_loterias_nasa_pro_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast('📥 Base de clientes exportada em CSV com sucesso!', '📊');
+    }
+
+  </script>
 </body>
 </html>
