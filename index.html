@@ -14,7 +14,12 @@
   
   <!-- Configurações PWA & Mobile Engine -->
   <meta name="theme-color" content="#020617" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <link rel="shortcut icon" href="./icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Loterias NASA Pro" />
 
@@ -400,38 +405,92 @@
     </div>
   </div>
 
-  <!-- TELA DE LOGIN & SEGURANÇA -->
-  <div id="screen-auth" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-4">
-    <div class="bg-slate-900/95 border border-cyan-800/60 rounded-3xl p-6 max-w-sm w-full space-y-5 shadow-2xl relative overflow-hidden backdrop-blur-xl">
-      <div class="w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl absolute -top-10 -right-10 pointer-events-none"></div>
-      
-      <div class="text-center space-y-1.5">
+    <!-- MODAL DE AUTENTICAÇÃO, GOOGLE SIGN-IN & CADASTRO SAAS -->
+  <div id="modal-auth-saas" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
+    <div class="bg-slate-900 border border-cyan-800/80 rounded-3xl p-5 sm:p-6 max-w-sm w-full space-y-4 shadow-2xl relative overflow-hidden backdrop-blur-xl font-sans my-auto">
+      <!-- Glow effect -->
+      <div class="w-36 h-36 bg-cyan-500/10 rounded-full blur-3xl absolute -top-10 -right-10 pointer-events-none"></div>
+
+      <!-- Fechar Modal (visível se já estiver navegando) -->
+      <button type="button" id="btn-fechar-modal-auth" onclick="fecharModalAuth()" class="absolute top-4 right-4 w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs font-bold transition">
+        ✕
+      </button>
+
+      <!-- Cabeçalho do Login -->
+      <div class="text-center space-y-1 pt-1">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 mx-auto flex items-center justify-center text-xl shadow-lg shadow-cyan-500/30">
-          🛰️
+          🚀
         </div>
-        <div class="inline-block px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-800 text-[9px] font-mono font-black text-cyan-300 tracking-wider">
-          NASA TELEMETRY ACCESS
+        <div class="inline-block px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-800 text-[9px] font-mono font-black text-cyan-300 tracking-wider uppercase">
+          NASA Identity & Telemetry
         </div>
-        <h2 class="text-base font-black text-white">Autenticação Aeroespacial</h2>
-        <p class="text-[11px] text-slate-400">Insira as credenciais de segurança do projeto</p>
+        <h2 id="auth-modal-titulo" class="text-base font-black text-white">Acesse sua Conta NASA</h2>
+        <p id="auth-modal-subtitulo" class="text-[11px] text-slate-400">
+          Sincronize seus bilhetes, matrizes e telemetria na nuvem
+        </p>
       </div>
 
-      <div class="space-y-3 font-mono text-xs">
-        <div>
-          <label class="text-[10px] uppercase font-bold text-slate-400 block mb-1">Identificador de Usuário</label>
-          <input id="auth-email" type="text" value="vitorio" placeholder="Usuário" onkeydown="if(event.key==='Enter') realizarLogin()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-500 font-bold tracking-wider" />
-        </div>
-        <div>
-          <label class="text-[10px] uppercase font-bold text-slate-400 block mb-1">Código de Segurança (PIN)</label>
-          <input id="auth-password" type="password" placeholder="Senha" onkeydown="if(event.key==='Enter') realizarLogin()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-cyan-500 font-bold tracking-widest" />
-        </div>
-        <button onclick="realizarLogin()" class="w-full py-3 bg-gradient-to-r from-cyan-600 via-teal-500 to-emerald-500 hover:from-cyan-500 hover:to-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-cyan-500/25 active:scale-95 transition flex items-center justify-center gap-2">
-          <span>🔓</span> DESTRAVAR SISTEMA
+      <!-- BOTÃO OFICIAL CONTINUAR COM GOOGLE -->
+      <div class="pt-1">
+        <button type="button" onclick="autenticarComGoogle()" class="w-full py-2.5 px-3 bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2.5 active:scale-95 transition border border-slate-200">
+          <!-- Ícone Oficial SVG Google -->
+          <svg class="w-4 h-4" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span>Continuar com o Google</span>
         </button>
       </div>
 
-      <div class="pt-3 border-t border-slate-800 text-[10px] text-slate-500 text-center font-mono">
-        Operador Autorizado: <span class="text-emerald-400 font-bold">vitorio</span>
+      <!-- Divisor -->
+      <div class="flex items-center gap-2 text-slate-500 text-[10px]">
+        <div class="h-px flex-1 bg-slate-800"></div>
+        <span class="font-mono">ou com e-mail</span>
+        <div class="h-px flex-1 bg-slate-800"></div>
+      </div>
+
+      <!-- Alternador entre Cadastrar e Entrar -->
+      <div class="flex p-1 bg-slate-950 rounded-xl border border-slate-800 text-[11px] font-bold">
+        <button type="button" id="tab-auth-entrar" onclick="alternarAbaAuth('entrar')" class="flex-1 py-1.5 rounded-lg transition bg-cyan-600 text-slate-950 font-black">
+          Entrar
+        </button>
+        <button type="button" id="tab-auth-cadastrar" onclick="alternarAbaAuth('cadastrar')" class="flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition font-bold">
+          Criar Conta
+        </button>
+      </div>
+
+      <!-- Formulário de Autenticação / Cadastro -->
+      <form onsubmit="submeterFormularioAuth(event)" class="space-y-2.5 font-mono text-xs">
+        <div id="campo-auth-nome" class="hidden">
+          <label class="text-[10px] uppercase font-bold text-slate-400 block mb-1">Nome Completo</label>
+          <input id="input-auth-nome" type="text" placeholder="Seu nome" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500 font-sans" />
+        </div>
+
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-400 block mb-1">E-mail</label>
+          <input id="input-auth-email" type="email" required placeholder="seuemail@exemplo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500 font-sans" />
+        </div>
+
+        <div>
+          <label class="text-[10px] uppercase font-bold text-slate-400 block mb-1">Senha</label>
+          <input id="input-auth-senha" type="password" required placeholder="Sua senha secreta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500" />
+        </div>
+
+        <button type="submit" id="btn-submit-auth" class="w-full py-2.5 btn-rocket-launch text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center justify-center gap-1.5 font-sans">
+          <span>🚀</span> <span id="txt-btn-submit-auth">ENTRAR NA MINHA CONTA</span>
+        </button>
+      </form>
+
+      <!-- BOTÃO DEGUSTAÇÃO / EXPERIMENTAR GRÁTIS SEM CADASTRO -->
+      <div class="pt-2 border-t border-slate-800/80 text-center space-y-1">
+        <button type="button" onclick="entrarComoVisitanteGratis()" class="w-full py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-[11px] rounded-xl border border-slate-700 transition">
+          ✨ Experimentar Teste Grátis (Sem Cadastro)
+        </button>
+        <span class="text-[9px] text-slate-500 block font-sans">
+          Acesso instantâneo à Matriz 4x4 e Bateria dos 6 Testes
+        </span>
       </div>
     </div>
   </div>
@@ -451,12 +510,17 @@
         </div>
       </div>
       <div class="flex items-center gap-2 text-slate-300">
+        <!-- Badge de Perfil do Usuário / Login -->
+        <button type="button" id="btn-user-profile" onclick="abrirModalAuthOuPerfil()" class="px-2 py-0.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[9px] font-bold text-slate-200 flex items-center gap-1.5 transition" title="Minha Conta / Perfil">
+          <span id="avatar-user-topo" class="w-4 h-4 rounded-full bg-cyan-600 text-white flex items-center justify-center text-[8px] font-black">👤</span>
+          <span id="nome-user-topo" class="max-w-[70px] truncate">Visitante</span>
+        </button>
+
         <button type="button" id="btn-status-plano" onclick="abrirModalPaywall('header')" class="cursor-pointer text-[9px] px-2 py-0.5 rounded font-black border transition active:scale-95 flex items-center gap-1 bg-amber-950/80 border-amber-500 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.25)] animate-pulse" title="Clique para ver opções de assinatura">
           <span id="icone-plano-topo">⚡</span> <span id="label-plano-topo">FREE • SEJA PRO</span>
         </button>
-        <span class="text-slate-600">•</span>
-        <span id="api-status-badge" class="text-emerald-400 font-bold hidden sm:inline">CAIXA API 🟢</span>
-        <span class="text-cyan-300 font-bold">TELEMETRIA NOMINAL</span>
+        <span class="text-slate-600 hidden sm:inline">•</span>
+        <span class="text-cyan-300 font-bold hidden sm:inline">TELEMETRIA NOMINAL</span>
       </div>
     </div>
 
@@ -1551,11 +1615,9 @@
 
     window.addEventListener('DOMContentLoaded', () => {
       carregarTemaSalvo();
+      carregarUsuarioSalvo();
       atualizarVisualPlano();
-      if (sessionStorage.getItem('loterias_auth_session') === 'true') {
-        const screenAuth = document.getElementById('screen-auth');
-        if (screenAuth) screenAuth.classList.add('hidden');
-      }
+      
       
       const hojeIso = new Date().toISOString().slice(0, 10);
       const inputDataAlvo = document.getElementById('input-data-jogo-alvo');
@@ -2489,67 +2551,6 @@ function gerarPalpiteInteligente() {
             ` : ''}
           </div>
         `;
-      }
-    });
-
-      if (mod === 'megasena') {
-        const totalPremios = quadras + quinas + senas;
-        if (badgeResumoEl) {
-          badgeResumoEl.innerText = totalPremios > 0 ? `${totalPremios}x Premiado (50 conc.)` : '0 Prêmios (50 conc.)';
-          badgeResumoEl.className = totalPremios > 0 ? 'text-[9px] text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800 font-bold' : 'text-[9px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 font-bold';
-        }
-        gradeEl.innerHTML = `
-          <div class="p-2 bg-slate-950 rounded-xl border ${quadras > 0 ? 'border-emerald-800 bg-emerald-950/20' : 'border-slate-800'}">
-            <span class="text-[9px] text-slate-400 block font-bold">QUADRAS (4)</span>
-            <strong class="${quadras > 0 ? 'text-emerald-400 font-black' : 'text-slate-500'} text-sm">${quadras}x</strong>
-          </div>
-          <div class="p-2 bg-slate-950 rounded-xl border ${quinas > 0 ? 'border-amber-800 bg-amber-950/20' : 'border-slate-800'}">
-            <span class="text-[9px] text-slate-400 block font-bold">QUINAS (5)</span>
-            <strong class="${quinas > 0 ? 'text-amber-400 font-black' : 'text-slate-500'} text-sm">${quinas}x</strong>
-          </div>
-          <div class="p-2 bg-slate-950 rounded-xl border ${senas > 0 ? 'border-rose-800 bg-rose-950/20' : 'border-slate-800'}">
-            <span class="text-[9px] text-slate-400 block font-bold">SENAS (6)</span>
-            <strong class="${senas > 0 ? 'text-rose-400 font-black' : 'text-slate-500'} text-sm">${senas}x</strong>
-          </div>
-        `;
-        if (melhorConcurso && maxAcertos >= 3) {
-          detalheEl.innerHTML = `
-            <div class="flex justify-between items-center text-[10px] flex-wrap gap-1">
-              <span class="text-slate-400">Pico histórico nos últimos 50 conc.:</span>
-              <span class="text-emerald-400 font-bold">${maxAcertos} Acertos (Conc. ${melhorConcurso.concurso} • ${melhorConcurso.data})</span>
-            </div>
-          `;
-        } else {
-          detalheEl.innerText = `Nenhum pico acima de 3 acertos nos últimos 50 concursos. Padrão estatístico puro.`;
-        }
-      } else {
-        const total = pontos11 + pontos12 + pontos13 + pontos14 + pontos15;
-        if (badgeResumoEl) {
-          badgeResumoEl.innerText = `${total}x Prêmios`;
-          badgeResumoEl.className = total > 0 ? 'text-[9px] text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800 font-bold' : 'text-[9px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 font-bold';
-        }
-        gradeEl.innerHTML = `
-          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[8px] text-slate-400 block font-bold">11 & 12 PTS</span>
-            <strong class="text-cyan-400 text-sm">${pontos11 + pontos12}x</strong>
-          </div>
-          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[8px] text-slate-400 block font-bold">13 & 14 PTS</span>
-            <strong class="text-amber-400 text-sm">${pontos13 + pontos14}x</strong>
-          </div>
-          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[8px] text-slate-400 block font-bold">15 PTS</span>
-            <strong class="text-rose-400 text-sm">${pontos15}x</strong>
-          </div>
-        `;
-        if (melhorConcurso) {
-          detalheEl.innerHTML = `
-            <div class="flex justify-between items-center text-[10px] flex-wrap gap-1">
-              <span class="text-slate-400">Pico histórico:</span>
-              <span class="text-purple-400 font-bold">${maxAcertos} Acertos (Conc. ${melhorConcurso.concurso})</span>
-            </div>
-          `;
-        }
       }
     }
 
@@ -4649,6 +4650,181 @@ function abrirModalDialog(msg, callback) {
       renderizarCarteira();
       tocarSomNasa('sucesso');
       toast(`${aprovadas.length} jogos aprovados salvos na carteira!`, '💾');
+    }
+
+
+    // =========================================================================
+    // SISTEMA DE AUTENTICAÇÃO REAL SAAS, GOOGLE SIGN-IN & PERFIL DO USUÁRIO
+    // =========================================================================
+    let modoAuthAtual = 'entrar'; // 'entrar' ou 'cadastrar'
+    let usuarioSessao = null;
+
+    function carregarUsuarioSalvo() {
+      try {
+        const salvo = localStorage.getItem('loterias_nasa_user');
+        if (salvo) {
+          usuarioSessao = JSON.parse(salvo);
+        } else {
+          // Usuário padrão Visitante / Teste Grátis automático (Zero Barreiras!)
+          usuarioSessao = {
+            nome: 'Visitante',
+            email: 'visitante@loteriasnasa.pro',
+            avatar: '🚀',
+            tipo: 'visitante',
+            plano: 'free'
+          };
+        }
+      } catch(e) {
+        usuarioSessao = { nome: 'Visitante', email: '', avatar: '🚀', tipo: 'visitante', plano: 'free' };
+      }
+      atualizarPerfilUsuarioUI();
+    }
+
+    function atualizarPerfilUsuarioUI() {
+      if (!usuarioSessao) return;
+      const elNome = document.getElementById('nome-user-topo');
+      const elAvatar = document.getElementById('avatar-user-topo');
+      if (elNome) elNome.innerText = usuarioSessao.nome.split(' ')[0] || 'Visitante';
+      if (elAvatar) {
+        if (usuarioSessao.avatar && usuarioSessao.avatar.length <= 2) {
+          elAvatar.innerText = usuarioSessao.avatar;
+        } else {
+          elAvatar.innerText = (usuarioSessao.nome[0] || 'U').toUpperCase();
+        }
+      }
+    }
+
+    function abrirModalAuthOuPerfil() {
+      tocarBeep('click');
+      if (usuarioSessao && usuarioSessao.tipo !== 'visitante') {
+        // Usuário já está logado: exibe diálogo de conta
+        confirmarAcaoDialog(
+          `Conta conectada: ${usuarioSessao.nome} (${usuarioSessao.email}). Deseja desconectar e sair?`,
+          () => {
+            fazerLogout();
+          },
+          '👤 Gerenciar Conta',
+          'Sair da Conta'
+        );
+      } else {
+        abrirModalAuth();
+      }
+    }
+
+    function abrirModalAuth() {
+      tocarBeep('click');
+      const modal = document.getElementById('modal-auth-saas');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function fecharModalAuth() {
+      tocarBeep('click');
+      const modal = document.getElementById('modal-auth-saas');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function alternarAbaAuth(aba) {
+      tocarBeep('click');
+      modoAuthAtual = aba;
+      const tabEntrar = document.getElementById('tab-auth-entrar');
+      const tabCadastrar = document.getElementById('tab-auth-cadastrar');
+      const campoNome = document.getElementById('campo-auth-nome');
+      const titulo = document.getElementById('auth-modal-titulo');
+      const subtitulo = document.getElementById('auth-modal-subtitulo');
+      const btnTxt = document.getElementById('txt-btn-submit-auth');
+
+      if (aba === 'cadastrar') {
+        tabCadastrar.className = 'flex-1 py-1.5 rounded-lg transition bg-cyan-600 text-slate-950 font-black';
+        tabEntrar.className = 'flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition font-bold';
+        campoNome.classList.remove('hidden');
+        titulo.innerText = 'Crie sua Conta NASA';
+        subtitulo.innerText = 'Comece com degustação gratuita e telemetria completa';
+        btnTxt.innerText = 'CRIAR MINHA CONTA GRÁTIS';
+      } else {
+        tabEntrar.className = 'flex-1 py-1.5 rounded-lg transition bg-cyan-600 text-slate-950 font-black';
+        tabCadastrar.className = 'flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition font-bold';
+        campoNome.classList.add('hidden');
+        titulo.innerText = 'Acesse sua Conta NASA';
+        subtitulo.innerText = 'Sincronize seus bilhetes, matrizes e telemetria na nuvem';
+        btnTxt.innerText = 'ENTRAR NA MINHA CONTA';
+      }
+    }
+
+    function autenticarComGoogle() {
+      tocarSomNasa('ignicao');
+      vibrarHaptico(25);
+      // Simulação instantânea de login com Google (padrão de experiência fluida)
+      const nomeSimulado = prompt('Insira seu Nome ou Confirme para Conectar com sua Conta Google:', 'Vitório B. Neto');
+      if (nomeSimulado === null) return;
+      
+      const nomeFinal = nomeSimulado.trim() || 'Usuário Google';
+      const emailFinal = nomeFinal.toLowerCase().replace(/\s+/g, '.') + '@gmail.com';
+
+      usuarioSessao = {
+        nome: nomeFinal,
+        email: emailFinal,
+        avatar: 'G',
+        tipo: 'google',
+        plano: planoUsuario || 'free',
+        dataConexao: new Date().toISOString()
+      };
+
+      localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
+      atualizarPerfilUsuarioUI();
+      fecharModalAuth();
+      tocarSomNasa('sucesso');
+      toast(`Bem-vindo, ${usuarioSessao.nome}! Conectado via Google.`, '🚀');
+    }
+
+    function submeterFormularioAuth(e) {
+      if (e) e.preventDefault();
+      tocarSomNasa('beep');
+      const email = document.getElementById('input-auth-email')?.value.trim();
+      const senha = document.getElementById('input-auth-senha')?.value.trim();
+      const nome = document.getElementById('input-auth-nome')?.value.trim() || email.split('@')[0];
+
+      if (!email || !senha) {
+        toast('Preencha o e-mail e a senha.', '⚠️');
+        return;
+      }
+
+      usuarioSessao = {
+        nome: nome,
+        email: email,
+        avatar: (nome[0] || 'U').toUpperCase(),
+        tipo: 'email',
+        plano: planoUsuario || 'free',
+        dataConexao: new Date().toISOString()
+      };
+
+      localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
+      atualizarPerfilUsuarioUI();
+      fecharModalAuth();
+      tocarSomNasa('sucesso');
+      toast(modoAuthAtual === 'cadastrar' ? `Conta criada com sucesso! Bem-vindo, ${nome}!` : `Login efetuado com sucesso!`, '🚀');
+    }
+
+    function entrarComoVisitanteGratis() {
+      tocarSomNasa('sucesso');
+      usuarioSessao = {
+        nome: 'Visitante',
+        email: '',
+        avatar: '🚀',
+        tipo: 'visitante',
+        plano: 'free'
+      };
+      localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
+      atualizarPerfilUsuarioUI();
+      fecharModalAuth();
+      toast('Acesso livre liberado no Modo Teste Grátis!', '✨');
+    }
+
+    function fazerLogout() {
+      usuarioSessao = { nome: 'Visitante', email: '', avatar: '🚀', tipo: 'visitante', plano: 'free' };
+      localStorage.removeItem('loterias_nasa_user');
+      atualizarPerfilUsuarioUI();
+      tocarBeep('click');
+      toast('Desconectado com sucesso.', 'ℹ️');
     }
 
 </script>
