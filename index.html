@@ -47,34 +47,74 @@
     
     /* Radar Grid & HUD Effects */
     .telemetry-grid {
-      background-image: linear-gradient(to right, rgba(14, 165, 233, 0.04) 1px, transparent 1px),
-                        linear-gradient(to bottom, rgba(14, 165, 233, 0.04) 1px, transparent 1px);
-      background-size: 20px 20px;
+      background-image: linear-gradient(to right, rgba(14, 165, 233, 0.05) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(14, 165, 233, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
     }
     .hud-glow {
-      box-shadow: 0 0 15px -2px rgba(16, 185, 129, 0.25);
+      box-shadow: 0 0 20px -2px rgba(16, 185, 129, 0.3);
     }
     .subgrid-active-cell {
-      box-shadow: inset 0 0 0 1.5px rgba(56, 189, 248, 0.7);
-      background-color: rgba(14, 165, 233, 0.12) !important;
+      box-shadow: inset 0 0 0 1.5px rgba(56, 189, 248, 0.8) !important;
+      background-color: rgba(14, 165, 233, 0.15) !important;
     }
     .volante-btn {
       min-height: 42px;
       touch-action: manipulation;
+      transition: all 0.15s ease;
+    }
+    
+    /* Animações Aeroespaciais */
+    @keyframes rocket-pulse {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-3px) rotate(-2deg); }
+    }
+    @keyframes flame-flicker {
+      0%, 100% { opacity: 0.9; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.12); filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.8)); }
+    }
+    @keyframes radar-sweep {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-rocket {
+      display: inline-block;
+      animation: rocket-pulse 2.2s ease-in-out infinite;
+    }
+    .animate-flame {
+      display: inline-block;
+      animation: flame-flicker 0.4s ease-in-out infinite;
+    }
+    
+    /* BOTÃO DE LANÇAMENTO E IGNIÇÃO ORBITAL */
+    .btn-rocket-launch {
+      background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);
+      box-shadow: 0 8px 25px -4px rgba(16, 185, 129, 0.45), 0 0 15px 0 rgba(6, 182, 212, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-rocket-launch:hover {
+      background: linear-gradient(135deg, #34d399 0%, #2dd4bf 50%, #22d3ee 100%);
+      box-shadow: 0 12px 30px -4px rgba(16, 185, 129, 0.6), 0 0 20px 0 rgba(6, 182, 212, 0.4);
+    }
+    .btn-rocket-launch:active {
+      transform: scale(0.98);
     }
 
-    /* TEMA CLARO NASA CLEANROOM / APOLLO WHITE */
+    /* TEMA CLARO NASA CLEANROOM / APOLLO WHITE DEFINITIVO (ZERO ARESTAS) */
     html:not(.dark) body {
       background-color: #f1f5f9 !important;
       color: #0f172a !important;
     }
     html:not(.dark) .telemetry-grid {
-      background-image: linear-gradient(to right, rgba(15, 23, 42, 0.06) 1px, transparent 1px),
-                        linear-gradient(to bottom, rgba(15, 23, 42, 0.06) 1px, transparent 1px) !important;
+      background-image: linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px) !important;
     }
     html:not(.dark) header {
-      background-color: rgba(255, 255, 255, 0.95) !important;
-      border-color: #cbd5e1 !important;
+      background-color: rgba(255, 255, 255, 0.98) !important;
+      border-color: #e2e8f0 !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05) !important;
     }
     html:not(.dark) header > div:first-child {
       background-color: #f8fafc !important;
@@ -82,71 +122,108 @@
       color: #0284c7 !important;
     }
     html:not(.dark) nav {
-      background-color: rgba(255, 255, 255, 0.95) !important;
-      border-color: #cbd5e1 !important;
+      background-color: rgba(255, 255, 255, 0.98) !important;
+      border-color: #e2e8f0 !important;
     }
+    
+    /* RESET ABSOLUTO DE TODOS OS GRADIENTES ESCUROS NO TEMA CLARO */
+    html:not(.dark) [class*="bg-gradient-to-b"],
+    html:not(.dark) [class*="bg-gradient-to-br"],
+    html:not(.dark) [class*="bg-gradient-to-tr"] {
+      background-image: none !important;
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04) !important;
+    }
+    
+    /* PRESERVAÇÃO DE BOTÕES E BADGES COLORIDOS ATIVOS */
+    html:not(.dark) button.btn-rocket-launch,
+    html:not(.dark) .btn-rocket-launch {
+      background-image: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%) !important;
+      color: #ffffff !important;
+      box-shadow: 0 8px 25px -4px rgba(5, 150, 105, 0.4) !important;
+    }
+    html:not(.dark) button[class*="from-amber-"],
+    html:not(.dark) div[class*="from-amber-"] {
+      background-image: linear-gradient(to right, #f59e0b, #eab308) !important;
+      color: #0f172a !important;
+    }
+    
+    /* SUPERFÍCIES E CARDS NO TEMA CLARO */
     html:not(.dark) .bg-slate-950 {
+      background-color: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) .bg-slate-900 {
       background-color: #ffffff !important;
       border-color: #e2e8f0 !important;
       color: #0f172a !important;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
-    }
-    html:not(.dark) .bg-slate-900 {
-      background-color: #f8fafc !important;
-      border-color: #cbd5e1 !important;
-      color: #1e293b !important;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
     }
     html:not(.dark) .bg-slate-900\/90,
     html:not(.dark) .bg-slate-900\/95 {
-      background-color: rgba(255, 255, 255, 0.95) !important;
+      background-color: rgba(255, 255, 255, 0.98) !important;
+      border-color: #e2e8f0 !important;
     }
     html:not(.dark) .bg-slate-800 {
-      background-color: #e2e8f0 !important;
+      background-color: #f1f5f9 !important;
       border-color: #cbd5e1 !important;
-      color: #0f172a !important;
+      color: #1e293b !important;
     }
     html:not(.dark) .border-slate-800,
-    html:not(.dark) .border-slate-700 {
-      border-color: #cbd5e1 !important;
+    html:not(.dark) .border-slate-700,
+    html:not(.dark) .border-cyan-800\/60,
+    html:not(.dark) .border-emerald-800\/60 {
+      border-color: #e2e8f0 !important;
     }
+    
+    /* TIPOGRAFIA E CONTRASTES NO TEMA CLARO */
     html:not(.dark) .text-white {
       color: #0f172a !important;
     }
     html:not(.dark) .text-slate-100,
     html:not(.dark) .text-slate-200,
     html:not(.dark) .text-slate-300 {
-      color: #334155 !important;
+      color: #1e293b !important;
     }
-    html:not(.dark) .text-slate-400,
+    html:not(.dark) .text-slate-400 {
+      color: #475569 !important;
+    }
     html:not(.dark) .text-slate-500 {
       color: #64748b !important;
     }
+    
+    /* BADGES DE TELEMETRIA TÉCNICOS NO TEMA CLARO */
     html:not(.dark) .bg-cyan-950,
     html:not(.dark) .bg-cyan-950\/80,
-    html:not(.dark) .bg-cyan-950\/40,
-    html:not(.dark) .bg-cyan-950\/50 {
+    html:not(.dark) .bg-cyan-950\/50,
+    html:not(.dark) .bg-cyan-950\/40 {
       background-color: #e0f2fe !important;
-      border-color: #7dd3fc !important;
+      border-color: #bae6fd !important;
+      color: #0369a1 !important;
     }
     html:not(.dark) .text-cyan-300,
     html:not(.dark) .text-cyan-400 {
       color: #0284c7 !important;
     }
-    html:not(.dark) .bg-emerald-950 {
+    html:not(.dark) .bg-emerald-950,
+    html:not(.dark) .bg-emerald-950\/80,
+    html:not(.dark) .bg-emerald-950\/60 {
       background-color: #d1fae5 !important;
-      border-color: #6ee7b7 !important;
+      border-color: #a7f3d0 !important;
+      color: #065f46 !important;
     }
     html:not(.dark) .text-emerald-400,
     html:not(.dark) .text-emerald-300 {
       color: #047857 !important;
     }
     html:not(.dark) .bg-amber-950,
+    html:not(.dark) .bg-amber-950\/70,
     html:not(.dark) .bg-amber-950\/50,
-    html:not(.dark) .bg-amber-950\/60,
     html:not(.dark) .bg-amber-950\/30 {
       background-color: #fef3c7 !important;
-      border-color: #fcd34d !important;
+      border-color: #fde68a !important;
+      color: #92400e !important;
     }
     html:not(.dark) .text-amber-400,
     html:not(.dark) .text-amber-300 {
@@ -156,7 +233,8 @@
     html:not(.dark) .bg-rose-950\/60,
     html:not(.dark) .bg-rose-950\/40 {
       background-color: #ffe4e6 !important;
-      border-color: #fda4af !important;
+      border-color: #fecdd3 !important;
+      color: #9f1239 !important;
     }
     html:not(.dark) .text-rose-400,
     html:not(.dark) .text-rose-300 {
@@ -164,18 +242,28 @@
     }
     html:not(.dark) .bg-purple-950 {
       background-color: #f3e8ff !important;
-      border-color: #d8b4fe !important;
+      border-color: #e9d5ff !important;
+      color: #6b21a8 !important;
     }
     html:not(.dark) .text-purple-400,
     html:not(.dark) .text-purple-300 {
       color: #7e22ce !important;
     }
+    
+    /* MODAIS NO TEMA CLARO */
+    html:not(.dark) #modal-paywall-pro > div,
+    html:not(.dark) #modal-dialog > div {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+    }
     html:not(.dark) #toast {
       background-color: #ffffff !important;
       color: #047857 !important;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.12) !important;
+      border-color: #10b981 !important;
     }
-  </style>
+</style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased overflow-x-hidden telemetry-grid selection:bg-emerald-500 selection:text-black">
 
@@ -350,10 +438,15 @@
   <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 safe-top">
     <!-- BARRA SUPERIOR DE FLIGHT OPS & TELEMETRIA NASA -->
     <div class="px-4 py-1 bg-slate-950/90 border-b border-cyan-900/40 flex items-center justify-between text-[9px] font-mono text-cyan-400">
-      <div class="flex items-center gap-1.5">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="font-black tracking-wider text-white">NASA MISSION CONTROL</span>
-        <span class="text-cyan-500 font-bold hidden sm:inline">// DEEP SPACE NETWORK</span>
+      <div class="flex items-center gap-2">
+        <span class="text-base animate-rocket" title="Artemis / SLS Launch Vehicle">🚀</span>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="font-black tracking-wider text-white">NASA MISSION CONTROL</span>
+            <span class="text-cyan-500 font-bold hidden sm:inline">// ARTEMIS TELEMETRY</span>
+          </div>
+        </div>
       </div>
       <div class="flex items-center gap-2 text-slate-300">
         <button type="button" id="btn-status-plano" onclick="abrirModalPaywall('header')" class="cursor-pointer text-[9px] px-2 py-0.5 rounded font-black border transition active:scale-95 flex items-center gap-1 bg-amber-950/80 border-amber-500 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.25)] animate-pulse" title="Clique para ver opções de assinatura">
@@ -422,9 +515,15 @@
             <span id="modalidade-label" class="text-xs font-black uppercase tracking-wider text-emerald-400 block">
               🎯 MEGA-SENA ANALYTICS
             </span>
-            <span class="text-[10px] text-slate-400">
-              Dezenas marcadas: <strong id="qtd-selecionadas" class="text-white text-xs">6</strong> de <span id="max-selecao-label">20</span>
-            </span>
+            <div class="flex items-center gap-2 mt-0.5 font-mono">
+              <span class="text-[10px] uppercase font-bold text-slate-400">STATUS:</span>
+              <span class="px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-black text-xs">
+                <span id="qtd-selecionadas">6</span> / <span id="max-selecao-label">20</span>
+              </span>
+              <span id="badge-custo-inline" class="px-2 py-0.5 rounded-lg bg-cyan-500/15 border border-cyan-500/40 text-cyan-700 dark:text-cyan-300 font-bold text-[11px]">
+                R$ 5,00
+              </span>
+            </div>
           </div>
           
           <div class="flex gap-1.5">
@@ -480,11 +579,12 @@
           </span>
         </div>
 
-        <!-- BOTÃO DE AÇÃO PRINCIPAL: GERAR APOSTAS NASA (MATRIZ 4x4 + 6 TESTES) -->
+        <!-- BOTÃO DE AÇÃO PRINCIPAL: IGNIÇÃO ORBITAL & FOGUETE NASA -->
         <div class="pt-1">
-          <button type="button" onclick="gerarApostaNasaComMatriz4x4()" class="w-full py-3.5 px-3 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm rounded-2xl shadow-xl shadow-emerald-500/20 active:scale-95 transition flex items-center justify-center gap-2 font-sans tracking-wide">
-            <span class="text-lg">⚡</span>
-            <span id="txt-btn-gerar-principal">GERAR APOSTA NASA (MATRIZ 4x4 + 6 TESTES)</span>
+          <button type="button" onclick="gerarApostaNasaComMatriz4x4()" class="w-full py-4 px-3.5 btn-rocket-launch text-slate-950 font-black text-sm rounded-2xl active:scale-95 transition flex items-center justify-center gap-2.5 font-sans tracking-wide cursor-pointer">
+            <span class="text-xl animate-flame">🚀</span>
+            <span id="txt-btn-gerar-principal" class="tracking-wider">IGNIÇÃO ORBITAL & GERAR APOSTA NASA</span>
+            <span class="text-[10px] opacity-80 font-mono hidden sm:inline">[4x4 + 6 TESTES]</span>
           </button>
         </div>
 
@@ -1825,7 +1925,74 @@
       }
     }
 
-    function gerarApostaNasaComMatriz4x4() {
+    
+    // SINTETIZADOR DE ÁUDIO WEB AUDIO API NASA (EFEITOS DE CABINE E FOGUETE)
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function tocarSomNasa(tipo = 'beep') {
+      if (!audioAtivo) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+
+        if (tipo === 'ignicao') {
+          // Efeito de ignição de foguete / turbina subindo
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(80, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(450, ctx.currentTime + 0.35);
+          gain.gain.setValueAtTime(0.2, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.38);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.4);
+        } else if (tipo === 'beep') {
+          // Bip sci-fi de telemetria
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, ctx.currentTime);
+          osc.frequency.setValueAtTime(1320, ctx.currentTime + 0.06);
+          gain.gain.setValueAtTime(0.12, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.12);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.14);
+        } else if (tipo === 'sucesso') {
+          // Bip duplo harmônico Apollo
+          [523.25, 659.25, 783.99].forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + (idx * 0.05));
+            gain.gain.setValueAtTime(0.15, ctx.currentTime + (idx * 0.05));
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + (idx * 0.05) + 0.15);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + (idx * 0.05));
+            osc.stop(ctx.currentTime + (idx * 0.05) + 0.16);
+          });
+        }
+      } catch (e) {
+        console.warn('Áudio não inicializado:', e);
+      }
+    }
+
+function gerarApostaNasaComMatriz4x4() {
+      tocarSomNasa('ignicao');
       tocarBeep('success');
       vibrarHaptico(25);
       const k = modalidadeAtual === 'megasena' ? qtdDesejadaMega : qtdDesejadaLoto;
