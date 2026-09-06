@@ -140,7 +140,7 @@
       </div>
 
       <div class="flex items-center gap-1.5">
-        <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-800 font-bold">v2.2</span>
+        <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-800 font-bold">v2.3</span>
         <button onclick="alternarAudio()" id="btn-audio-toggle" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs border border-slate-700 flex items-center justify-center text-slate-300 transition" title="Alternar Efeitos Sonoros">
           <span id="audio-icon">🔊</span>
         </button>
@@ -307,6 +307,18 @@
           Clique em qualquer aposta abaixo para testá-la e visualizá-la ao vivo no Volante:
         </p>
         <div id="lista-lote-apostas" class="space-y-2 max-h-72 overflow-y-auto no-scrollbar pr-1"></div>
+      </div>
+
+      <!-- BARRA DE SELEÇÃO RÁPIDA: TESTAR JOGOS UM A UM NO VOLANTE -->
+      <div id="barra-jogos-teste-rapido" class="p-3 bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/60 border border-cyan-800/60 rounded-2xl space-y-2 font-mono">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm">🧪</span>
+            <span class="text-[10px] uppercase font-black text-cyan-400 tracking-wider">Testar Jogos (1 a 1 no Volante):</span>
+          </div>
+          <span id="badge-contador-jogos-teste" class="text-[9px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold">1 jogo ativo</span>
+        </div>
+        <div id="botoes-jogos-teste-rapido" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5"></div>
       </div>
 
       <!-- Volante Digital com Geometria e Matriz Ativa -->
@@ -504,6 +516,107 @@
         <button onclick="gerarPalpiteVitorio()" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-teal-500 hover:from-cyan-500 hover:to-teal-400 text-slate-950 font-black text-xs rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-1.5">
           <span>✨</span> GERAR PALPITE 4 LINHAS × 4 COLUNAS (16 DEZENAS)
         </button>
+      </div>
+    <!-- TELA 3: AUDITORIA DE CONFIABILIDADE DOS 6 TESTES (COM SELETOR DE JOGOS 1 A 1) -->
+    <section id="view-auditoria" class="space-y-4 hidden">
+      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/50 border border-cyan-800/60 rounded-3xl p-5 shadow-2xl space-y-3 font-mono">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="text-[10px] uppercase tracking-widest font-black text-cyan-400 block mb-0.5">TELEMETRIA ESTATÍSTICA NASA</span>
+            <h2 class="text-base font-black text-white font-sans">Bateria dos 6 Testes (Testar 1 a 1)</h2>
+          </div>
+          <span class="text-2xl">🛡️</span>
+        </div>
+        <p class="text-xs text-slate-300 leading-relaxed font-sans">
+          Selecione qualquer jogo abaixo para rodar a auditoria estatística individual completa:
+        </p>
+
+        <!-- SELETOR DE JOGOS PARA AUDITAR NA TELA 6 TESTES -->
+        <div class="pt-2 border-t border-slate-800/80 space-y-1.5">
+          <span class="text-[10px] text-slate-400 font-bold uppercase">Escolha qual jogo auditar agora:</span>
+          <div id="seletor-jogos-auditoria" class="flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <!-- JOGO SENDO AUDITADO NO MOMENTO -->
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between gap-2 flex-wrap">
+          <div class="flex items-center gap-2">
+            <span id="label-auditoria-jogo-ativo" class="text-xs font-bold text-white">Jogo do Volante</span>
+            <span id="badge-score-auditoria" class="text-[10px] px-2 py-0.5 rounded font-bold bg-cyan-950 text-cyan-300 border border-cyan-800">Score: --/100</span>
+          </div>
+          <div id="dezenas-jogo-auditoria" class="flex flex-wrap gap-1"></div>
+        </div>
+      </div>
+
+      <!-- CARDS DOS 6 TESTES NA AUDITORIA -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs font-mono">
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">1º Seq & Finais (95,2%)</span>
+            <span id="audit-badge-t1" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="audit-val-t1" class="text-white text-xs font-bold block truncate">-</strong>
+          <p class="text-[10px] text-slate-400 leading-tight font-sans">Elimina sequências longas e colunas verticais viciadas.</p>
+        </div>
+
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">2º Entropia de Shannon (92,8%)</span>
+            <span id="audit-badge-t2" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="audit-val-t2" class="text-white text-xs font-bold block">0.000 bits</strong>
+          <p class="text-[10px] text-slate-400 leading-tight font-sans">Dispersão termodinâmica e aleatoriedade espacial.</p>
+        </div>
+
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">3º Aderência Qui-Quadrado (87,4%)</span>
+            <span id="audit-badge-t3" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="audit-val-t3" class="text-white text-xs font-bold block">χ² = 0.00</strong>
+          <p class="text-[10px] text-slate-400 leading-tight font-sans">Teste de homogeneidade e não-vício setorial.</p>
+        </div>
+
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">4º Paridade & Primos (83,6%)</span>
+            <span id="audit-badge-t4" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="audit-val-t4" class="text-white text-xs font-bold block">-</strong>
+          <p class="text-[10px] text-slate-400 leading-tight font-sans">Equilíbrio harmônico entre pares, ímpares e primos.</p>
+        </div>
+
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">5º Curva Normal da Soma (81,9%)</span>
+            <span id="audit-badge-t5" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="audit-val-t5" class="text-white text-xs font-bold block">Soma: 0</strong>
+          <p class="text-[10px] text-slate-400 leading-tight font-sans">Posição gaussiana sem reposição (&mu; &approx; 183).</p>
+        </div>
+
+        <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <div class="flex justify-between items-center">
+            <span class="text-[10px] font-bold text-slate-400 uppercase">6º Hipergeométrica (80,8%)</span>
+            <span id="audit-badge-t6" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">OK</span>
+          </div>
+          <strong id="audit-val-t6" class="text-white text-xs font-bold block truncate">-</strong>
+          <p class="text-[10px] text-slate-400 leading-tight font-sans">Partição combinatória exata nos 4 quadrantes.</p>
+        </div>
+      </div>
+
+      <!-- PAINEL COMPARATIVO DE TODOS OS JOGOS TESTADOS (1 A 1) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 font-mono">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <span class="text-sm">📋</span>
+            <h3 class="text-xs font-black text-white font-sans uppercase tracking-wider">Comparativo de Todos os Jogos (1 a 1)</h3>
+          </div>
+          <span id="badge-total-jogos-auditados" class="text-[10px] px-2 py-0.5 rounded bg-slate-950 text-cyan-400 border border-slate-800 font-bold">0 jogos</span>
+        </div>
+        <p class="text-[11px] text-slate-400 font-sans">
+          Visualize a validação dos 6 testes em cada jogo gerado no lote, no volante ou salvo na carteira:
+        </p>
+        <div id="lista-todos-jogos-auditoria" class="space-y-2.5 max-h-96 overflow-y-auto no-scrollbar pr-1"></div>
       </div>
     </section>
 
@@ -764,6 +877,10 @@
     let qtdDesejadaLoto = 15;
     let qtdApostasDesejada = 3;
     let loteApostasGeradas = [];
+    let loteDetalhesAbertos = {};
+    let carteiraDetalhesAbertos = {};
+    let jogoAuditoriaAtivo = null;
+    let testeSequencialInterval = null;
     let audioAtivo = true;
 
     // Bilhete Padrão do Tio Vitório
@@ -958,6 +1075,7 @@
       executarAnaliseDinamicaDoJogo();
       executarAnaliseVitorio();
       renderizarLoteApostas();
+      renderizarBarraJogosTesteRapido();
       renderizarMapaCalor();
       atualizarPainelCarteira();
       calcularRateioBolao();
@@ -1535,8 +1653,10 @@
       executarAnaliseDinamicaDoJogo();
       executarAnaliseVitorio();
 
-      // Renderiza o lote
+      // Renderiza o lote e a barra rápida de testes 1 a 1
       renderizarLoteApostas();
+      renderizarBarraJogosTesteRapido();
+      if (abaAtual === 'auditoria') renderizarTelaAuditoria();
 
       toast(`${qtd} aposta${qtd > 1 ? 's' : ''} de ${k} números gerada${qtd > 1 ? 's' : ''}!`, "🚀");
     }
@@ -1557,33 +1677,59 @@
       container.classList.remove('hidden');
 
       const jogoAtualStr = getJogoAtual().join('-');
+      const nomesTestes = ['1º Seq & Finais', '2º Shannon', '3º Qui-Quadrado', '4º Paridade & Primos', '5º Normal Soma', '6º Hipergeométrica'];
 
       lista.innerHTML = loteApostasGeradas.map((aposta, idx) => {
         const estaNoVolante = aposta.dezenas.join('-') === jogoAtualStr;
-        const borderCor = estaNoVolante ? 'border-emerald-500 bg-emerald-950/30' : 'border-slate-800 bg-slate-950/90';
+        const borderCor = estaNoVolante ? 'border-emerald-500 bg-emerald-950/30 ring-1 ring-emerald-500/50' : 'border-slate-800 bg-slate-950/90';
+        const detalhesAbertos = !!loteDetalhesAbertos[idx];
 
         return `
-          <div class="p-2.5 rounded-xl border ${borderCor} flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition">
-            <div class="space-y-1.5">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-bold text-white text-xs">#${aposta.id}</span>
-                ${estaNoVolante ? '<span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[9px] font-bold">🎯 Ativa no Volante</span>' : ''}
-                <span class="text-[10px] text-cyan-300 font-bold">Score: ${aposta.analise.score}/100</span>
-                <span class="text-[9px] text-slate-400">(${aposta.analise.aprovadosCount}/6 testes OK)</span>
-                <span class="text-[9px] text-slate-500 font-mono">[${aposta.tipo}]</span>
+          <div class="p-3 rounded-2xl border ${borderCor} space-y-2 transition">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+              <div class="space-y-1.5">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-black text-white text-xs">#${aposta.id}</span>
+                  ${estaNoVolante ? '<span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[9px] font-bold">🎯 No Volante</span>' : ''}
+                  <span class="text-[10px] text-cyan-300 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800">
+                    Score: ${aposta.analise.score}/100 (${aposta.analise.aprovadosCount}/6 OK)
+                  </span>
+                  <span class="text-[9px] text-slate-500 font-mono">[${aposta.tipo}]</span>
+                </div>
+                <div class="flex flex-wrap gap-1">
+                  ${aposta.dezenas.map(d => `<span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-black text-[11px] flex items-center justify-center border border-slate-700 shadow-sm">${String(d).padStart(2,'0')}</span>`).join('')}
+                </div>
               </div>
-              <div class="flex flex-wrap gap-1">
-                ${aposta.dezenas.map(d => `<span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-black text-[11px] flex items-center justify-center border border-slate-700 shadow-sm">${String(d).padStart(2,'0')}</span>`).join('')}
+              <div class="flex items-center gap-1.5 self-end sm:self-center flex-wrap">
+                <button type="button" onclick="alternarDetalhesLote(${idx})" class="px-2 py-1.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 font-bold text-xs rounded-lg border border-slate-700 transition flex items-center gap-1">
+                  <span>🛡️</span> ${detalhesAbertos ? 'Ocultar' : '6 Testes'}
+                </button>
+                <button type="button" onclick="testarJogoNaAuditoria(loteApostasGeradas[${idx}].dezenas, 'Lote: Jogo #${aposta.id}')" class="px-2 py-1.5 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 font-bold text-xs rounded-lg border border-cyan-800 transition flex items-center gap-1">
+                  <span>🔬</span> Testar 1 a 1
+                </button>
+                <button type="button" onclick="carregarApostaDoLote(${idx})" class="px-2 py-1.5 ${estaNoVolante ? 'bg-cyan-600 text-slate-950 font-black' : 'bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold'} text-xs rounded-lg border border-slate-700 transition flex items-center gap-1">
+                  🎯 ${estaNoVolante ? 'Volante' : 'Volante'}
+                </button>
+                <button type="button" onclick="salvarApostaIndividualLote(${idx})" class="px-2 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-lg shadow transition">
+                  💾 Salvar
+                </button>
               </div>
             </div>
-            <div class="flex items-center gap-1.5 self-end sm:self-center">
-              <button type="button" onclick="carregarApostaDoLote(${idx})" class="px-2.5 py-1.5 ${estaNoVolante ? 'bg-cyan-600 text-slate-950 font-black' : 'bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold'} text-xs rounded-lg border border-slate-700 transition flex items-center gap-1">
-                🎯 ${estaNoVolante ? 'No Volante' : 'Ver no Volante'}
-              </button>
-              <button type="button" onclick="salvarApostaIndividualLote(${idx})" class="px-2 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-lg shadow transition">
-                💾 Salvar
-              </button>
-            </div>
+
+            <!-- GRADE EXPANSÍVEL DOS 6 TESTES DESTE JOGO -->
+            ${detalhesAbertos ? `
+              <div class="mt-2 pt-2 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-3 gap-1.5 font-mono text-[9px]">
+                ${aposta.analise.testes.map((t, tIdx) => `
+                  <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 space-y-0.5">
+                    <div class="flex justify-between items-center">
+                      <span class="text-slate-400 font-bold">${nomesTestes[tIdx]}</span>
+                      <span class="${t.s === 'Aprovado' ? 'text-emerald-400 font-bold' : 'text-rose-400 font-bold'}">${t.s}</span>
+                    </div>
+                    <div class="text-white text-[9px] truncate">${t.v}</div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
           </div>
         `;
       }).join('');
@@ -1599,6 +1745,7 @@
       executarAnaliseDinamicaDoJogo();
       executarAnaliseVitorio();
       renderizarLoteApostas();
+      renderizarBarraJogosTesteRapido();
       toast(`Aposta #${idx + 1} carregada no Volante!`, "🎯");
     }
 
@@ -2026,31 +2173,63 @@
         return;
       }
 
-      container.innerHTML = carteiraJogos.map((b) => `
-        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 flex justify-between items-center text-xs font-mono">
-          <div>
-            <div class="flex items-center gap-2 mb-1.5 flex-wrap">
-              <span class="px-1.5 py-0.5 rounded font-black text-[9px] ${b.modalidade === 'megasena' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-purple-950 text-purple-400 border border-purple-800'}">${b.modalidade.toUpperCase()}</span>
-              <span class="text-cyan-300 text-[10px] font-bold bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">📅 ${b.data}</span>
-              ${b.conferido ? `<span class="text-[9px] font-bold ${b.premioGanho > 0 ? 'text-emerald-400' : 'text-slate-500'}">${b.status}</span>` : '<span class="text-[9px] text-amber-400 font-bold bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-900">Aguardando Sorteio</span>'}
+      const nomesTestes = ['1º Seq & Finais', '2º Shannon', '3º Qui-Quadrado', '4º Paridade & Primos', '5º Normal Soma', '6º Hipergeométrica'];
+
+      container.innerHTML = carteiraJogos.map((b) => {
+        const analise = avaliarJogo(b.dezenas, b.modalidade || modalidadeAtual);
+        const aberto = !!carteiraDetalhesAbertos[b.id];
+        return `
+          <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2 text-xs font-mono">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <div class="flex items-center gap-1.5 mb-1.5 flex-wrap">
+                  <span class="px-1.5 py-0.5 rounded font-black text-[9px] ${b.modalidade === 'megasena' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-purple-950 text-purple-400 border border-purple-800'}">${b.modalidade.toUpperCase()}</span>
+                  <span class="text-cyan-300 text-[10px] font-bold bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">📅 ${b.data}</span>
+                  <span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${analise.aprovadosCount === 6 ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}">
+                    Score: ${analise.score}/100 (${analise.aprovadosCount}/6 OK)
+                  </span>
+                  ${b.conferido ? `<span class="text-[9px] font-bold ${b.premioGanho > 0 ? 'text-emerald-400' : 'text-slate-500'}">${b.status}</span>` : '<span class="text-[9px] text-amber-400 font-bold bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-900">Aguardando Sorteio</span>'}
+                </div>
+                <div class="flex flex-wrap gap-1">
+                  ${b.dezenas.map(d => `<span class="w-5 h-5 rounded text-[9px] font-bold bg-slate-800 text-slate-200 flex items-center justify-center">${String(d).padStart(2,'0')}</span>`).join('')}
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5 self-end sm:self-center flex-wrap">
+                <button type="button" onclick="alternarDetalhesCarteira('${b.id}')" title="Expandir 6 Testes" class="text-cyan-400 hover:text-cyan-300 text-[10px] px-2 py-1 bg-slate-900 rounded-lg border border-slate-800 font-bold flex items-center gap-1">
+                  <span>🛡️</span> ${aberto ? 'Ocultar' : '6 Testes'}
+                </button>
+                <button type="button" onclick="testarJogoNaAuditoriaCarteira('${b.id}')" title="Testar na tela 6 Testes" class="text-cyan-300 hover:text-white text-[10px] px-2 py-1 bg-cyan-950 rounded-lg border border-cyan-800 font-bold">
+                  🔬 Testar 1 a 1
+                </button>
+                <button type="button" onclick="carregarBilheteNoVolante('${b.id}')" title="Carregar no Volante" class="text-emerald-400 hover:text-emerald-300 text-[10px] px-2 py-1 bg-slate-900 rounded-lg border border-slate-800 font-bold">
+                  🎯 Volante
+                </button>
+                <button type="button" onclick="removerBilheteCarteira('${b.id}')" class="text-rose-400 hover:text-rose-300 text-sm p-1">🗑️</button>
+              </div>
             </div>
-            <div class="flex flex-wrap gap-1">
-              ${b.dezenas.map(d => `<span class="w-5 h-5 rounded text-[9px] font-bold bg-slate-800 text-slate-200 flex items-center justify-center">${String(d).padStart(2,'0')}</span>`).join('')}
-            </div>
+
+            <!-- GRADE EXPANSÍVEL DOS 6 TESTES DESTE BILHETE -->
+            ${aberto ? `
+              <div class="mt-2 pt-2 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-3 gap-1 text-[9px]">
+                ${analise.testes.map((t, tIdx) => `
+                  <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
+                    <span class="text-slate-400 font-bold">${nomesTestes[tIdx]}:</span>
+                    <span class="font-bold ${t.s === 'Aprovado' ? 'text-emerald-400' : 'text-rose-400'}">${t.s}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
           </div>
-          <div class="flex items-center gap-1.5">
-            <button onclick="carregarBilheteNoVolante('${b.id}')" title="Carregar no Volante" class="text-cyan-400 hover:text-cyan-300 text-xs px-2 py-1 bg-slate-900 rounded-lg border border-slate-800 font-bold">🎯 Ver</button>
-            <button onclick="removerBilheteCarteira(${b.id})" class="text-rose-400 hover:text-rose-300 text-sm p-1">🗑️</button>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     function removerBilheteCarteira(id) {
       tocarBeep('click');
-      carteiraJogos = carteiraJogos.filter(b => b.id !== id);
+      carteiraJogos = carteiraJogos.filter(b => String(b.id) !== String(id));
       salvarCarteiraStorage();
       atualizarPainelCarteira();
+      renderizarBarraJogosTesteRapido();
       toast("Bilhete removido!", "🗑️");
     }
 
@@ -2299,33 +2478,338 @@
       }, 700);
     }
 
-    function mudarAba(aba) {
-      if (aba === 'auditoria') {
-        mudarAba('volante');
-        setTimeout(() => {
-          const el = document.getElementById('card-bateria-testes');
-          if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            el.classList.add('ring-2', 'ring-cyan-400');
-            setTimeout(() => el.classList.remove('ring-2', 'ring-cyan-400'), 2500);
-          }
-        }, 80);
+    function obterTodosJogosDisponiveis() {
+      const lista = [];
+      const jogoAtual = getJogoAtual();
+      const minDez = getConfigAtual().minDezenas;
+      
+      if (jogoAtual && jogoAtual.length >= minDez) {
+        lista.push({
+          origem: 'volante',
+          titulo: 'Jogo do Volante',
+          dezenas: [...jogoAtual],
+          modalidade: modalidadeAtual
+        });
+      }
+
+      if (loteApostasGeradas && loteApostasGeradas.length > 0) {
+        loteApostasGeradas.forEach((ap, idx) => {
+          lista.push({
+            origem: 'lote',
+            titulo: `Lote #${ap.id || idx + 1}`,
+            dezenas: [...ap.dezenas],
+            modalidade: modalidadeAtual
+          });
+        });
+      }
+
+      if (carteiraJogos && carteiraJogos.length > 0) {
+        carteiraJogos.forEach((c, idx) => {
+          lista.push({
+            origem: 'carteira',
+            titulo: `Carteira #${idx + 1} (${c.data})`,
+            dezenas: [...c.dezenas],
+            modalidade: c.modalidade || modalidadeAtual,
+            id: c.id
+          });
+        });
+      }
+
+      if (lista.length === 0) {
+        lista.push({
+          origem: 'volante',
+          titulo: 'Jogo Padrão',
+          dezenas: [...jogoAtual],
+          modalidade: modalidadeAtual
+        });
+      }
+
+      return lista;
+    }
+
+    function renderizarBarraJogosTesteRapido() {
+      const container = document.getElementById('barra-jogos-teste-rapido');
+      const botoesEl = document.getElementById('botoes-jogos-teste-rapido');
+      const badgeEl = document.getElementById('badge-contador-jogos-teste');
+      if (!container || !botoesEl) return;
+
+      const jogos = obterTodosJogosDisponiveis();
+      if (badgeEl) badgeEl.innerText = `${jogos.length} jogo${jogos.length > 1 ? 's' : ''} para testar`;
+
+      const jogoAtualStr = getJogoAtual().join('-');
+
+      botoesEl.innerHTML = jogos.map((j, idx) => {
+        const ativo = j.dezenas.join('-') === jogoAtualStr;
+        const cor = ativo 
+          ? 'bg-cyan-500 text-slate-950 font-black border-cyan-300 shadow-md shadow-cyan-500/30' 
+          : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700';
+        return `
+          <button type="button" onclick="carregarJogoRapidoNoVolante(${idx})" class="px-2.5 py-1 rounded-lg border text-[10px] whitespace-nowrap transition flex items-center gap-1 shrink-0 ${cor}">
+            <span>${j.origem === 'volante' ? '🎯' : (j.origem === 'lote' ? '⚡' : '💼')}</span>
+            <span class="font-bold">${j.titulo}</span>
+            <span class="text-[9px] opacity-75 font-mono">[${j.dezenas.slice(0, 3).map(d=>String(d).padStart(2,'0')).join(' ')}...]</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function carregarJogoRapidoNoVolante(idx) {
+      const jogos = obterTodosJogosDisponiveis();
+      if (!jogos[idx]) return;
+      const j = jogos[idx];
+      if (j.modalidade && j.modalidade !== modalidadeAtual) {
+        trocarModalidade(j.modalidade);
+      }
+      setJogoAtual([...j.dezenas]);
+      atualizarDisplayJogo();
+      renderizarVolante();
+      executarAnaliseDinamicaDoJogo();
+      executarAnaliseVitorio();
+      renderizarBarraJogosTesteRapido();
+      renderizarLoteApostas();
+      tocarBeep('click');
+      vibrarHaptico(15);
+      toast(`${j.titulo} carregado no Volante!`, "🎯");
+    }
+
+    function renderizarTelaAuditoria(jogoAlvo = null, tituloAlvo = null) {
+      const jogos = obterTodosJogosDisponiveis();
+      if (jogos.length === 0) return;
+
+      let jogoSelecionado = jogoAlvo;
+      let tituloSelecionado = tituloAlvo;
+
+      if (!jogoSelecionado) {
+        if (jogoAuditoriaAtivo && jogoAuditoriaAtivo.dezenas) {
+          jogoSelecionado = jogoAuditoriaAtivo.dezenas;
+          tituloSelecionado = jogoAuditoriaAtivo.titulo;
+        } else {
+          const primeiro = jogos[0];
+          jogoSelecionado = primeiro.dezenas;
+          tituloSelecionado = primeiro.titulo;
+          jogoAuditoriaAtivo = { dezenas: [...jogoSelecionado], titulo: tituloSelecionado, modalidade: primeiro.modalidade };
+        }
+      } else {
+        jogoAuditoriaAtivo = { dezenas: [...jogoSelecionado], titulo: tituloSelecionado || 'Jogo Selecionado', modalidade: modalidadeAtual };
+      }
+
+      // 1. Seletor de Jogos 1 a 1 no topo
+      const seletorEl = document.getElementById('seletor-jogos-auditoria');
+      if (seletorEl) {
+        const jogoStr = jogoSelecionado.join('-');
+        const botoesJogos = jogos.map((j, idx) => {
+          const ativo = j.dezenas.join('-') === jogoStr;
+          const icone = j.origem === 'volante' ? '🎯' : (j.origem === 'lote' ? '⚡' : '💼');
+          const estilo = ativo 
+            ? 'bg-cyan-500 text-slate-950 font-black border-cyan-300 shadow-md shadow-cyan-500/20' 
+            : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-700';
+          return `
+            <button type="button" onclick="selecionarJogoAuditoria(${idx})" class="px-2.5 py-1.5 rounded-xl border text-xs transition flex items-center gap-1.5 ${estilo}">
+              <span>${icone}</span>
+              <span class="font-bold font-sans">${j.titulo}</span>
+              <span class="text-[9px] opacity-75 font-mono font-bold">(${j.dezenas.length} nºs)</span>
+            </button>
+          `;
+        }).join('');
+
+        const estaRodando = !!testeSequencialInterval;
+        const btnAuto = `
+          <button type="button" id="btn-teste-auto-1a1" onclick="alternarTesteAuto1a1()" class="px-3 py-1.5 rounded-xl ${estaRodando ? 'bg-rose-600 text-white animate-pulse' : 'bg-gradient-to-r from-emerald-600 to-teal-500 text-slate-950 hover:brightness-110'} text-xs font-black font-mono shadow active:scale-95 transition flex items-center gap-1.5 ml-auto">
+            <span id="icone-btn-auto">${estaRodando ? '⏹️' : '▶️'}</span>
+            <span id="texto-btn-auto">${estaRodando ? 'Parar Teste' : 'Testar 1 a 1 Auto'}</span>
+          </button>
+        `;
+
+        seletorEl.innerHTML = botoesJogos + btnAuto;
+      }
+
+      // 2. Avaliação do Jogo
+      const analise = avaliarJogo(jogoSelecionado, jogoAuditoriaAtivo.modalidade || modalidadeAtual);
+
+      const labelEl = document.getElementById('label-auditoria-jogo-ativo');
+      if (labelEl) labelEl.innerText = tituloSelecionado || 'Jogo Selecionado';
+
+      const badgeScoreEl = document.getElementById('badge-score-auditoria');
+      if (badgeScoreEl) {
+        badgeScoreEl.innerText = `Score: ${analise.score}/100 (${analise.aprovadosCount}/6 OK)`;
+        badgeScoreEl.className = analise.aprovadosCount === 6 
+          ? 'text-[10px] px-2 py-0.5 rounded font-bold bg-emerald-950 text-emerald-300 border border-emerald-800' 
+          : 'text-[10px] px-2 py-0.5 rounded font-bold bg-amber-950 text-amber-300 border border-amber-800';
+      }
+
+      const dezenasEl = document.getElementById('dezenas-jogo-auditoria');
+      if (dezenasEl) {
+        dezenasEl.innerHTML = jogoSelecionado.map(d => `
+          <span class="w-7 h-7 rounded-xl bg-slate-900 text-white font-black text-xs flex items-center justify-center border border-slate-700 shadow-sm">${String(d).padStart(2, '0')}</span>
+        `).join('');
+      }
+
+      // Atualiza os 6 Cards principais de telemetria
+      analise.testes.forEach((t, i) => {
+        const valEl = document.getElementById(`audit-val-t${i+1}`);
+        const badgeEl = document.getElementById(`audit-badge-t${i+1}`);
+        if (valEl) valEl.innerText = t.v;
+        if (badgeEl) {
+          badgeEl.innerText = t.s;
+          badgeEl.className = t.s === 'Aprovado'
+            ? 'text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800'
+            : 'text-[9px] px-1.5 py-0.5 rounded font-bold bg-rose-950 text-rose-400 border border-rose-800';
+        }
+      });
+
+      // 3. Renderiza o comparativo de todos os jogos
+      const listaComparativoEl = document.getElementById('lista-todos-jogos-auditoria');
+      const badgeTotalEl = document.getElementById('badge-total-jogos-auditados');
+      if (badgeTotalEl) badgeTotalEl.innerText = `${jogos.length} jogos avaliados`;
+
+      if (listaComparativoEl) {
+        const jogoStr = jogoSelecionado.join('-');
+        const nomesTestes = ['1º Seq & Finais', '2º Shannon', '3º Qui-Quadrado', '4º Paridade & Primos', '5º Normal Soma', '6º Hipergeométrica'];
+
+        listaComparativoEl.innerHTML = jogos.map((j, idx) => {
+          const analiseItem = avaliarJogo(j.dezenas, j.modalidade || modalidadeAtual);
+          const ativo = j.dezenas.join('-') === jogoStr;
+          const border = ativo ? 'border-cyan-500 bg-cyan-950/20 ring-1 ring-cyan-500' : 'border-slate-800 bg-slate-950/80';
+
+          return `
+            <div class="p-3 rounded-2xl border ${border} space-y-2.5 transition">
+              <div class="flex justify-between items-center flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-black text-white">${j.titulo}</span>
+                  <span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${analiseItem.aprovadosCount === 6 ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-amber-950 text-amber-400 border border-amber-800'}">
+                    Score: ${analiseItem.score}/100 (${analiseItem.aprovadosCount}/6 OK)
+                  </span>
+                  ${ativo ? '<span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold">● Auditando</span>' : ''}
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" onclick="selecionarJogoAuditoria(${idx})" class="px-2 py-1 ${ativo ? 'bg-cyan-600 text-slate-950 font-black' : 'bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold'} text-[10px] rounded-lg border border-slate-700 transition">
+                    🔬 Testar 1 a 1
+                  </button>
+                  <button type="button" onclick="carregarJogoParaVolanteEAuditar(${idx})" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-[10px] rounded-lg border border-slate-700 transition">
+                    🎯 No Volante
+                  </button>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap gap-1">
+                ${j.dezenas.map(d => `<span class="w-6 h-6 rounded-lg bg-slate-900 text-white font-black text-[11px] flex items-center justify-center border border-slate-700">${String(d).padStart(2, '0')}</span>`).join('')}
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 pt-1">
+                ${analiseItem.testes.map((t, tIdx) => `
+                  <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 space-y-0.5 text-[9px]">
+                    <div class="flex justify-between items-center">
+                      <span class="text-slate-400 font-bold">${nomesTestes[tIdx]}</span>
+                      <span class="font-bold ${t.s === 'Aprovado' ? 'text-emerald-400' : 'text-rose-400'}">${t.s}</span>
+                    </div>
+                    <div class="text-white text-[9px] truncate">${t.v}</div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function selecionarJogoAuditoria(idx) {
+      const jogos = obterTodosJogosDisponiveis();
+      if (!jogos[idx]) return;
+      const j = jogos[idx];
+      jogoAuditoriaAtivo = { dezenas: [...j.dezenas], titulo: j.titulo, modalidade: j.modalidade || modalidadeAtual };
+      renderizarTelaAuditoria(j.dezenas, j.titulo);
+      tocarBeep('click');
+      vibrarHaptico(15);
+    }
+
+    function carregarJogoParaVolanteEAuditar(idx) {
+      const jogos = obterTodosJogosDisponiveis();
+      if (!jogos[idx]) return;
+      const j = jogos[idx];
+      if (j.modalidade && j.modalidade !== modalidadeAtual) {
+        trocarModalidade(j.modalidade);
+      }
+      setJogoAtual([...j.dezenas]);
+      atualizarDisplayJogo();
+      renderizarVolante();
+      executarAnaliseDinamicaDoJogo();
+      executarAnaliseVitorio();
+      mudarAba('volante');
+      toast(`${j.titulo} carregado no Volante!`, "🎯");
+    }
+
+    function testarJogoNaAuditoria(dezenas, titulo, mod = modalidadeAtual) {
+      jogoAuditoriaAtivo = { dezenas: [...dezenas], titulo: titulo || 'Jogo Selecionado', modalidade: mod };
+      mudarAba('auditoria');
+    }
+
+    function testarJogoNaAuditoriaCarteira(id) {
+      const b = carteiraJogos.find(item => String(item.id) === String(id));
+      if (!b) return;
+      testarJogoNaAuditoria(b.dezenas, `Carteira (${b.data})`, b.modalidade || modalidadeAtual);
+    }
+
+    function alternarTesteAuto1a1() {
+      if (testeSequencialInterval) {
+        pararTesteSequencialAutomatico();
         return;
+      }
+      const jogos = obterTodosJogosDisponiveis();
+      if (jogos.length <= 1) {
+        toast("Gere ou adicione mais apostas para testar em sequência!", "⚠️");
+        return;
+      }
+
+      let idxAtual = 0;
+      if (jogoAuditoriaAtivo && jogoAuditoriaAtivo.dezenas) {
+        const s = jogoAuditoriaAtivo.dezenas.join('-');
+        const i = jogos.findIndex(j => j.dezenas.join('-') === s);
+        if (i !== -1) idxAtual = i;
+      }
+
+      tocarBeep('success');
+      toast("Iniciando bateria 1 a 1 de todos os jogos...", "🔬");
+
+      testeSequencialInterval = setInterval(() => {
+        idxAtual = (idxAtual + 1) % jogos.length;
+        selecionarJogoAuditoria(idxAtual);
+      }, 1400);
+
+      renderizarTelaAuditoria();
+    }
+
+    function pararTesteSequencialAutomatico() {
+      if (testeSequencialInterval) {
+        clearInterval(testeSequencialInterval);
+        testeSequencialInterval = null;
+      }
+      renderizarTelaAuditoria();
+      toast("Teste sequencial pausado.", "⏸️");
+    }
+
+    function alternarDetalhesLote(idx) {
+      loteDetalhesAbertos[idx] = !loteDetalhesAbertos[idx];
+      renderizarLoteApostas();
+    }
+
+    function alternarDetalhesCarteira(id) {
+      carteiraDetalhesAbertos[id] = !carteiraDetalhesAbertos[id];
+      atualizarPainelCarteira();
+    }
+
+    function mudarAba(aba) {
+      if (testeSequencialInterval && aba !== 'auditoria') {
+        pararTesteSequencialAutomatico();
       }
 
       abaAtual = aba;
       tocarBeep('click');
-      ['volante', 'vitorio', 'carteira', 'bolao', 'fechamentos', 'calor'].forEach(a => {
+      ['volante', 'vitorio', 'auditoria', 'carteira', 'bolao', 'fechamentos', 'calor'].forEach(a => {
         const el = document.getElementById(`view-${a}`);
         const tab = document.getElementById(`tab-${a}`);
         if (el) el.classList.add('hidden');
         if (tab) tab.className = 'py-1.5 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1 font-mono text-[10px]';
       });
-
-      const tabAuditoria = document.getElementById('tab-auditoria');
-      if (tabAuditoria) {
-        tabAuditoria.className = 'py-1.5 px-1 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-1 font-mono text-[10px]';
-      }
 
       const elAtivo = document.getElementById(`view-${aba}`);
       const tabAtivo = document.getElementById(`tab-${aba}`);
@@ -2333,7 +2817,17 @@
       const cor = modalidadeAtual === 'megasena' ? 'bg-emerald-600 text-slate-950 font-black shadow' : 'bg-purple-600 text-white font-black shadow';
       if (tabAtivo) tabAtivo.className = `py-1.5 px-1 rounded-xl font-black transition ${cor} flex items-center justify-center gap-1 font-mono text-[10px]`;
       
-      if (aba === 'bolao') calcularRateioBolao();
+      if (aba === 'auditoria') {
+        renderizarTelaAuditoria();
+      } else if (aba === 'bolao') {
+        calcularRateioBolao();
+      } else if (aba === 'calor') {
+        renderizarMapaCalor();
+      } else if (aba === 'carteira') {
+        atualizarPainelCarteira();
+      } else if (aba === 'volante') {
+        renderizarBarraJogosTesteRapido();
+      }
     }
 
     function abrirModalDialog(msg, callback) {
