@@ -62,6 +62,119 @@
       min-height: 42px;
       touch-action: manipulation;
     }
+
+    /* TEMA CLARO NASA CLEANROOM / APOLLO WHITE */
+    html:not(.dark) body {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) .telemetry-grid {
+      background-image: linear-gradient(to right, rgba(15, 23, 42, 0.06) 1px, transparent 1px),
+                        linear-gradient(to bottom, rgba(15, 23, 42, 0.06) 1px, transparent 1px) !important;
+    }
+    html:not(.dark) header {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      border-color: #cbd5e1 !important;
+    }
+    html:not(.dark) header > div:first-child {
+      background-color: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+      color: #0284c7 !important;
+    }
+    html:not(.dark) nav {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      border-color: #cbd5e1 !important;
+    }
+    html:not(.dark) .bg-slate-950 {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+    }
+    html:not(.dark) .bg-slate-900 {
+      background-color: #f8fafc !important;
+      border-color: #cbd5e1 !important;
+      color: #1e293b !important;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
+    }
+    html:not(.dark) .bg-slate-900\/90,
+    html:not(.dark) .bg-slate-900\/95 {
+      background-color: rgba(255, 255, 255, 0.95) !important;
+    }
+    html:not(.dark) .bg-slate-800 {
+      background-color: #e2e8f0 !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) .border-slate-800,
+    html:not(.dark) .border-slate-700 {
+      border-color: #cbd5e1 !important;
+    }
+    html:not(.dark) .text-white {
+      color: #0f172a !important;
+    }
+    html:not(.dark) .text-slate-100,
+    html:not(.dark) .text-slate-200,
+    html:not(.dark) .text-slate-300 {
+      color: #334155 !important;
+    }
+    html:not(.dark) .text-slate-400,
+    html:not(.dark) .text-slate-500 {
+      color: #64748b !important;
+    }
+    html:not(.dark) .bg-cyan-950,
+    html:not(.dark) .bg-cyan-950\/80,
+    html:not(.dark) .bg-cyan-950\/40,
+    html:not(.dark) .bg-cyan-950\/50 {
+      background-color: #e0f2fe !important;
+      border-color: #7dd3fc !important;
+    }
+    html:not(.dark) .text-cyan-300,
+    html:not(.dark) .text-cyan-400 {
+      color: #0284c7 !important;
+    }
+    html:not(.dark) .bg-emerald-950 {
+      background-color: #d1fae5 !important;
+      border-color: #6ee7b7 !important;
+    }
+    html:not(.dark) .text-emerald-400,
+    html:not(.dark) .text-emerald-300 {
+      color: #047857 !important;
+    }
+    html:not(.dark) .bg-amber-950,
+    html:not(.dark) .bg-amber-950\/50,
+    html:not(.dark) .bg-amber-950\/60,
+    html:not(.dark) .bg-amber-950\/30 {
+      background-color: #fef3c7 !important;
+      border-color: #fcd34d !important;
+    }
+    html:not(.dark) .text-amber-400,
+    html:not(.dark) .text-amber-300 {
+      color: #b45309 !important;
+    }
+    html:not(.dark) .bg-rose-950,
+    html:not(.dark) .bg-rose-950\/60,
+    html:not(.dark) .bg-rose-950\/40 {
+      background-color: #ffe4e6 !important;
+      border-color: #fda4af !important;
+    }
+    html:not(.dark) .text-rose-400,
+    html:not(.dark) .text-rose-300 {
+      color: #be123c !important;
+    }
+    html:not(.dark) .bg-purple-950 {
+      background-color: #f3e8ff !important;
+      border-color: #d8b4fe !important;
+    }
+    html:not(.dark) .text-purple-400,
+    html:not(.dark) .text-purple-300 {
+      color: #7e22ce !important;
+    }
+    html:not(.dark) #toast {
+      background-color: #ffffff !important;
+      color: #047857 !important;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased overflow-x-hidden telemetry-grid selection:bg-emerald-500 selection:text-black">
@@ -155,6 +268,9 @@
 
       <div class="flex items-center gap-1.5">
         <span class="text-[9px] font-mono text-cyan-400 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-800 font-bold">v2.5</span>
+        <button onclick="alternarTema()" id="btn-theme-toggle" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs border border-slate-700 flex items-center justify-center text-amber-400 transition" title="Alternar Modo Claro / Modo Escuro">
+          <span id="theme-icon">🌙</span>
+        </button>
         <button onclick="alternarAudio()" id="btn-audio-toggle" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs border border-slate-700 flex items-center justify-center text-slate-300 transition" title="Alternar Efeitos Sonoros">
           <span id="audio-icon">🔊</span>
         </button>
@@ -456,6 +572,38 @@
         <div id="conteudo-sugestao-troca" class="text-xs text-slate-300 space-y-2 font-sans transition-all"></div>
       </div>
 
+      <!-- SIMULADOR DE DESEMPENHO HISTÓRICO INSTANTÂNEO (RETRO-TESTE) -->
+      <div id="card-simulador-historico" class="bg-gradient-to-br from-slate-900 via-slate-900 to-indigo-950/40 border border-indigo-800/50 rounded-3xl p-4 space-y-3 font-mono shadow-xl">
+        <div class="flex justify-between items-center cursor-pointer select-none" onclick="alternarCard('conteudo-simulador-historico', 'seta-simulador-historico')" title="Clique para abrir ou fechar a retro-conferência">
+          <div class="flex items-center gap-1.5">
+            <span class="text-base">⏳</span>
+            <div>
+              <span class="text-[9px] uppercase font-black text-indigo-400 tracking-wider block">RETRO-TESTE OFICIAL</span>
+              <h3 class="text-xs font-bold text-white uppercase tracking-wider font-sans">
+                Simulador de Desempenho Histórico
+              </h3>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="badge-retro-resumo" class="text-[9px] text-indigo-300 bg-indigo-950 px-2 py-0.5 rounded border border-indigo-800 font-bold">
+              --
+            </span>
+            <span id="seta-simulador-historico" class="text-indigo-400 text-sm font-bold">⯆</span>
+          </div>
+        </div>
+        <div id="conteudo-simulador-historico" class="text-xs text-slate-300 space-y-2.5 font-sans transition-all">
+          <p class="text-[11px] text-slate-300 leading-relaxed">
+            Testa este palpite ativo contra os últimos 50 concursos oficiais da Caixa para verificar se ele já teria pontuado ou gerado premiação no passado recente:
+          </p>
+          <div id="grade-retro-resultados" class="grid grid-cols-3 gap-2 font-mono text-center">
+            <!-- preenchido dinamicamente -->
+          </div>
+          <div id="detalhe-retro-melhor-sorteio" class="p-2 rounded-xl bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-300">
+            Aguardando seleção do jogo...
+          </div>
+        </div>
+      </div>
+
     </section>
 
   <section id="view-carteira" class="space-y-4 hidden">
@@ -687,11 +835,59 @@
         <div id="ranking-pedras-frias" class="grid grid-cols-5 sm:grid-cols-10 gap-1.5 text-center"></div>
       </div>
 
+      <!-- RADAR DO CICLO DAS DEZENAS (TESTE AUXILIAR) -->
+      <div id="card-ciclo-dezenas" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 font-mono">
+        <div class="flex justify-between items-center flex-wrap gap-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-sm">🔄</span>
+            <h3 class="text-xs font-black text-white font-sans uppercase">Radar do Ciclo das Dezenas</h3>
+          </div>
+          <span id="badge-status-ciclo" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800">
+            Monitorando Ciclo Oficial
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-300 font-sans leading-relaxed">
+          O Ciclo mede quantas dezenas já foram sorteadas nos últimos concursos e quais ainda faltam para que todas as dezenas possíveis tenham saído ao menos uma vez:
+        </p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center">
+          <div class="p-2 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block font-bold">SORTEADAS NO CICLO</span>
+            <span id="ciclo-sorteadas-count" class="text-sm font-black text-emerald-400">0 / 60</span>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-950 border border-slate-800">
+            <span class="text-[9px] text-slate-400 block font-bold">FALTAM P/ FECHAR</span>
+            <span id="ciclo-faltantes-count" class="text-sm font-black text-amber-400">0</span>
+          </div>
+          <div class="p-2 rounded-xl bg-slate-950 border border-slate-800 col-span-2 sm:col-span-1 flex flex-col justify-center">
+            <button type="button" onclick="incluirDezenasCicloNoJogo()" class="w-full py-1.5 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black text-[10px] rounded-lg shadow transition active:scale-95">
+              🎯 Incluir no Volante
+            </button>
+          </div>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold text-slate-400 block mb-1.5">DEZENAS FALTANTES NO CICLO (CLIQUE P/ MARCAR/DESMARCAR):</span>
+          <div id="ciclo-dezenas-faltantes-grid" class="flex flex-wrap gap-1.5"></div>
+        </div>
+      </div>
+
       <!-- GRADE TÉRMICA COMPLETA -->
       <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3 font-mono">
-        <div class="flex justify-between items-center">
-          <h3 class="text-xs font-bold uppercase text-white font-sans">Grade Térmica Completa (Clique para Marcar/Desmarcar)</h3>
-          <span class="text-[9px] text-slate-400">🔥 Quente &bull; ⚡ Média &bull; ❄️ Fria</span>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-xs font-bold uppercase text-white font-sans">Grade Térmica Completa</h3>
+            <span class="text-[10px] text-slate-400 font-sans block">Clique em qualquer número para marcar ou desmarcar</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5 text-[9px]">
+            <span class="text-rose-400 font-bold">🔥 Quente</span>
+            <span class="text-slate-600">&bull;</span>
+            <span class="text-amber-400 font-bold">⚡ Média</span>
+            <span class="text-slate-600">&bull;</span>
+            <span class="text-cyan-400 font-bold">❄️ Fria</span>
+            <span class="text-slate-600">&bull;</span>
+            <span class="text-emerald-400 font-black px-1.5 py-0.5 rounded bg-emerald-950/80 border border-emerald-500/80 flex items-center gap-1 shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span> 🟢 Borda Verde: Seu Jogo Ativo
+            </span>
+          </div>
         </div>
         <div id="grid-mapa-calor" class="grid grid-cols-6 sm:grid-cols-10 gap-1.5"></div>
       </div>
@@ -888,7 +1084,37 @@
       }
     }
 
+    function alternarTema() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const icon = document.getElementById('theme-icon');
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('nasa_theme', 'light');
+        if (icon) icon.innerText = '☀️';
+        toast("Modo Claro (Apollo White) ativado!", "☀️");
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('nasa_theme', 'dark');
+        if (icon) icon.innerText = '🌙';
+        toast("Modo Escuro (Deep Space) ativado!", "🌙");
+      }
+      tocarBeep('click');
+    }
+
+    function carregarTemaSalvo() {
+      const tema = localStorage.getItem('nasa_theme');
+      const icon = document.getElementById('theme-icon');
+      if (tema === 'light') {
+        document.documentElement.classList.remove('dark');
+        if (icon) icon.innerText = '☀️';
+      } else {
+        document.documentElement.classList.add('dark');
+        if (icon) icon.innerText = '🌙';
+      }
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
+      carregarTemaSalvo();
       if (sessionStorage.getItem('loterias_auth_session') === 'true') {
         const screenAuth = document.getElementById('screen-auth');
         if (screenAuth) screenAuth.classList.add('hidden');
@@ -1588,6 +1814,108 @@ function gerarPalpiteInteligente() {
       };
     }
 
+    // SIMULADOR DE DESEMPENHO HISTÓRICO (RETRO-TESTE)
+    function simularDesempenhoHistorico(jogo, mod) {
+      const base = mod === 'megasena' ? baseConcursosMega : baseConcursosLoto;
+      const gradeEl = document.getElementById('grade-retro-resultados');
+      const detalheEl = document.getElementById('detalhe-retro-melhor-sorteio');
+      const badgeResumoEl = document.getElementById('badge-retro-resumo');
+      if (!gradeEl || !detalheEl || !base || base.length === 0) return;
+
+      const minNec = mod === 'megasena' ? 6 : 15;
+      if (!jogo || jogo.length < minNec) {
+        if (badgeResumoEl) badgeResumoEl.innerText = `Aguardando ${minNec} dezenas`;
+        gradeEl.innerHTML = '<div class="col-span-3 text-slate-500 py-2 text-[10px] font-mono">Complete o volante para verificar histórico oficial.</div>';
+        detalheEl.innerText = 'Instrumentos aguardando volante completo...';
+        return;
+      }
+
+      const ultimos = base.slice(0, 50);
+      let quadras = 0, quinas = 0, senas = 0;
+      let pontos11 = 0, pontos12 = 0, pontos13 = 0, pontos14 = 0, pontos15 = 0;
+      let maxAcertos = 0;
+      let melhorConcurso = null;
+
+      ultimos.forEach(c => {
+        const acertos = c.dezenas.filter(d => jogo.includes(d)).length;
+        if (acertos > maxAcertos) {
+          maxAcertos = acertos;
+          melhorConcurso = c;
+        }
+        if (mod === 'megasena') {
+          if (acertos === 4) quadras++;
+          else if (acertos === 5) quinas++;
+          else if (acertos === 6) senas++;
+        } else {
+          if (acertos === 11) pontos11++;
+          else if (acertos === 12) pontos12++;
+          else if (acertos === 13) pontos13++;
+          else if (acertos === 14) pontos14++;
+          else if (acertos === 15) pontos15++;
+        }
+      });
+
+      if (mod === 'megasena') {
+        const totalPremios = quadras + quinas + senas;
+        if (badgeResumoEl) {
+          badgeResumoEl.innerText = totalPremios > 0 ? `${totalPremios}x Premiado (50 conc.)` : '0 Prêmios (50 conc.)';
+          badgeResumoEl.className = totalPremios > 0 ? 'text-[9px] text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800 font-bold' : 'text-[9px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 font-bold';
+        }
+        gradeEl.innerHTML = `
+          <div class="p-2 bg-slate-950 rounded-xl border ${quadras > 0 ? 'border-emerald-800 bg-emerald-950/20' : 'border-slate-800'}">
+            <span class="text-[9px] text-slate-400 block font-bold">QUADRAS (4)</span>
+            <strong class="${quadras > 0 ? 'text-emerald-400 font-black' : 'text-slate-500'} text-sm">${quadras}x</strong>
+          </div>
+          <div class="p-2 bg-slate-950 rounded-xl border ${quinas > 0 ? 'border-amber-800 bg-amber-950/20' : 'border-slate-800'}">
+            <span class="text-[9px] text-slate-400 block font-bold">QUINAS (5)</span>
+            <strong class="${quinas > 0 ? 'text-amber-400 font-black' : 'text-slate-500'} text-sm">${quinas}x</strong>
+          </div>
+          <div class="p-2 bg-slate-950 rounded-xl border ${senas > 0 ? 'border-rose-800 bg-rose-950/20' : 'border-slate-800'}">
+            <span class="text-[9px] text-slate-400 block font-bold">SENAS (6)</span>
+            <strong class="${senas > 0 ? 'text-rose-400 font-black' : 'text-slate-500'} text-sm">${senas}x</strong>
+          </div>
+        `;
+        if (melhorConcurso && maxAcertos >= 3) {
+          detalheEl.innerHTML = `
+            <div class="flex justify-between items-center text-[10px] flex-wrap gap-1">
+              <span class="text-slate-400">Pico histórico nos últimos 50 conc.:</span>
+              <span class="text-emerald-400 font-bold">${maxAcertos} Acertos (Conc. ${melhorConcurso.concurso} • ${melhorConcurso.data})</span>
+            </div>
+          `;
+        } else {
+          detalheEl.innerText = `Nenhum pico acima de 3 acertos nos últimos 50 concursos. Padrão estatístico puro.`;
+        }
+      } else {
+        const total = pontos11 + pontos12 + pontos13 + pontos14 + pontos15;
+        if (badgeResumoEl) {
+          badgeResumoEl.innerText = `${total}x Prêmios`;
+          badgeResumoEl.className = total > 0 ? 'text-[9px] text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800 font-bold' : 'text-[9px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 font-bold';
+        }
+        gradeEl.innerHTML = `
+          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[8px] text-slate-400 block font-bold">11 & 12 PTS</span>
+            <strong class="text-cyan-400 text-sm">${pontos11 + pontos12}x</strong>
+          </div>
+          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[8px] text-slate-400 block font-bold">13 & 14 PTS</span>
+            <strong class="text-amber-400 text-sm">${pontos13 + pontos14}x</strong>
+          </div>
+          <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[8px] text-slate-400 block font-bold">15 PTS</span>
+            <strong class="text-rose-400 text-sm">${pontos15}x</strong>
+          </div>
+        `;
+        if (melhorConcurso) {
+          detalheEl.innerHTML = `
+            <div class="flex justify-between items-center text-[10px] flex-wrap gap-1">
+              <span class="text-slate-400">Pico histórico:</span>
+              <span class="text-purple-400 font-bold">${maxAcertos} Acertos (Conc. ${melhorConcurso.concurso})</span>
+            </div>
+          `;
+        }
+      }
+    }
+
     // Bateria dos 6 Testes Estatísticos em Tempo Real no Volante
     // Bateria dos 6 Testes Estatísticos em Tempo Real no Volante com Telemetria NASA
     function executarAnaliseDinamicaDoJogo() {
@@ -1619,6 +1947,7 @@ function gerarPalpiteInteligente() {
           badgeTotal.innerText = 'Aguardando';
           badgeTotal.className = 'text-[10px] px-2 py-0.5 rounded font-mono font-bold bg-slate-900 text-slate-500 border border-slate-800';
         }
+        simularDesempenhoHistorico(jogo, modalidadeAtual);
         return;
       }
 
@@ -1670,6 +1999,8 @@ function gerarPalpiteInteligente() {
         const molduraCount = jogo.filter(x => LOTO_CONFIG.moldura.includes(x)).length;
         gerarRecomendacaoTrocaLoto(jogo, molduraCount);
       }
+
+      simularDesempenhoHistorico(jogo, modalidadeAtual);
     }
 
     // Gerador de Jogo Único de Alta Qualidade
@@ -2181,7 +2512,23 @@ function gerarPalpiteInteligente() {
       executarAnaliseDinamicaDoJogo();
       executarAnaliseVitorio();
       mudarAba('volante');
-      toast(`Bilhete de ${b.data} carregado no volante!`, "🎯");
+
+      const elBateria = document.getElementById('conteudo-bateria-testes');
+      const setaBateria = document.getElementById('seta-bateria-testes');
+      if (elBateria && elBateria.classList.contains('hidden')) {
+        elBateria.classList.remove('hidden');
+        if (setaBateria) setaBateria.innerText = '⯆';
+      }
+
+      const elSim = document.getElementById('conteudo-simulador-historico');
+      const setaSim = document.getElementById('seta-simulador-historico');
+      if (elSim && elSim.classList.contains('hidden')) {
+        elSim.classList.remove('hidden');
+        if (setaSim) setaSim.innerText = '⯆';
+      }
+
+      tocarBeep('success');
+      toast(`Bilhete de ${b.data} carregado no Volante & Telemetria NASA!`, "🎯");
     }
 
     // AUDITORIA E CALIBRAÇÃO DO PORTFÓLIO DE APOSTAS
@@ -2360,28 +2707,37 @@ function gerarPalpiteInteligente() {
                 </div>
               </div>
               <div class="flex items-center gap-1.5 self-end sm:self-center flex-wrap">
-                <button type="button" onclick="alternarDetalhesCarteira('${b.id}')" title="Expandir 6 Testes" class="text-cyan-400 hover:text-cyan-300 text-[10px] px-2 py-1 bg-slate-900 rounded-lg border border-slate-800 font-bold flex items-center gap-1">
-                  <span>🛡️</span> ${aberto ? 'Ocultar' : '6 Testes'}
+                <button type="button" onclick="alternarDetalhesCarteira('${b.id}')" title="Ver 6 Testes" class="text-cyan-400 hover:text-cyan-300 text-[10px] px-2.5 py-1 bg-slate-900 rounded-lg border border-slate-800 font-bold flex items-center gap-1">
+                  <span>🛡️</span> ${aberto ? 'Ocultar Testes' : '6 Testes'}
                 </button>
-                <button type="button" onclick="testarJogoNaAuditoriaCarteira('${b.id}')" title="Testar na tela 6 Testes" class="text-cyan-300 hover:text-white text-[10px] px-2 py-1 bg-cyan-950 rounded-lg border border-cyan-800 font-bold">
-                  🔬 Testar 1 a 1
+                <button type="button" onclick="carregarBilheteNoVolante('${b.id}')" title="Carregar no Volante e Auditar" class="text-emerald-400 hover:text-emerald-300 text-[10px] px-2.5 py-1 bg-slate-900 rounded-lg border border-slate-800 font-bold flex items-center gap-1">
+                  <span>🎯</span> Volante & Testes
                 </button>
-                <button type="button" onclick="carregarBilheteNoVolante('${b.id}')" title="Carregar no Volante" class="text-emerald-400 hover:text-emerald-300 text-[10px] px-2 py-1 bg-slate-900 rounded-lg border border-slate-800 font-bold">
-                  🎯 Volante
-                </button>
-                <button type="button" onclick="removerBilheteCarteira('${b.id}')" class="text-rose-400 hover:text-rose-300 text-sm p-1">🗑️</button>
+                <button type="button" onclick="removerBilheteCarteira('${b.id}')" class="text-rose-400 hover:text-rose-300 text-sm p-1" title="Remover bilhete">🗑️</button>
               </div>
             </div>
 
             <!-- GRADE EXPANSÍVEL DOS 6 TESTES DESTE BILHETE -->
             ${aberto ? `
-              <div class="mt-2 pt-2 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-3 gap-1 text-[9px]">
-                ${analise.testes.map((t, tIdx) => `
-                  <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 flex justify-between items-center">
-                    <span class="text-slate-400 font-bold">${nomesTestes[tIdx]}:</span>
-                    <span class="font-bold ${t.s === 'Aprovado' ? 'text-emerald-400' : 'text-rose-400'}">${t.s}</span>
-                  </div>
-                `).join('')}
+              <div class="mt-2 pt-2 border-t border-slate-800/80 space-y-2 font-mono">
+                <div class="flex justify-between items-center text-[10px] px-1 font-bold">
+                  <span class="text-slate-400">Score de Telemetria:</span>
+                  <span class="${analise.aprovadosCount === 6 ? 'text-emerald-400' : 'text-amber-400'}">${analise.score}/100 • ${analise.aprovadosCount} de 6 Aprovados</span>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[9px]">
+                  ${analise.testes.map((t, tIdx) => `
+                    <div class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 space-y-0.5">
+                      <div class="flex justify-between items-center">
+                        <span class="text-slate-400 font-bold truncate">${nomesTestes[tIdx]}:</span>
+                        <span class="font-bold ${t.s === 'Aprovado' ? 'text-emerald-400' : 'text-rose-400'}">${t.s}</span>
+                      </div>
+                      <div class="text-slate-300 font-mono text-[9px] truncate">${t.v}</div>
+                    </div>
+                  `).join('')}
+                </div>
+                <button type="button" onclick="carregarBilheteNoVolante('${b.id}')" class="w-full py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-lg text-[10px] shadow flex items-center justify-center gap-1">
+                  <span>🎯</span> Carregar no Volante & Telemetria NASA
+                </button>
               </div>
             ` : ''}
           </div>
@@ -2503,13 +2859,99 @@ function gerarPalpiteInteligente() {
       window.open('https://www.loteriasonline.caixa.gov.br/silce-web/#/home', '_blank');
     }
 
-        function renderizarMapaCalor() {
+    // RADAR DO CICLO DAS DEZENAS
+    function calcularCicloDezenas() {
+      const config = getConfigAtual();
+      const base = getBaseAtual();
+      const total = config.totalNumeros; // 60 ou 25
+      const sorteadas = new Set();
+
+      for (let c of base) {
+        c.dezenas.forEach(d => sorteadas.add(d));
+        if (sorteadas.size === total) break;
+      }
+
+      const faltantes = [];
+      for (let i = 1; i <= total; i++) {
+        if (!sorteadas.has(i)) faltantes.push(i);
+      }
+
+      if (faltantes.length === 0) {
+        const recentes = new Set();
+        base.slice(0, modalidadeAtual === 'megasena' ? 6 : 3).forEach(c => c.dezenas.forEach(d => recentes.add(d)));
+        for (let i = 1; i <= total; i++) {
+          if (!recentes.has(i)) faltantes.push(i);
+        }
+      }
+
+      return {
+        total,
+        sorteadas: total - faltantes.length,
+        faltantes: faltantes.sort((a, b) => a - b)
+      };
+    }
+
+    function renderizarCicloDezenas() {
+      const dados = calcularCicloDezenas();
+      const sorteadasEl = document.getElementById('ciclo-sorteadas-count');
+      const faltantesEl = document.getElementById('ciclo-faltantes-count');
+      const gridEl = document.getElementById('ciclo-dezenas-faltantes-grid');
+      const badgeEl = document.getElementById('badge-status-ciclo');
+      if (!sorteadasEl || !faltantesEl || !gridEl) return;
+
+      sorteadasEl.innerText = `${dados.sorteadas} / ${dados.total}`;
+      faltantesEl.innerText = `${dados.faltantes.length} dezenas`;
+      if (badgeEl) {
+        badgeEl.innerText = dados.faltantes.length === 0 ? 'Ciclo Concluído' : `Faltam ${dados.faltantes.length} dezenas`;
+      }
+
+      const jogoAtual = getJogoAtual();
+      gridEl.innerHTML = dados.faltantes.map(num => {
+        const marcada = jogoAtual.includes(num);
+        return `
+          <button type="button" onclick="clicarNumeroVolante(${num}); renderizarCicloDezenas();" class="px-2 py-1 rounded-lg text-xs font-mono font-bold border transition active:scale-95 flex items-center gap-1 ${marcada ? 'bg-emerald-600 text-slate-950 border-emerald-400 shadow' : 'bg-slate-950 hover:bg-slate-800 text-cyan-300 border-slate-800'}">
+            <span>${String(num).padStart(2, '0')}</span>
+            <span class="text-[9px]">${marcada ? '✓' : '+'}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function incluirDezenasCicloNoJogo() {
+      const dados = calcularCicloDezenas();
+      if (dados.faltantes.length === 0) {
+        toast("Todas as dezenas já participaram deste ciclo!", "ℹ️");
+        return;
+      }
+      const config = getConfigAtual();
+      let jogo = getJogoAtual();
+      let adicionados = 0;
+      for (let num of dados.faltantes) {
+        if (!jogo.includes(num) && jogo.length < config.minNumeros) {
+          jogo.push(num);
+          adicionados++;
+        }
+      }
+      jogo.sort((a, b) => a - b);
+      setJogoAtual(jogo);
+      atualizarDisplayJogo();
+      renderizarVolante();
+      executarAnaliseDinamicaDoJogo();
+      executarAnaliseVitorio();
+      renderizarCicloDezenas();
+      tocarBeep('success');
+      toast(`${adicionados} dezenas do ciclo adicionadas ao seu volante!`, "🎯");
+    }
+
+    function renderizarMapaCalor() {
       const config = getConfigAtual();
       const base = getBaseAtual();
       const grid = document.getElementById('grid-mapa-calor');
       const rankingQuentesEl = document.getElementById('ranking-pedras-quentes');
       const rankingFriasEl = document.getElementById('ranking-pedras-frias');
       if (!grid) return;
+
+      renderizarCicloDezenas();
 
       grid.innerHTML = '';
       grid.className = modalidadeAtual === 'megasena' ? 'grid grid-cols-6 sm:grid-cols-10 gap-1.5 font-mono' : 'grid grid-cols-5 gap-2 max-w-xs mx-auto font-mono';
@@ -2589,7 +3031,7 @@ function gerarPalpiteInteligente() {
         }
 
         if (estaMarcada) {
-          corBorda = 'border-emerald-400 ring-1 ring-emerald-400';
+          corBorda = 'border-emerald-400 ring-2 ring-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.35)]';
         }
 
         const box = document.createElement('button');
@@ -2600,7 +3042,10 @@ function gerarPalpiteInteligente() {
         };
         box.className = `p-1.5 rounded-xl border flex flex-col items-center justify-center text-center transition hover:scale-105 active:scale-95 ${corFundo} ${corBorda}`;
         box.innerHTML = `
-          <span class="text-xs font-black ${estaMarcada ? 'text-emerald-400' : 'text-white'}">${String(i).padStart(2, '0')}</span>
+          <span class="text-xs font-black ${estaMarcada ? 'text-emerald-400 flex items-center justify-center gap-0.5' : 'text-white'}">
+            ${String(i).padStart(2, '0')}
+            ${estaMarcada ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>' : ''}
+          </span>
           <span class="text-[9px] ${corBadge} mt-0.5">${count}x</span>
         `;
         grid.appendChild(box);
@@ -2988,14 +3433,34 @@ function executarDesdobramento() {
     }
 
     function testarJogoNaAuditoria(dezenas, titulo, mod = modalidadeAtual) {
-      jogoAuditoriaAtivo = { dezenas: [...dezenas], titulo: titulo || 'Jogo Selecionado', modalidade: mod };
-      mudarAba('auditoria');
+      if (mod && mod !== modalidadeAtual) trocarModalidade(mod);
+      setJogoAtual([...dezenas]);
+      atualizarDisplayJogo();
+      renderizarVolante();
+      executarAnaliseDinamicaDoJogo();
+      executarAnaliseVitorio();
+      mudarAba('volante');
+
+      const elBateria = document.getElementById('conteudo-bateria-testes');
+      const setaBateria = document.getElementById('seta-bateria-testes');
+      if (elBateria && elBateria.classList.contains('hidden')) {
+        elBateria.classList.remove('hidden');
+        if (setaBateria) setaBateria.innerText = '⯆';
+      }
+
+      const elSim = document.getElementById('conteudo-simulador-historico');
+      const setaSim = document.getElementById('seta-simulador-historico');
+      if (elSim && elSim.classList.contains('hidden')) {
+        elSim.classList.remove('hidden');
+        if (setaSim) setaSim.innerText = '⯆';
+      }
+
+      tocarBeep('success');
+      toast(`${titulo || 'Jogo'} carregado no Volante & Telemetria!`, "🎯");
     }
 
     function testarJogoNaAuditoriaCarteira(id) {
-      const b = carteiraJogos.find(item => String(item.id) === String(id));
-      if (!b) return;
-      testarJogoNaAuditoria(b.dezenas, `Carteira (${b.data})`, b.modalidade || modalidadeAtual);
+      carregarBilheteNoVolante(id);
     }
 
     function alternarTesteAuto1a1() {
