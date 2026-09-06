@@ -946,6 +946,43 @@
 
         <div id="container-bilhetes-salvos" class="space-y-2 max-h-80 overflow-y-auto no-scrollbar"></div>
       </div>
+          <!-- SCANNER DE APOSTAS EM LOTE (AUDITORIA EM MASSA NASA) -->
+      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 border border-cyan-800/60 rounded-3xl p-4 sm:p-5 space-y-3 font-mono shadow-xl">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">📡</span>
+            <div>
+              <h3 class="text-xs font-black text-white font-sans uppercase">Scanner de Apostas em Lote</h3>
+              <p class="text-[10px] text-slate-400 font-sans">Cole múltiplos jogos para auditar todos de uma só vez</p>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[9px] font-bold">
+            AUDITORIA EM MASSA
+          </span>
+        </div>
+
+        <div class="space-y-1.5">
+          <textarea id="textarea-scanner-lote" rows="3" placeholder="Cole aqui seus jogos (um por linha)...&#10;Exemplo:&#10;05 12 24 35 48 59&#10;01 02 03 04 05 06" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"></textarea>
+          <div class="flex justify-between items-center pt-1">
+            <span class="text-[10px] text-slate-500 font-sans">Separe os números por espaço ou vírgula</span>
+            <button type="button" onclick="executarScannerEmLote()" class="px-3.5 py-2 btn-rocket-launch text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center gap-1.5">
+              <span>🔍</span> ESCANEAR APOSTAS
+            </button>
+          </div>
+        </div>
+
+        <!-- Relatório do Scanner -->
+        <div id="resultado-scanner-lote" class="hidden space-y-2 pt-2 border-t border-slate-800">
+          <div class="flex justify-between items-center text-xs">
+            <span id="scanner-resumo-info" class="text-white font-bold">-</span>
+            <button type="button" onclick="salvarAprovadasScannerNaCarteira()" class="text-emerald-400 text-[11px] font-bold underline">
+              💾 Salvar Aprovadas na Carteira
+            </button>
+          </div>
+          <div id="scanner-lista-auditoria" class="space-y-1.5 max-h-60 overflow-y-auto pr-1 no-scrollbar"></div>
+        </div>
+      </div>
+
     </section>
 
     <!-- TELA 5: GERENCIADOR DE BOLÕES E RATEIO -->
@@ -2324,6 +2361,134 @@ function gerarPalpiteInteligente() {
           else if (acertos === 15) pontos15++;
         }
       });
+
+      const config = getConfigAtual();
+      const custoTotal50 = ultimos.length * config.precoBase;
+      let premioEstimadoTotal = 0;
+
+      if (mod === 'megasena') {
+        premioEstimadoTotal = (quadras * 1100) + (quinas * 45000) + (senas * 35000000);
+        const totalPremios = quadras + quinas + senas;
+        const saldoFinanceiro = premioEstimadoTotal - custoTotal50;
+        const roi = ((saldoFinanceiro / custoTotal50) * 100).toFixed(0);
+
+        if (badgeResumoEl) {
+          badgeResumoEl.innerText = totalPremios > 0 ? `${totalPremios}x Premiado • ${formatarReais(premioEstimadoTotal)}` : '0 Prêmios (50 conc.)';
+          badgeResumoEl.className = totalPremios > 0 ? 'text-[9px] text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800 font-bold' : 'text-[9px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 font-bold';
+        }
+
+        gradeEl.innerHTML = `
+          <div class="p-2 bg-slate-950 rounded-xl border ${quadras > 0 ? 'border-emerald-800 bg-emerald-950/20' : 'border-slate-800'}">
+            <span class="text-[9px] text-slate-400 block font-bold">QUADRAS (4)</span>
+            <strong class="text-sm ${quadras > 0 ? 'text-emerald-400' : 'text-slate-500'}">${quadras}x</strong>
+            <span class="text-[8px] text-slate-500 block font-sans mt-0.5">~R$ 1.100 cada</span>
+          </div>
+          <div class="p-2 bg-slate-950 rounded-xl border ${quinas > 0 ? 'border-cyan-800 bg-cyan-950/20' : 'border-slate-800'}">
+            <span class="text-[9px] text-slate-400 block font-bold">QUINAS (5)</span>
+            <strong class="text-sm ${quinas > 0 ? 'text-cyan-300' : 'text-slate-500'}">${quinas}x</strong>
+            <span class="text-[8px] text-slate-500 block font-sans mt-0.5">~R$ 45.000 cada</span>
+          </div>
+          <div class="p-2 bg-slate-950 rounded-xl border ${senas > 0 ? 'border-amber-500 bg-amber-950/40 animate-pulse' : 'border-slate-800'}">
+            <span class="text-[9px] text-amber-400 block font-black">SENAS (6)</span>
+            <strong class="text-sm ${senas > 0 ? 'text-amber-300' : 'text-slate-500'}">${senas}x</strong>
+            <span class="text-[8px] text-slate-500 block font-sans mt-0.5">Jackpot Milionário</span>
+          </div>
+        `;
+
+        // Bloco de Balanço Financeiro em R$
+        detalheEl.innerHTML = `
+          <div class="space-y-1.5 font-sans">
+            <div class="flex justify-between items-center text-xs pb-1 border-b border-slate-800/80">
+              <span class="text-slate-400">Investimento Teórico (50 jogos):</span>
+              <span class="text-white font-mono font-bold">${formatarReais(custoTotal50)}</span>
+            </div>
+            <div class="flex justify-between items-center text-xs pb-1 border-b border-slate-800/80">
+              <span class="text-slate-400">Retorno Estimado em Prêmios:</span>
+              <span class="text-emerald-400 font-mono font-black">${formatarReais(premioEstimadoTotal)}</span>
+            </div>
+            <div class="flex justify-between items-center text-xs pt-0.5">
+              <span class="font-bold ${saldoFinanceiro >= 0 ? 'text-emerald-400' : 'text-amber-400'}">
+                ${saldoFinanceiro >= 0 ? '🚀 Saldo Líquido Positivo:' : '⚖️ Balanço Estimado:'}
+              </span>
+              <span class="font-mono font-black text-xs px-2 py-0.5 rounded ${saldoFinanceiro >= 0 ? 'bg-emerald-950 text-emerald-300 border border-emerald-700' : 'bg-slate-900 text-slate-300 border border-slate-800'}">
+                ${saldoFinanceiro >= 0 ? '+' : ''}${formatarReais(saldoFinanceiro)} ${saldoFinanceiro > 0 ? `(+${roi}% ROI)` : ''}
+              </span>
+            </div>
+            ${melhorConcurso ? `
+              <div class="text-[10px] text-slate-400 font-mono pt-1">
+                Melhor concurso recente: <strong class="text-cyan-300">#${melhorConcurso.concurso}</strong> com <strong class="text-emerald-400">${maxAcertos} acertos</strong> (${melhorConcurso.dezenas.join(' ')})
+              </div>
+            ` : ''}
+          </div>
+        `;
+
+      } else {
+        // Lotofácil
+        premioEstimadoTotal = (pontos11 * 6) + (pontos12 * 12) + (pontos13 * 30) + (pontos14 * 1500) + (pontos15 * 1800000);
+        const totalPremios = pontos11 + pontos12 + pontos13 + pontos14 + pontos15;
+        const saldoFinanceiro = premioEstimadoTotal - custoTotal50;
+        const roi = ((saldoFinanceiro / custoTotal50) * 100).toFixed(0);
+
+        if (badgeResumoEl) {
+          badgeResumoEl.innerText = totalPremios > 0 ? `${totalPremios}x Premiado • ${formatarReais(premioEstimadoTotal)}` : '0 Prêmios (50 conc.)';
+          badgeResumoEl.className = totalPremios > 0 ? 'text-[9px] text-purple-300 bg-purple-950 px-2 py-0.5 rounded border border-purple-800 font-bold' : 'text-[9px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 font-bold';
+        }
+
+        gradeEl.innerHTML = `
+          <div class="p-1.5 bg-slate-950 rounded-xl border ${pontos11 > 0 ? 'border-slate-700' : 'border-slate-800'}">
+            <span class="text-[9px] text-slate-400 block font-bold">11 Pts</span>
+            <strong class="text-xs ${pontos11 > 0 ? 'text-white' : 'text-slate-500'}">${pontos11}x</strong>
+            <span class="text-[8px] text-slate-500 block font-sans">R$ 6</span>
+          </div>
+          <div class="p-1.5 bg-slate-950 rounded-xl border ${pontos12 > 0 ? 'border-blue-800' : 'border-slate-800'}">
+            <span class="text-[9px] text-slate-400 block font-bold">12 Pts</span>
+            <strong class="text-xs ${pontos12 > 0 ? 'text-blue-300' : 'text-slate-500'}">${pontos12}x</strong>
+            <span class="text-[8px] text-slate-500 block font-sans">R$ 12</span>
+          </div>
+          <div class="p-1.5 bg-slate-950 rounded-xl border ${pontos13 > 0 ? 'border-teal-800' : 'border-slate-800'}">
+            <span class="text-[9px] text-slate-400 block font-bold">13 Pts</span>
+            <strong class="text-xs ${pontos13 > 0 ? 'text-teal-300' : 'text-slate-500'}">${pontos13}x</strong>
+            <span class="text-[8px] text-slate-500 block font-sans">R$ 30</span>
+          </div>
+          <div class="p-1.5 bg-slate-950 rounded-xl border ${pontos14 > 0 ? 'border-amber-700 bg-amber-950/20' : 'border-slate-800'}">
+            <span class="text-[9px] text-amber-400 block font-bold">14 Pts</span>
+            <strong class="text-xs ${pontos14 > 0 ? 'text-amber-300' : 'text-slate-500'}">${pontos14}x</strong>
+            <span class="text-[8px] text-slate-500 block font-sans">~R$ 1.500</span>
+          </div>
+          <div class="p-1.5 bg-slate-950 rounded-xl border ${pontos15 > 0 ? 'border-purple-600 bg-purple-950/40 animate-pulse' : 'border-slate-800'} col-span-2">
+            <span class="text-[9px] text-purple-400 block font-black">15 PONTOS</span>
+            <strong class="text-xs ${pontos15 > 0 ? 'text-purple-300' : 'text-slate-500'}">${pontos15}x</strong>
+            <span class="text-[8px] text-slate-500 block font-sans">Jackpot Lotofácil</span>
+          </div>
+        `;
+
+        detalheEl.innerHTML = `
+          <div class="space-y-1.5 font-sans">
+            <div class="flex justify-between items-center text-xs pb-1 border-b border-slate-800/80">
+              <span class="text-slate-400">Investimento Teórico (50 jogos):</span>
+              <span class="text-white font-mono font-bold">${formatarReais(custoTotal50)}</span>
+            </div>
+            <div class="flex justify-between items-center text-xs pb-1 border-b border-slate-800/80">
+              <span class="text-slate-400">Retorno Estimado em Prêmios:</span>
+              <span class="text-purple-400 font-mono font-black">${formatarReais(premioEstimadoTotal)}</span>
+            </div>
+            <div class="flex justify-between items-center text-xs pt-0.5">
+              <span class="font-bold ${saldoFinanceiro >= 0 ? 'text-emerald-400' : 'text-amber-400'}">
+                ${saldoFinanceiro >= 0 ? '🚀 Saldo Líquido Positivo:' : '⚖️ Balanço Estimado:'}
+              </span>
+              <span class="font-mono font-black text-xs px-2 py-0.5 rounded ${saldoFinanceiro >= 0 ? 'bg-emerald-950 text-emerald-300 border border-emerald-700' : 'bg-slate-900 text-slate-300 border border-slate-800'}">
+                ${saldoFinanceiro >= 0 ? '+' : ''}${formatarReais(saldoFinanceiro)} ${saldoFinanceiro > 0 ? `(+${roi}% ROI)` : ''}
+              </span>
+            </div>
+            ${melhorConcurso ? `
+              <div class="text-[10px] text-slate-400 font-mono pt-1">
+                Melhor concurso recente: <strong class="text-cyan-300">#${melhorConcurso.concurso}</strong> com <strong class="text-purple-400">${maxAcertos} acertos</strong>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+    });
 
       if (mod === 'megasena') {
         const totalPremios = quadras + quinas + senas;
@@ -4366,6 +4531,122 @@ function abrirModalDialog(msg, callback) {
 
       tocarSomNasa('sucesso');
       toast(`⚡ Trajetória Orbital Calibrada pela IA! Score: ${analiseAtual.aprovadosCount * 16.6 | 0}/100 (${analiseAtual.aprovadosCount}/6 Aprovados)`, '🚀');
+    }
+
+
+    // =========================================================================
+    // SCANNER DE APOSTAS EM LOTE (AUDITORIA EM MASSA NASA)
+    // =========================================================================
+    let apostasAuditadasScanner = [];
+
+    function executarScannerEmLote() {
+      tocarSomNasa('ignicao');
+      vibrarHaptico(25);
+      const input = document.getElementById('textarea-scanner-lote')?.value.trim();
+      if (!input) {
+        toast('Cole ou digite ao menos um jogo no campo de texto.', '⚠️');
+        return;
+      }
+
+      const config = getConfigAtual();
+      const linhas = input.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+      apostasAuditadasScanner = [];
+
+      linhas.forEach((linha, idx) => {
+        const pedras = linha.split(/[\s,;-]+/).map(Number).filter(n => !isNaN(n) && n >= 1 && n <= config.totalNumeros);
+        const unicas = Array.from(new Set(pedras)).sort((a,b)=>a-b);
+        if (unicas.length >= config.dezenasJogoMin) {
+          const analise = analisarJogoCompleto(unicas);
+          apostasAuditadasScanner.push({
+            idx: idx + 1,
+            dezenas: unicas,
+            analise: analise
+          });
+        }
+      });
+
+      if (apostasAuditadasScanner.length === 0) {
+        toast(`Nenhum jogo válido com no mínimo ${config.dezenasJogoMin} dezenas encontrado.`, '⚠️');
+        return;
+      }
+
+      const container = document.getElementById('resultado-scanner-lote');
+      const resumo = document.getElementById('scanner-resumo-info');
+      const lista = document.getElementById('scanner-lista-auditoria');
+      container.classList.remove('hidden');
+
+      const aprovadas = apostasAuditadasScanner.filter(a => a.analise.aprovadosCount >= 5).length;
+      resumo.innerText = `${apostasAuditadasScanner.length} Jogos Escaneados (${aprovadas} Aprovados para Jogar)`;
+
+      lista.innerHTML = apostasAuditadasScanner.map(item => {
+        const score = Math.round(item.analise.aprovadosCount * 16.6);
+        let badgeCor = 'bg-rose-950 text-rose-300 border-rose-800';
+        let statusTexto = '🔴 Desperdício / Viciado';
+        if (item.analise.aprovadosCount === 6) {
+          badgeCor = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+          statusTexto = '🟢 Ótimo (100% Calibrado)';
+        } else if (item.analise.aprovadosCount >= 4) {
+          badgeCor = 'bg-amber-950 text-amber-300 border-amber-800';
+          statusTexto = '🟡 Atenção / Leve Risco';
+        }
+
+        return `
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="font-black text-cyan-400">#${item.idx}</span>
+                <span class="text-[9px] px-2 py-0.5 rounded font-black border ${badgeCor}">Score: ${score}/100</span>
+                <span class="text-[10px] text-slate-300">${statusTexto}</span>
+              </div>
+              <div class="flex flex-wrap gap-1">
+                ${item.dezenas.map(d => `<span class="w-5 h-5 rounded text-[10px] font-bold bg-slate-900 border border-slate-700 text-white flex items-center justify-center">${String(d).padStart(2,'0')}</span>`).join('')}
+              </div>
+            </div>
+            <button type="button" onclick="carregarJogoScannerNoVolante(${item.idx - 1})" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-[10px] rounded-lg border border-slate-700 transition active:scale-95 whitespace-nowrap">
+              🎯 Carregar
+            </button>
+          </div>
+        `;
+      }).join('');
+
+      tocarSomNasa('sucesso');
+      toast(`${apostasAuditadasScanner.length} apostas escaneadas com sucesso!`, '📡');
+    }
+
+    function carregarJogoScannerNoVolante(idx) {
+      if (!apostasAuditadasScanner[idx]) return;
+      setJogoAtual([...apostasAuditadasScanner[idx].dezenas]);
+      mudarAba('volante');
+      atualizarDisplayJogo();
+      renderizarVolante();
+      executarAnaliseDinamicaDoJogo();
+      executarAnaliseVitorio();
+      tocarSomNasa('beep');
+      toast(`Jogo #${idx + 1} carregado no volante!`, '🎯');
+    }
+
+    function salvarAprovadasScannerNaCarteira() {
+      const aprovadas = apostasAuditadasScanner.filter(a => a.analise.aprovadosCount >= 5);
+      if (aprovadas.length === 0) {
+        toast('Nenhum jogo aprovado para salvar.', '⚠️');
+        return;
+      }
+      const config = getConfigAtual();
+      aprovadas.forEach(a => {
+        carteiraJogos.unshift({
+          id: Date.now() + Math.random(),
+          modalidade: modalidadeAtual,
+          dezenas: a.dezenas,
+          data: new Date().toLocaleDateString('pt-BR'),
+          custo: config.precoBase,
+          premioGanho: 0,
+          conferido: false
+        });
+      });
+      salvarCarteiraNoStorage();
+      renderizarCarteira();
+      tocarSomNasa('sucesso');
+      toast(`${aprovadas.length} jogos aprovados salvos na carteira!`, '💾');
     }
 
 </script>
