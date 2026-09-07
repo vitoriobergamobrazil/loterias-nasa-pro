@@ -23,7 +23,14 @@ No topo da tela, selecione **Mega-Sena** (foco em 6 dezenas de 1 a 60) ou **Loto
 2. O motor aplica a **Matriz 4x4**, garantindo que as dezenas sejam distribuídas de forma equilibrada nos quadrantes espaciais do volante, excluindo quadrantes intencionalmente para elevar a variância estatística.
 3. Se você for assinante **NASA VIP PRO**, poderá selecionar gerar **2, 3 ou 5 jogos simultâneos** em lote.
 
-### Passo 3: Verificando a Bateria dos 6 Testes Orbitais
+### Passo 3: Regras Personalizadas — Dezenas Fixas 📌 e Dezenas Proibidas 🚫 (Opcional)
+Acima do volante interativo, você conta com seletores de modo de toque:
+* **Modo Normal (🎯):** Seleciona ou desseleciona dezenas livremente no volante.
+* **Modo Fixar (📌):** Clique sobre os números que você deseja que sejam **obrigatórios**. Essas dezenas aparecem em destaque verde com alfinete e estarão **presentes em 100% dos jogos gerados** pelo motor da NASA.
+* **Modo Proibir (🚫):** Clique sobre as pedras que você rejeita. Elas ficarão tachadas em vermelho e o motor combinatório **nunca sorteará essas dezenas**.
+* **Botão Resetar Regras (🧹):** Limpa todas as dezenas fixas e proibidas com 1 clique, retornando o volante ao estado inicial neutro.
+
+### Passo 4: Verificando a Bateria dos 6 Testes Orbitais
 Logo abaixo do volante, abra o painel **`🛡️ Bateria dos 6 Testes Estatísticos NASA`**:
 * **1º Teste: Sequências & Finais:** Garante que não haja sequências consecutivas longas (ex: 12-13-14) nem excesso de números terminados no mesmo dígito.
 * **2º Teste: Entropia de Shannon (H):** Mede a dispersão da informação matemática. Evita agrupamentos artificiais.
@@ -32,13 +39,13 @@ Logo abaixo do volante, abra o painel **`🛡️ Bateria dos 6 Testes Estatísti
 * **5º Teste: Curva Normal de Soma (Z-Score):** Verifica se a soma das dezenas está dentro do desvio padrão histórico da Gaussiana.
 * **6º Teste: Partição Hipergeométrica:** Confirma que a distribuição respeita a faixa de probabilidade de 80,8% dos concursos oficiais.
 
-### Passo 4: Aplicando as Dicas de Troca por IA
+### Passo 5: Aplicando as Dicas de Troca por IA
 Caso seu jogo falhe em algum teste (ficando com badge vermelho `Alerta`), a caixa **`💡 Dicas de Ajuste & Substituição NASA`** sugere exatamente qual pedra remover e qual pedra inserir para que a aposta atinja **Score 100/100 (6 de 6 Aprovados)**.
 
-### Passo 5: Teste Retrospectivo nos Últimos 50 Concursos
+### Passo 6: Teste Retrospectivo nos Últimos 50 Concursos
 Abra o **`⏳ Simulador de Desempenho Histórico`** para ver instantaneamente quantas Quadras, Quinas e Senas essa combinação teria acertado nos últimos 50 sorteios oficiais da Caixa.
 
-### Passo 6: Salvando e Exportando
+### Passo 7: Salvando e Exportando
 * Clique em **`💾 Salvar na Carteira`** para guardar seus bilhetes.
 * Vá até a aba **`💼 Minha Carteira`** para conferir bilhetes, expandir seus testes ou carregar de volta no volante.
 * Clique em **`📋 Copiar p/ Caixa`** para colar diretamente no site oficial de loterias ou **`📱 WhatsApp`** para enviar para seus amigos.

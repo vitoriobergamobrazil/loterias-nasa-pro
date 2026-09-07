@@ -2,6 +2,8 @@
 <html lang="pt-BR" class="dark">
 <head>
   <link rel="manifest" href="./manifest.json" />
+  <script src="./supabase/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -675,7 +677,7 @@
 
       <!-- BOTÃO OFICIAL CONTINUAR COM GOOGLE -->
       <div class="pt-1">
-        <button type="button" onclick="autenticarComGoogle()" class="w-full py-2.5 px-3 bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2.5 active:scale-95 transition border border-slate-200">
+        <button type="button" id="btn-auth-google" onclick="autenticarComGoogle()" class="w-full py-2.5 px-3 bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs rounded-xl shadow-md flex items-center justify-center gap-2.5 active:scale-95 transition border border-slate-200">
           <!-- Ícone Oficial SVG Google -->
           <svg class="w-4 h-4" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -725,13 +727,6 @@
           <span>🚀</span> <span id="txt-btn-submit-auth">ENTRAR NA MINHA CONTA</span>
         </button>
       </form>
-
-            <!-- ACESSO MASTER DO FUNDADOR / CEO (VITÓRIO) -->
-      <div class="pt-2 border-t border-slate-800/80">
-        <button type="button" onclick="abrirAcessoMasterDialog()" class="w-full py-1.5 bg-slate-950 hover:bg-slate-800 text-amber-400 border border-amber-500/40 rounded-xl text-[10px] font-mono font-bold flex items-center justify-center gap-1.5 transition">
-          <span>👑</span> Acesso Master do Fundador / CEO
-        </button>
-      </div>
 
       <!-- BOTÃO DEGUSTAÇÃO / EXPERIMENTAR GRÁTIS SEM CADASTRO -->
       <div class="pt-2 border-t border-slate-800/80 text-center space-y-1">
@@ -818,7 +813,7 @@
         <button onclick="mudarAba('bolao')" id="tab-bolao" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
           <span>👥</span> <span class="truncate">Bolão</span>
         </button>
-        <button onclick="mudarAba('admin')" id="tab-admin" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 hover:text-amber-300 flex items-center justify-center gap-0.5" title="Painel de Controle do CEO e Assinaturas">
+        <button onclick="mudarAba('admin')" id="tab-admin" class="hidden py-1.5 px-0.5 rounded-xl font-bold transition bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 hover:text-amber-300 flex items-center justify-center gap-0.5" title="Painel Administrativo">
           <span>👑</span> <span class="truncate font-black">Admin</span>
         </button>
       </div>
@@ -876,7 +871,7 @@
           <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-cyan-800/80 transition space-y-1.5">
             <div class="flex items-center gap-2">
               <span class="w-8 h-8 rounded-xl bg-cyan-950 border border-cyan-800 text-cyan-300 flex items-center justify-center text-sm font-black">🛰️</span>
-              <h3 class="text-xs font-black text-white">Matriz 4x4 do Tio Vitório</h3>
+              <h3 class="text-xs font-black text-white">Matriz 4x4 de Equilíbrio</h3>
             </div>
             <p class="text-[11px] text-slate-400 leading-relaxed">
               Mapeamento da cartela em 4 quadrantes que equilibra linhas e colunas, eliminando 98% das combinações que quase nunca saem na história das loterias.
@@ -1070,7 +1065,7 @@
           <span id="volante-titulo-tipo" class="text-xs font-bold text-white">Volante Interativo (1 a 60)</span>
           <label class="flex items-center gap-1.5 text-[11px] text-cyan-300 cursor-pointer font-bold">
             <input id="chk-destaque-subgrid" type="checkbox" checked onchange="renderizarVolante()" class="rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-0 w-3.5 h-3.5" />
-            <span>Matriz 4x4 do Tio Vitório Ativa</span>
+            <span>Matriz 4x4 de Equilíbrio Ativa</span>
           </label>
         </div>
 
@@ -1100,12 +1095,12 @@
         <div id="legenda-volante" class="grid grid-cols-4 gap-1 pt-2 border-t border-slate-800/80 text-[9px] text-center"></div>
       </div>
 
-      <!-- DIAGNÓSTICO AO VIVO DA MATRIZ 4x4 DO TIO VITÓRIO (COLAPSÁVEL) -->
+      <!-- DIAGNÓSTICO AO VIVO DA MATRIZ 4x4 DE EQUILÍBRIO (COLAPSÁVEL) -->
       <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-cyan-800/60 rounded-2xl p-3.5 space-y-2.5 font-mono shadow-md">
         <div class="flex justify-between items-center cursor-pointer select-none" onclick="alternarCard('conteudo-matriz-vitorio', 'seta-matriz-vitorio')" title="Clique para abrir ou fechar este painel">
           <div class="flex items-center gap-1.5">
             <span class="text-base">📐</span>
-            <h3 class="text-xs font-black text-white font-sans uppercase">Matriz 4x4 do Tio Vitório</h3>
+            <h3 class="text-xs font-black text-white font-sans uppercase">Matriz 4x4 de Equilíbrio</h3>
             <span class="text-[9px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold ml-1">79.4% Histórico</span>
           </div>
           <div class="flex items-center gap-1 text-cyan-400 text-xs font-bold">
@@ -1734,7 +1729,7 @@
     <!-- Controle de Usuários, Assinaturas Recorrentes, Gateways/MRR -->
     <!-- ============================================================ -->
     <section id="view-admin" class="space-y-6 hidden font-mono">
-      <!-- Banner Master do CEO -->
+              <!-- Banner do administrador -->
       <div class="bg-gradient-to-r from-slate-900 via-amber-950/40 to-slate-900 border-2 border-amber-500/40 rounded-3xl p-4 sm:p-6 shadow-2xl relative overflow-hidden">
         <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl select-none pointer-events-none">👑</div>
         
@@ -1743,7 +1738,7 @@
             <div class="flex items-center gap-2">
               <span class="text-2xl animate-pulse">👑</span>
               <h2 class="text-lg sm:text-xl font-black text-amber-400 font-sans tracking-wide uppercase">
-                Painel de Comando Executivo — CEO & Fundador
+                Painel Administrativo
               </h2>
             </div>
             <p class="text-xs text-slate-400 font-sans mt-0.5">
@@ -1755,7 +1750,7 @@
           <div class="flex flex-wrap items-center gap-2">
             <span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-lg text-[10px] font-bold flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-              MASTER: Vitório Neto (CEO)
+              Administrador autorizado
             </span>
             <span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-lg text-[10px] font-bold">
               LICENÇA IRREVOGÁVEL
@@ -1853,7 +1848,7 @@
         </div>
       </div>
 
-      <!-- Navegação Secundária do Painel de Controle (Sub-Abas do CEO) -->
+      <!-- Navegação Secundária do Painel Administrativo -->
       <div class="flex border-b border-slate-800 gap-2">
         <button onclick="alternarSubAbaAdmin('usuarios')" id="subtab-admin-usuarios" class="pb-2.5 px-3 font-bold text-xs border-b-2 border-amber-400 text-amber-300 transition flex items-center gap-1.5">
           <span>👥</span> Gestão de Usuários & Assinaturas
@@ -1908,7 +1903,7 @@
                   <th class="p-3.5">Plano Contratado</th>
                   <th class="p-3.5">Assinatura / Expiração</th>
                   <th class="p-3.5">Status</th>
-                  <th class="p-3.5 text-right">Ações Rápidas do CEO</th>
+                  <th class="p-3.5 text-right">Ações Administrativas</th>
                 </tr>
               </thead>
               <tbody id="tabela-usuarios-admin-body" class="divide-y divide-slate-800/60 text-slate-300">
@@ -2125,8 +2120,8 @@
           <div class="border-b border-slate-800 pb-4 flex justify-between items-start">
             <div>
               <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-widest block font-mono">Documento Estratégico Oficial</span>
-              <h3 class="text-lg font-black text-white font-sans mt-1">PARECER DO ESPECIALISTA EM LANÇAMENTOS DE PRODUTO PARA O CEO</h3>
-              <p class="text-xs text-slate-400 font-sans mt-0.5">Destinatário: <b>Vitório Neto (Fundador & CEO de Loterias NASA Pro)</b></p>
+              <h3 class="text-lg font-black text-white font-sans mt-1">PARECER DO ESPECIALISTA EM LANÇAMENTO DO PRODUTO</h3>
+              <p class="text-xs text-slate-400 font-sans mt-0.5">Destinatário: <b>Equipe responsável pelo Loterias NASA Pro</b></p>
             </div>
             <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-bold font-mono">
               VEREDITO: GO FOR LAUNCH (9.8/10)
@@ -2135,7 +2130,7 @@
 
           <div class="space-y-3 text-xs text-slate-300 font-sans leading-relaxed">
             <p>
-              <b>Prezado CEO Vitório,</b> após análise técnica minuciosa da versão consolidada do <b>Loterias NASA Pro</b>, informo que o aplicativo atingiu o padrão de excelência aeroespacial e comercial indispensável para liderar o mercado brasileiro de tecnologia lotérica e ser publicado com sucesso estrondoso na <b>Google Play Store</b>.
+                Após análise técnica minuciosa da versão consolidada do <b>Loterias NASA Pro</b>, este parecer resume os pontos necessários para uma publicação responsável na <b>Google Play Store</b>.
             </p>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-3">
@@ -2398,7 +2393,7 @@
       totalCombinacoes: combinacao(60, 6),
       primos: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59],
       fechamentos: [
-        { id: 'mega_vitorio_16', nome: 'Matriz Tio Vitório (4x4 = 16 nºs)', n: 16, k: 6, jogos: 6 },
+          { id: 'mega_equilibrio_16', nome: 'Matriz de Equilíbrio (4x4 = 16 nºs)', n: 16, k: 6, jogos: 6 },
         { id: 'mega_10_4', nome: '10 Dezenas (Garantia de Quadra se 4)', n: 10, k: 6, jogos: 3 },
         { id: 'mega_12_4', nome: '12 Dezenas (Garantia de Quadra se 4)', n: 12, k: 6, jogos: 6 },
         { id: 'mega_15_4', nome: '15 Dezenas (Garantia de Quadra se 5)', n: 15, k: 6, jogos: 14 }
@@ -2435,7 +2430,7 @@
     let testeSequencialInterval = null;
     let audioAtivo = true;
 
-    // Bilhete Padrão do Tio Vitório
+    // Bilhete padrão de demonstração
     let meuJogoMega = [11, 15, 20, 21, 38, 48];
     let meuJogoLoto = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 22, 24, 25];
     let fixosMega = [], proibidosMega = [];
@@ -2526,7 +2521,7 @@
         try { carteiraJogos = JSON.parse(storageCarteira); } catch (e) { carteiraJogos = []; }
       } else {
         carteiraJogos = [
-          { id: 1, modalidade: 'megasena', dezenas: [11, 15, 20, 21, 38, 48], data: 'Hoje (Tio Vitório)', custo: 5.00, premioGanho: 0, conferido: false, status: 'Pendente' }
+          { id: 1, modalidade: 'megasena', dezenas: [11, 15, 20, 21, 38, 48], data: 'Hoje (exemplo)', custo: 5.00, premioGanho: 0, conferido: false, status: 'Pendente' }
         ];
         salvarCarteiraStorage();
       }
@@ -2537,29 +2532,8 @@
     }
 
     function realizarLogin() {
-      const usuario = document.getElementById('auth-email').value.trim().toLowerCase();
-      const senha = document.getElementById('auth-password').value.trim();
-      
-      const USUARIO_CORRETO = 'vitorio';
-      const SENHA_CORRETA = '96723842';
-
-      if (!usuario || !senha) {
-        toast("Insira o identificador e a senha de segurança.", "⚠️");
-        tocarBeep('alert');
-        return;
-      }
-
-      if (usuario === USUARIO_CORRETO && senha === SENHA_CORRETA) {
-        sessionStorage.setItem('loterias_auth_session', 'true');
-        document.getElementById('screen-auth').classList.add('hidden');
-        toast("Acesso de telemetria autorizado!", "🛰️");
-        tocarBeep('success');
-      } else {
-        toast("Credenciais inválidas!", "🚫");
-        tocarBeep('alert');
-        document.getElementById('auth-password').value = '';
-        document.getElementById('auth-password').focus();
-      }
+      toast("O login seguro ainda precisa ser conectado ao servidor de autenticação.", "🔒");
+      tocarBeep('alert');
     }
 
     function alternarTema() {
@@ -2592,7 +2566,8 @@
     }
 
     // GESTÃO DE PLANOS SAAS (FREE vs. PRO)
-    let planoUsuario = localStorage.getItem('nasa_plano_usuario') || 'free';
+    // A autoridade do plano deve vir de uma sessão validada no servidor.
+    let planoUsuario = 'free';
     let planoCheckoutSelecionado = 'anual';
 
     function abrirModalPaywall(origem = 'geral') {
@@ -2648,26 +2623,13 @@
     }
 
     function confirmarPagamentoPixSimulado() {
-      planoUsuario = 'pro';
-      localStorage.setItem('nasa_plano_usuario', 'pro');
-      atualizarVisualPlano();
-      fecharModalPaywall();
-      tocarBeep('success');
-      vibrarHaptico(40);
-      toast("🚀 Acesso NASA VIP PRO ativado com sucesso! Aproveite!", "👑");
+      toast("Pagamento indisponível: este protótipo ainda não está conectado a um gateway real.", "🔒");
+      tocarBeep('alert');
     }
 
     function alternarPlanoDev() {
-      planoUsuario = planoUsuario === 'pro' ? 'free' : 'pro';
-      localStorage.setItem('nasa_plano_usuario', planoUsuario);
-      atualizarVisualPlano();
-      if (planoUsuario === 'pro') {
-        toast("Modo Demonstrativo: NASA VIP PRO Ativado!", "👑");
-        tocarBeep('success');
-      } else {
-        toast("Modo Demonstrativo: Plano FREE (Teste) Ativado.", "ℹ️");
-        tocarBeep('alert');
-      }
+      toast("A troca de plano exige uma assinatura validada no servidor.", "🔒");
+      tocarBeep('alert');
     }
 
     function atualizarVisualPlano() {
@@ -2701,6 +2663,12 @@
     window.addEventListener('DOMContentLoaded', () => {
       carregarTemaSalvo();
       carregarUsuarioSalvo();
+      restaurarSessaoSupabase();
+      const configSupabase = window.NASA_SUPABASE_CONFIG;
+      const botaoGoogle = document.getElementById('btn-auth-google');
+      if (botaoGoogle && !configSupabase?.googleEnabled) {
+        botaoGoogle.classList.add('hidden');
+      }
       atualizarVisualPlano();
       
       const hojeIso = new Date().toISOString().slice(0, 10);
@@ -2714,9 +2682,7 @@
 
       try {
         const params = new URLSearchParams(window.location.search);
-        if (params.get('admin') === 'true' || params.get('master') === 'true' || window.location.hash === '#admin') {
-          setTimeout(() => mudarAba('admin'), 200);
-        } else if (params.get('aba')) {
+        if (params.get('aba')) {
           setTimeout(() => mudarAba(params.get('aba')), 200);
         } else if (window.location.hash && window.location.hash.length > 1) {
           setTimeout(() => mudarAba(window.location.hash.substring(1)), 200);
@@ -3345,7 +3311,7 @@ function gerarApostaNasaComMatriz4x4() {
       vibrarHaptico(25);
       const k = modalidadeAtual === 'megasena' ? qtdDesejadaMega : qtdDesejadaLoto;
       
-      // Gera o palpite de alta calibração com confinamento 4x4 do Tio Vitório
+      // Gera o palpite calibrado com confinamento 4x4 de equilíbrio
       gerarMultiplasApostas(qtdApostasDesejada, true);
       renderizarAbasJogosGeradosTela1();
       
@@ -3831,6 +3797,12 @@ function gerarPalpiteInteligente() {
       const config = modalidade === 'megasena' ? MEGA_CONFIG : LOTO_CONFIG;
       const fixos = modalidade === 'megasena' ? fixosMega : fixosLoto;
       const proibidos = modalidade === 'megasena' ? proibidosMega : proibidosLoto;
+      const disponiveis = Array.from({ length: config.totalNumeros }, (_, index) => index + 1)
+        .filter(numero => !proibidos.includes(numero));
+
+      if (fixos.length > k || disponiveis.length < k || fixos.some(numero => proibidos.includes(numero))) {
+        return null;
+      }
 
       let melhorJogo = null;
       let melhorScore = -1;
@@ -3881,11 +3853,17 @@ function gerarPalpiteInteligente() {
         let jogoObj = null;
         for (let t = 0; t < 30; t++) {
           jogoObj = gerarJogoCalibradoUnico(modalidadeAtual, k, usarVitorio);
+          if (!jogoObj) break;
           const chave = jogoObj.dezenas.join('-');
           if (!hashSet.has(chave)) {
             hashSet.add(chave);
             break;
           }
+        }
+        if (!jogoObj) {
+          toast('Não há dezenas disponíveis suficientes para gerar este jogo. Revise os números proibidos e fixos.', '⚠️');
+          tocarBeep('alert');
+          return;
         }
         apostas.push({
           id: i + 1,
@@ -5347,16 +5325,17 @@ function executarDesdobramento() {
     }
 
         function mudarAba(aba) {
-      abaAtual = aba;
-      tocarBeep('click');
+          tocarBeep('click');
 
-      // Se tentar acessar o Admin sem ser Master/CEO, solicitar o PIN Master
+          // O painel administrativo só existe para uma sessão owner validada.
       if (aba === 'admin') {
         if (!usuarioSessao || usuarioSessao.tipo !== 'master_founder') {
-          abrirAcessoMasterDialog();
+              toast('Área administrativa indisponível para esta conta.', '🔒');
           return;
         }
       }
+
+          abaAtual = aba;
 
       ['inicio', 'volante', 'fechamentos', 'calor', 'carteira', 'bolao', 'admin'].forEach(a => {
         const el = document.getElementById(`view-${a}`);
@@ -5378,6 +5357,7 @@ function executarDesdobramento() {
       if (aba === 'admin') {
         if (tabAtivo) tabAtivo.className = 'py-1.5 px-0.5 rounded-xl transition flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[9px] bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black shadow-lg shadow-amber-500/30';
         renderizarPainelAdmin();
+        carregarUsuariosAdminRemotos();
       } else if (aba === 'inicio') {
         if (tabAtivo) tabAtivo.className = 'py-1.5 px-0.5 rounded-xl transition flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[9px] bg-gradient-to-r from-cyan-500 to-teal-400 text-slate-950 font-black shadow';
       } else {
@@ -5903,28 +5883,34 @@ function abrirModalDialog(msg, callback) {
     // =========================================================================
     let modoAuthAtual = 'entrar'; // 'entrar' ou 'cadastrar'
     let usuarioSessao = null;
+    let clienteSupabase = null;
+
+    function obterClienteSupabase() {
+      if (clienteSupabase) return clienteSupabase;
+      const config = window.NASA_SUPABASE_CONFIG;
+      if (!config?.url || !config?.anonKey || !window.supabase?.createClient) return null;
+      clienteSupabase = window.supabase.createClient(config.url, config.anonKey);
+      return clienteSupabase;
+    }
 
     function carregarUsuarioSalvo() {
       try {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('admin') === 'true' || params.get('master') === 'true' || params.get('ceo') === 'true' || params.get('pin') === '96723842') {
-          usuarioSessao = {
-            nome: 'Vitório B. Neto',
-            email: 'vitorio.bergamo@gmail.com',
-            avatar: '👑',
-            tipo: 'master_founder',
-            plano: 'master'
-          };
-          planoUsuario = 'pro';
-          localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
-          localStorage.setItem('plano_nasa_ativo', 'pro');
-          atualizarPerfilUsuarioUI();
-          return;
-        }
-
         const salvo = localStorage.getItem('loterias_nasa_user');
         if (salvo) {
-          usuarioSessao = JSON.parse(salvo);
+          const usuarioLocal = JSON.parse(salvo);
+          usuarioSessao = usuarioLocal && usuarioLocal.tipo !== 'master_founder'
+            ? { ...usuarioLocal, plano: 'free' }
+            : null;
+          if (!usuarioSessao) {
+            localStorage.removeItem('loterias_nasa_user');
+            usuarioSessao = {
+              nome: 'Visitante',
+              email: 'visitante@loteriasnasa.pro',
+              avatar: '🚀',
+              tipo: 'visitante',
+              plano: 'free'
+            };
+          }
         } else {
           // Usuário padrão Visitante / Teste Grátis automático (Zero Barreiras!)
           usuarioSessao = {
@@ -5941,6 +5927,42 @@ function abrirModalDialog(msg, callback) {
       atualizarPerfilUsuarioUI();
     }
 
+    async function restaurarSessaoSupabase() {
+      const cliente = obterClienteSupabase();
+      if (!cliente) return;
+
+      const { data, error } = await cliente.auth.getSession();
+      if (error || !data.session?.user) return;
+
+      const usuario = data.session.user;
+      const { data: perfil } = await cliente
+        .from('profiles')
+        .select('display_name, role')
+        .eq('id', usuario.id)
+        .maybeSingle();
+      const { data: assinatura } = await cliente
+        .from('subscriptions')
+        .select('status, valid_until, plan_code')
+        .eq('user_id', usuario.id)
+        .eq('status', 'active')
+        .or(`valid_until.is.null,valid_until.gt.${new Date().toISOString()}`)
+        .order('valid_until', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      usuarioSessao = {
+        nome: perfil?.display_name || usuario.user_metadata?.full_name || usuario.email?.split('@')[0] || 'Usuário',
+        email: usuario.email || '',
+        avatar: 'U',
+        tipo: perfil?.role === 'owner' ? 'master_founder' : 'supabase',
+        plano: assinatura ? 'pro' : 'free',
+        dataConexao: new Date().toISOString()
+      };
+      planoUsuario = assinatura ? 'pro' : 'free';
+      atualizarVisualPlano();
+      atualizarPerfilUsuarioUI();
+    }
+
     function atualizarPerfilUsuarioUI() {
       if (!usuarioSessao) return;
       const elNome = document.getElementById('nome-user-topo');
@@ -5948,9 +5970,10 @@ function abrirModalDialog(msg, callback) {
       const tabAdmin = document.getElementById('tab-admin');
 
       if (usuarioSessao.tipo === 'master_founder') {
-        if (elNome) elNome.innerText = 'Vitório (CEO)';
+        if (elNome) elNome.innerText = 'Administrador';
         if (elAvatar) elAvatar.innerText = '👑';
         if (tabAdmin) {
+          tabAdmin.classList.remove('hidden');
           tabAdmin.classList.remove('opacity-70');
           tabAdmin.classList.add('ring-2', 'ring-amber-400', 'shadow-lg', 'shadow-amber-500/30');
         }
@@ -5964,6 +5987,7 @@ function abrirModalDialog(msg, callback) {
           }
         }
         if (tabAdmin) {
+          tabAdmin.classList.add('hidden');
           tabAdmin.classList.remove('ring-2', 'ring-amber-400', 'shadow-lg');
         }
       }
@@ -5972,13 +5996,13 @@ function abrirModalDialog(msg, callback) {
     function abrirModalAuthOuPerfil() {
       tocarBeep('click');
       if (usuarioSessao && usuarioSessao.tipo === 'master_founder') {
-        // Menu Executivo do CEO
-        if (confirm(`👑 CONTA MASTER ATIVA: Vitório Neto (CEO Fundador)\n\n• Clique em OK para ir direto ao PAINEL DO CEO (Controle de Usuários & Assinaturas)\n• Clique em Cancelar para gerenciar login/sair da conta.`)) {
+        // Menu administrativo do proprietario autorizado
+        if (confirm(`👑 CONTA ADMINISTRATIVA ATIVA\n\n• Clique em OK para ir direto ao PAINEL ADMINISTRATIVO\n• Clique em Cancelar para gerenciar login/sair da conta.`)) {
           mudarAba('admin');
           return;
         }
         confirmarAcaoDialog(
-          `Conta Master: ${usuarioSessao.nome}. Deseja encerrar a sessão Master e voltar a Visitante?`,
+          `Conta administrativa: ${usuarioSessao.nome}. Deseja encerrar a sessão e voltar a Visitante?`,
           () => { fazerLogout(); },
           '👑 Sessão Master',
           'Sair da Conta Master'
@@ -6041,32 +6065,22 @@ function abrirModalDialog(msg, callback) {
     }
 
     function autenticarComGoogle() {
-      tocarSomNasa('ignicao');
-      vibrarHaptico(25);
-      // Simulação instantânea de login com Google (padrão de experiência fluida)
-      const nomeSimulado = prompt('Insira seu Nome ou Confirme para Conectar com sua Conta Google:', 'Vitório B. Neto');
-      if (nomeSimulado === null) return;
-      
-      const nomeFinal = nomeSimulado.trim() || 'Usuário Google';
-      const emailFinal = nomeFinal.toLowerCase().replace(/\s+/g, '.') + '@gmail.com';
-
-      usuarioSessao = {
-        nome: nomeFinal,
-        email: emailFinal,
-        avatar: 'G',
-        tipo: 'google',
-        plano: planoUsuario || 'free',
-        dataConexao: new Date().toISOString()
-      };
-
-      localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
-      atualizarPerfilUsuarioUI();
-      fecharModalAuth();
-      tocarSomNasa('sucesso');
-      toast(`Bem-vindo, ${usuarioSessao.nome}! Conectado via Google.`, '🚀');
+      const cliente = obterClienteSupabase();
+      if (!cliente) {
+        toast('Login Google indisponível: configure o cliente Supabase primeiro.', '🔒');
+        tocarBeep('alert');
+        return;
+      }
+      cliente.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + window.location.pathname } })
+        .then(({ error }) => {
+          if (error) {
+            toast(`Falha no login Google: ${error.message}`, '⚠️');
+            tocarBeep('alert');
+          }
+        });
     }
 
-    function submeterFormularioAuth(e) {
+    async function submeterFormularioAuth(e) {
       if (e) e.preventDefault();
       tocarSomNasa('beep');
       const email = document.getElementById('input-auth-email')?.value.trim();
@@ -6078,20 +6092,40 @@ function abrirModalDialog(msg, callback) {
         return;
       }
 
+      const cliente = obterClienteSupabase();
+      if (!cliente) {
+        toast('Autenticação indisponível: configure o cliente Supabase primeiro.', '🔒');
+        tocarBeep('alert');
+        return;
+      }
+
+      const resultado = modoAuthAtual === 'cadastrar'
+        ? await cliente.auth.signUp({ email, password: senha, options: { data: { full_name: nome } } })
+        : await cliente.auth.signInWithPassword({ email, password: senha });
+
+      if (resultado.error) {
+        toast(`Não foi possível autenticar: ${resultado.error.message}`, '⚠️');
+        tocarBeep('alert');
+        return;
+      }
+
+      if (!resultado.data.session) {
+        toast('Conta criada. Confirme o e-mail para concluir o acesso.', '📧');
+        return;
+      }
+
       usuarioSessao = {
-        nome: nome,
-        email: email,
+        nome: resultado.data.user.user_metadata?.full_name || email.split('@')[0],
+        email: resultado.data.user.email,
         avatar: (nome[0] || 'U').toUpperCase(),
-        tipo: 'email',
-        plano: planoUsuario || 'free',
+        tipo: 'supabase',
+        plano: 'free',
         dataConexao: new Date().toISOString()
       };
-
-      localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
       atualizarPerfilUsuarioUI();
       fecharModalAuth();
       tocarSomNasa('sucesso');
-      toast(modoAuthAtual === 'cadastrar' ? `Conta criada com sucesso! Bem-vindo, ${nome}!` : `Login efetuado com sucesso!`, '🚀');
+      toast(modoAuthAtual === 'cadastrar' ? `Conta criada com sucesso! Bem-vindo, ${usuarioSessao.nome}!` : 'Login efetuado com sucesso!', '🚀');
     }
 
     function entrarComoVisitanteGratis() {
@@ -6112,6 +6146,8 @@ function abrirModalDialog(msg, callback) {
     function fazerLogout() {
       usuarioSessao = { nome: 'Visitante', email: '', avatar: '🚀', tipo: 'visitante', plano: 'free' };
       localStorage.removeItem('loterias_nasa_user');
+      const cliente = obterClienteSupabase();
+      if (cliente) cliente.auth.signOut().catch(() => {});
       atualizarPerfilUsuarioUI();
       tocarBeep('click');
       toast('Desconectado com sucesso.', 'ℹ️');
@@ -6123,33 +6159,12 @@ function abrirModalDialog(msg, callback) {
     // =========================================================================
     function abrirAcessoMasterDialog() {
       fecharModalAuth();
-      const pin = prompt('CHAVE DO FUNDADOR & CEO (Acesso Master):', '');
-      if (pin === null) return;
-      
-      if (pin.trim() === '96723842' || pin.trim().toLowerCase() === 'vitorio') {
-        ativarAcessoMasterFundador();
-      } else {
-        toast('Chave de Fundador inválida.', '❌');
-      }
+      toast('O acesso administrativo será liberado somente por uma sessão de proprietário validada no servidor.', '🔒');
+      tocarBeep('alert');
     }
 
     function ativarAcessoMasterFundador() {
-      usuarioSessao = {
-        nome: 'Vitório B. Neto',
-        email: 'vitorio.bergamo@gmail.com',
-        avatar: '👑',
-        tipo: 'master_founder',
-        plano: 'master'
-      };
-      planoUsuario = 'pro';
-      localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
-      localStorage.setItem('plano_nasa_ativo', 'pro');
-      atualizarPerfilUsuarioUI();
-      atualizarVisualPlano();
-      tocarSomNasa('sucesso');
-      toast('👑 BEM-VINDO, CEO VITÓRIO! Acesso Master & Painel de Controle Liberados!', '🌟');
-      // Conduzir diretamente ao Painel de Controle do CEO
-      mudarAba('admin');
+      abrirAcessoMasterDialog();
     }
 
     // Trava para verificar se o usuário pode usar recurso VIP
@@ -6184,12 +6199,67 @@ function abrirModalDialog(msg, callback) {
     // PAINEL DE COMANDO DO CEO & CONTROLE DE USUÁRIOS/ASSINATURAS/PAGAMENTOS
     // =========================================================================
 
+    let usuariosAdminRemotos = null;
+
+    async function invocarAcaoAdministrativa(payload) {
+      const cliente = obterClienteSupabase();
+      if (!cliente) throw new Error('Supabase não configurado');
+      const { data: sessaoData } = await cliente.auth.getSession();
+      const token = sessaoData.session?.access_token;
+      if (!token) throw new Error('Sessão administrativa ausente');
+      const { data, error } = await cliente.functions.invoke('admin-action', {
+        body: payload,
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (error) throw error;
+      return data;
+    }
+
+    async function carregarUsuariosAdminRemotos() {
+      try {
+        const resposta = await invocarAcaoAdministrativa({ action: 'list_users' });
+        usuariosAdminRemotos = (resposta.users || []).map((user) => {
+          const assinatura = user.subscription;
+          const perfil = user.profile;
+          const vitalicio = assinatura?.status === 'active' && !assinatura.valid_until;
+          const ativo = assinatura?.status === 'active' && (vitalicio || new Date(assinatura.valid_until) > new Date());
+          return {
+            id: user.id,
+            nome: perfil?.display_name || user.email?.split('@')[0] || 'Usuário',
+            email: user.email || '',
+            telefone: '',
+            avatar: ativo ? '🚀' : '🆓',
+            plano: vitalicio ? 'lifetime' : (ativo ? 'pro' : 'free'),
+            planoNome: vitalicio ? 'Acesso vitalício de teste' : (ativo ? 'VIP ativo' : 'Visitante Free'),
+            dataCadastro: user.created_at?.slice(0, 10) || '',
+            dataExpiracao: vitalicio ? 'Vitalício' : (assinatura?.valid_until?.slice(0, 10) || '-'),
+            status: ativo ? 'ativo' : 'free',
+            valorPago: 0,
+            obs: user.last_sign_in_at ? `Último acesso: ${user.last_sign_in_at}` : 'Ainda não acessou'
+          };
+        });
+        renderizarPainelAdmin();
+      } catch (error) {
+        toast(`Não foi possível carregar os usuários: ${error.message}`, '⚠️');
+      }
+    }
+
+    async function concederAcessoVitalicio(id) {
+      try {
+        await invocarAcaoAdministrativa({ action: 'grant_lifetime', targetUserId: id });
+        toast('Acesso vitalício de teste concedido.', '🚀');
+        await carregarUsuariosAdminRemotos();
+      } catch (error) {
+        toast(`Não foi possível conceder o acesso: ${error.message}`, '⚠️');
+      }
+    }
+
     // Base de Clientes Inicial Realista para Demonstração do CEO
     const BASE_USUARIOS_PADRAO = [
       {
         id: 'usr-1',
-        nome: 'Vitório B. Neto',
-        email: 'vitorio.bergamo@gmail.com',
+        nome: 'Administrador do Sistema',
+        email: 'admin@example.invalid',
         telefone: '(11) 99999-9999',
         avatar: '👑',
         plano: 'master',
@@ -6198,7 +6268,7 @@ function abrirModalDialog(msg, callback) {
         dataExpiracao: '2099-12-31',
         status: 'ativo',
         valorPago: 0,
-        obs: 'Fundador & CEO Executivo'
+        obs: 'Conta administrativa demonstrativa'
       },
       {
         id: 'usr-2',
@@ -6273,6 +6343,7 @@ function abrirModalDialog(msg, callback) {
     ];
 
     function carregarBaseUsuariosAdmin() {
+      if (usuariosAdminRemotos) return usuariosAdminRemotos;
       const salvo = localStorage.getItem('loterias_nasa_admin_users');
       if (salvo) {
         try {
@@ -6288,6 +6359,22 @@ function abrirModalDialog(msg, callback) {
     function salvarBaseUsuariosAdmin(base) {
       localStorage.setItem('loterias_nasa_admin_users', JSON.stringify(base));
       renderizarPainelAdmin();
+    }
+
+    function escaparHtmlSeguro(valor) {
+      return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[caractere]));
+    }
+
+    function escaparCelulaCsv(valor) {
+      const texto = String(valor ?? '').replace(/"/g, '""');
+      const protegido = /^[=+\-@]/.test(texto) ? `'${texto}` : texto;
+      return `"${protegido}"`;
     }
 
     function resetarDadosDemonstracaoAdmin() {
@@ -6354,7 +6441,7 @@ function abrirModalDialog(msg, callback) {
       // Atualizar Select do Modal de Webhook
       const selectWebhook = document.getElementById('webhook-user-select');
       if (selectWebhook) {
-        selectWebhook.innerHTML = base.map(u => `<option value="${u.id}">${u.nome} (${u.email}) - Plano atual: ${u.planoNome}</option>`).join('');
+        selectWebhook.innerHTML = base.map(u => `<option value="${escaparHtmlSeguro(u.id)}">${escaparHtmlSeguro(u.nome)} (${escaparHtmlSeguro(u.email)}) - Plano atual: ${escaparHtmlSeguro(u.planoNome)}</option>`).join('');
       }
 
       filtrarTabelaUsuariosAdmin();
@@ -6412,17 +6499,17 @@ function abrirModalDialog(msg, callback) {
           <tr class="hover:bg-slate-800/40 transition">
             <td class="p-3.5">
               <div class="flex items-center gap-2">
-                <span class="text-base">${u.avatar || '👤'}</span>
+                <span class="text-base">${escaparHtmlSeguro(u.avatar || '👤')}</span>
                 <div>
-                  <div class="font-bold text-white font-sans">${u.nome}</div>
-                  <div class="text-[10px] text-slate-500">${u.email} ${u.telefone ? '• ' + u.telefone : ''}</div>
+                  <div class="font-bold text-white font-sans">${escaparHtmlSeguro(u.nome)}</div>
+                  <div class="text-[10px] text-slate-500">${escaparHtmlSeguro(u.email)} ${u.telefone ? '• ' + escaparHtmlSeguro(u.telefone) : ''}</div>
                 </div>
               </div>
             </td>
             <td class="p-3.5">${badgePlano}</td>
             <td class="p-3.5">
-              <div class="text-[11px] text-slate-300 font-sans">Expira: <b>${u.dataExpiracao}</b></div>
-              <div class="text-[9px] text-slate-500">Desde: ${u.dataCadastro}</div>
+              <div class="text-[11px] text-slate-300 font-sans">Expira: <b>${escaparHtmlSeguro(u.dataExpiracao)}</b></div>
+              <div class="text-[9px] text-slate-500">Desde: ${escaparHtmlSeguro(u.dataCadastro)}</div>
             </td>
             <td class="p-3.5">${badgeStatus}</td>
             <td class="p-3.5 text-right">
@@ -6432,6 +6519,9 @@ function abrirModalDialog(msg, callback) {
                 </button>
                 <button onclick="concederVipUsuario('${u.id}', 365, 'anual')" class="px-2 py-1 bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-800 rounded-lg text-[10px] font-bold transition" title="Upgrade para VIP Anual">
                   💎 Anual
+                </button>
+                <button onclick="concederAcessoVitalicio('${u.id}')" class="px-2 py-1 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 rounded-lg text-[10px] font-bold transition" title="Conceder acesso vitalício para teste">
+                  ∞ Teste
                 </button>
                 <button onclick="alternarBloqueioUsuario('${u.id}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] transition" title="Bloquear ou desbloquear">
                   ${u.status === 'bloqueado' ? '🔓' : '🔒'}
@@ -6615,7 +6705,9 @@ function abrirModalDialog(msg, callback) {
       const base = carregarBaseUsuariosAdmin();
       let csv = 'ID;Nome;Email;Telefone;Plano;Status;DataCadastro;DataExpiracao;Observacoes\n';
       base.forEach(u => {
-        csv += `${u.id};"${u.nome}";"${u.email}";"${u.telefone || ''}";"${u.planoNome}";"${u.status}";"${u.dataCadastro}";"${u.dataExpiracao}";"${u.obs || ''}"\n`;
+        csv += [u.id, u.nome, u.email, u.telefone, u.planoNome, u.status, u.dataCadastro, u.dataExpiracao, u.obs]
+          .map(escaparCelulaCsv)
+          .join(';') + '\n';
       });
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
