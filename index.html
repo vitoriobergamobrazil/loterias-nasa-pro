@@ -862,13 +862,13 @@
         </div>
       </div>
 
-      <!-- AS 4 GRANDES FEATURES EM CARDS VISUAIS -->
+      <!-- AS 5 GRANDES FEATURES EM CARDS VISUAIS -->
       <div class="space-y-2 font-sans">
         <div class="flex items-center justify-between px-1">
           <span class="text-xs font-black uppercase tracking-wider text-slate-400 font-mono flex items-center gap-1.5">
             <span>⚡</span> O QUE O NASA PRO FAZ POR VOCÊ
           </span>
-          <span class="text-[10px] text-cyan-400 font-mono font-bold">4 Inovações</span>
+          <span class="text-[10px] text-cyan-400 font-mono font-bold">5 Inovações</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -913,6 +913,17 @@
             </div>
             <p class="text-[11px] text-slate-400 leading-relaxed">
               Calcule cotas, controle pagamentos de amigos e envie comprovantes oficiais formatados com 1 clique direto no grupo do WhatsApp.
+            </p>
+          </div>
+
+          <!-- Feature 5: Dezenas Fixas e Proibidas -->
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-cyan-800/80 transition space-y-1.5 sm:col-span-2">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-teal-950 border border-teal-800 text-teal-300 flex items-center justify-center text-sm font-black">🎯</span>
+              <h3 class="text-xs font-black text-white">Regras Personalizadas: Dezenas Fixas 📌 e Proibidas 🚫</h3>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Você no controle: defina no volante as dezenas que deseja <strong>obrigatórias</strong> em todas as combinações geradas, ou <strong>exclua</strong> as pedras que você não quer apostar. O motor da NASA respeita 100% das suas preferências.
             </p>
           </div>
         </div>
@@ -2427,8 +2438,8 @@
     // Bilhete Padrão do Tio Vitório
     let meuJogoMega = [11, 15, 20, 21, 38, 48];
     let meuJogoLoto = [1, 2, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 22, 24, 25];
-    let fixosMega = [11], proibidosMega = [13];
-    let fixosLoto = [1, 25], proibidosLoto = [12];
+    let fixosMega = [], proibidosMega = [];
+    let fixosLoto = [], proibidosLoto = [];
     let jogosFechamentoGerados = [];
 
     let baseConcursosMega = [];
