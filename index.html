@@ -2637,6 +2637,17 @@
           setTimeout(() => mudarAba('admin'), 200);
         }
       } catch(e) {}
+
+      // Registrar Service Worker (PWA Offline + Play Store TWA)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then((reg) => {
+            console.log('[NASA Pro] Service Worker registrado com sucesso. Scope:', reg.scope);
+          })
+          .catch((err) => {
+            console.warn('[NASA Pro] Falha ao registrar Service Worker:', err);
+          });
+      }
     });
 
     function trocarModalidade(mod) {
