@@ -647,62 +647,6 @@
     </div>
   </div>
 
-      <!-- Escolha de Planos -->
-      <div class="grid grid-cols-2 gap-2">
-        <div id="card-plano-anual" onclick="selecionarPlanoCheckout('anual')" class="p-3 rounded-2xl border-2 border-amber-400 bg-amber-950/30 cursor-pointer text-center relative transition">
-          <span class="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap">
-            58% OFF • MAIS VENDIDO
-          </span>
-          <span class="text-[10px] font-bold text-slate-300 block">PLANO ANUAL</span>
-          <div class="text-lg font-black text-white mt-0.5">R$ 147<span class="text-xs text-slate-400 font-normal">,00</span></div>
-          <span class="text-[9px] text-amber-300 font-bold block mt-0.5">R$ 12,25/mês à vista</span>
-        </div>
-
-        <div id="card-plano-mensal" onclick="selecionarPlanoCheckout('mensal')" class="p-3 rounded-2xl border border-slate-800 bg-slate-950 cursor-pointer text-center relative transition opacity-80 hover:opacity-100">
-          <span class="text-[10px] font-bold text-slate-400 block">PLANO MENSAL</span>
-          <div class="text-lg font-black text-white mt-0.5">R$ 29<span class="text-xs text-slate-400 font-normal">,90</span></div>
-          <span class="text-[9px] text-slate-400 block mt-0.5">Cobrança mensal</span>
-        </div>
-      </div>
-
-      <!-- Área de Pagamento PIX -->
-      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2.5 font-mono">
-        <div class="flex justify-between items-center text-[10px]">
-          <span class="text-emerald-400 font-bold flex items-center gap-1">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> PAGAMENTO VIA PIX
-          </span>
-          <span class="text-slate-400">Liberação Instantânea</span>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <input id="input-pix-copia-cola" type="text" readonly value="00020126580014br.gov.bcb.pix0136loterias-nasa-pro-vip@pagamento.com5204000053039865802BR5920LOTERIAS NASA PRO6009SAO PAULO62070503***6304E8A1" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-2 text-[10px] text-slate-300 font-mono truncate focus:outline-none" />
-          <button type="button" onclick="copiarPixCopiaCola()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 font-black text-xs rounded-xl border border-slate-700 whitespace-nowrap active:scale-95 transition">
-            📋 Copiar
-          </button>
-        </div>
-
-        <!-- Botão de Simulação / Ativação Imediata -->
-        <button type="button" onclick="confirmarPagamentoPixSimulado()" class="w-full py-3 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-xl shadow-emerald-500/20 active:scale-95 transition flex items-center justify-center gap-2 font-sans tracking-wider uppercase">
-          <span>⚡</span> Confirmar Pagamento PIX (Ativar VIP)
-        </button>
-
-        <div class="flex items-center justify-center gap-3 text-[9px] text-slate-500 pt-1 font-sans">
-          <span>🔒 Criptografia SSL</span>
-          <span>•</span>
-          <span>🛡️ Garantia de 7 Dias</span>
-          <span>•</span>
-          <span>Cancelamento Fácil</span>
-        </div>
-      </div>
-
-      <!-- Alternador de Demonstração (Para Testar os 2 modos) -->
-      <div class="text-center pt-1 border-t border-slate-800/80">
-        <button type="button" onclick="alternarPlanoDev()" class="text-[10px] text-slate-500 hover:text-slate-300 underline font-mono">
-          [Alternar Plano FREE / PRO para Demonstração]
-        </button>
-      </div>
-    </div>
-  </div>
 
     <!-- MODAL DE AUTENTICAÇÃO, GOOGLE SIGN-IN & CADASTRO SAAS -->
   <div id="modal-auth-saas" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
@@ -853,10 +797,13 @@
       </div>
     </div>
 
-    <!-- Nível 3: As 5 Abas de Navegação Integradas (Sem Scroll e Sem Colisão) -->
-    <div class="px-2.5 py-1.5 max-w-lg mx-auto">
-      <div class="grid grid-cols-6 gap-1 font-mono text-[8px] sm:text-[10px]">
-        <button onclick="mudarAba('volante')" id="tab-volante" class="py-1.5 px-0.5 rounded-xl font-black transition bg-emerald-600 text-slate-950 shadow flex items-center justify-center gap-0.5">
+    <!-- Nível 3: As Abas de Navegação Integradas (Sem Scroll e Sem Colisão) -->
+    <div class="px-2 py-1.5 max-w-lg mx-auto">
+      <div class="grid grid-cols-7 gap-1 font-mono text-[8px] sm:text-[9px]">
+        <button onclick="mudarAba('inicio')" id="tab-inicio" class="py-1.5 px-0.5 rounded-xl font-black transition bg-gradient-to-r from-cyan-500 to-teal-400 text-slate-950 shadow flex items-center justify-center gap-0.5">
+          <span>🚀</span> <span class="truncate">Início</span>
+        </button>
+        <button onclick="mudarAba('volante')" id="tab-volante" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
           <span>🎯</span> <span class="truncate">Gerador</span>
         </button>
         <button onclick="mudarAba('fechamentos')" id="tab-fechamentos" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
@@ -881,8 +828,131 @@
   <!-- Corpo Principal de Telas -->
   <main class="flex-1 max-w-lg mx-auto w-full p-3.5 pb-24 overflow-y-auto no-scrollbar space-y-4">
 
+    <!-- TELA 0: INÍCIO / APRESENTAÇÃO DE FEATURES & ONBOARDING -->
+    <section id="view-inicio" class="space-y-4">
+      <!-- HERO CARD -->
+      <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-cyan-800/60 rounded-3xl p-5 shadow-2xl space-y-4 font-sans relative overflow-hidden">
+        <!-- Glow effect -->
+        <div class="w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl absolute -top-12 -right-12 pointer-events-none"></div>
+
+        <div class="text-center space-y-2">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950 border border-cyan-800 text-[10px] font-mono font-black text-cyan-300 tracking-wider uppercase">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>TELEMETRIA ESPACIAL // NASA PRO v2.5</span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
+            A Ciência dos Fechamentos Aeroespaciais
+          </h1>
+          <p class="text-xs text-slate-300 leading-relaxed max-w-md mx-auto">
+            Diga adeus aos palpites no escuro e às promessas fáceis. O <strong class="text-cyan-300">Loterias NASA Pro</strong> aplica física estatística, matrizes combinatórias e teste de variância para Mega-Sena e Lotofácil.
+          </p>
+        </div>
+
+        <!-- BOTÕES DE AÇÃO RÁPIDA -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-sans">
+          <button type="button" onclick="mudarAba('volante')" class="py-3 px-3 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-2xl shadow-lg shadow-emerald-500/20 active:scale-95 transition flex items-center justify-center gap-1.5 uppercase tracking-wider">
+            <span>🚀</span> Testar Grátis
+          </button>
+          <button type="button" onclick="abrirModalAuthOuPerfil()" class="py-3 px-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-2xl border border-slate-700 active:scale-95 transition flex items-center justify-center gap-1.5">
+            <span>👤</span> Criar Conta / Login
+          </button>
+          <button type="button" onclick="abrirModalPaywall('inicio')" class="py-3 px-3 bg-amber-950/70 hover:bg-amber-900 text-amber-300 border border-amber-500/60 font-black text-xs rounded-2xl active:scale-95 transition flex items-center justify-center gap-1.5">
+            <span>👑</span> Ver Planos VIP
+          </button>
+        </div>
+      </div>
+
+      <!-- AS 4 GRANDES FEATURES EM CARDS VISUAIS -->
+      <div class="space-y-2 font-sans">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-xs font-black uppercase tracking-wider text-slate-400 font-mono flex items-center gap-1.5">
+            <span>⚡</span> O QUE O NASA PRO FAZ POR VOCÊ
+          </span>
+          <span class="text-[10px] text-cyan-400 font-mono font-bold">4 Inovações</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <!-- Feature 1: Matriz 4x4 -->
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-cyan-800/80 transition space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-cyan-950 border border-cyan-800 text-cyan-300 flex items-center justify-center text-sm font-black">🛰️</span>
+              <h3 class="text-xs font-black text-white">Matriz 4x4 do Tio Vitório</h3>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Mapeamento da cartela em 4 quadrantes que equilibra linhas e colunas, eliminando 98% das combinações que quase nunca saem na história das loterias.
+            </p>
+          </div>
+
+          <!-- Feature 2: 6 Testes Orbitais -->
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-800/80 transition space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-300 flex items-center justify-center text-sm font-black">🔬</span>
+              <h3 class="text-xs font-black text-white">Bateria dos 6 Testes Orbitais</h3>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Validação matemática em tempo real: Paridade (Pares/Ímpares), Soma Total Ideal, Moldura vs Miolo, Primos, Saltos e Dispersão de Shannon 2D.
+            </p>
+          </div>
+
+          <!-- Feature 3: Fechamentos C(n,k) -->
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-purple-800/80 transition space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center text-sm font-black">📐</span>
+              <h3 class="text-xs font-black text-white">Fechamentos Combinatórios C(n,k)</h3>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Jogue com 18 a 22 dezenas com garantia matemática de prêmio secundário (Quadra/Quina), economizando até 95% em relação ao volante da Caixa.
+            </p>
+          </div>
+
+          <!-- Feature 4: Gestor de Bolões -->
+          <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-800/80 transition space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-amber-950 border border-amber-800 text-amber-300 flex items-center justify-center text-sm font-black">👥</span>
+              <h3 class="text-xs font-black text-white">Gestão Completa de Bolões</h3>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Calcule cotas, controle pagamentos de amigos e envie comprovantes oficiais formatados com 1 clique direto no grupo do WhatsApp.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODELO FREEMIUM EXPLICADO -->
+      <div class="p-4 rounded-3xl bg-slate-950 border border-slate-800 space-y-3 font-sans">
+        <div class="text-center space-y-1">
+          <span class="text-[10px] font-mono font-black text-amber-400 uppercase tracking-wider">Zero Barreiras • Transparência Absoluta</span>
+          <h3 class="text-sm font-black text-white">Como Funciona o Seu Acesso</h3>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-base block">🧪</span>
+            <strong class="text-white text-xs block mt-1">Degustação Grátis</strong>
+            <p class="text-[10px] text-slate-400 mt-1">Gere palpites experimentais com dezenas calibradas na Matriz 4x4 sem precisar cadastrar cartão.</p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
+            <span class="text-base block">👤</span>
+            <strong class="text-white text-xs block mt-1">Conta Pessoal</strong>
+            <p class="text-[10px] text-slate-400 mt-1">Faça login com Google ou e-mail para salvar bilhetes na sua Carteira e acompanhar sorteios.</p>
+          </div>
+          <div class="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/50">
+            <span class="text-base block">👑</span>
+            <strong class="text-amber-300 text-xs block mt-1">Assinante VIP</strong>
+            <p class="text-[10px] text-slate-300 mt-1">Desbloqueie todas as dezenas, 6 testes orbitais sem limites, lotes de apostas e auto-calibração.</p>
+          </div>
+        </div>
+
+        <div class="pt-2 text-center">
+          <button type="button" onclick="mudarAba('volante')" class="w-full py-3 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition font-mono uppercase tracking-wider">
+            🎯 ACESSAR O GERADOR NASA AGORA
+          </button>
+        </div>
+      </div>
+    </section>
+
     <!-- TELA 1: GERADOR NASA COM MATRIZ 4x4 + 6 TESTES E AJUSTES -->
-    <section id="view-volante" class="space-y-4">
+    <section id="view-volante" class="space-y-4 hidden">
       
       <!-- CARD PRINCIPAL DO GERADOR -->
       <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-emerald-800/60 rounded-3xl p-4 shadow-2xl space-y-3 font-mono">
@@ -2635,8 +2705,16 @@
         const params = new URLSearchParams(window.location.search);
         if (params.get('admin') === 'true' || params.get('master') === 'true' || window.location.hash === '#admin') {
           setTimeout(() => mudarAba('admin'), 200);
+        } else if (params.get('aba')) {
+          setTimeout(() => mudarAba(params.get('aba')), 200);
+        } else if (window.location.hash && window.location.hash.length > 1) {
+          setTimeout(() => mudarAba(window.location.hash.substring(1)), 200);
+        } else {
+          mudarAba('inicio');
         }
-      } catch(e) {}
+      } catch(e) {
+        mudarAba('inicio');
+      }
 
       // Registrar Service Worker (PWA Offline + Play Store TWA)
       if ('serviceWorker' in navigator) {
@@ -2948,11 +3026,17 @@
         `;
       }
 
+      const ehPro = planoUsuario === 'pro' || (usuarioSessao && usuarioSessao.tipo === 'master_founder');
+      const modoDegustacao = !ehPro && !jogoGratisCortesiaUsado && jogo.length >= config.minDezenas;
+      const limiteReveladas = modalidadeAtual === 'megasena' ? 4 : 11;
+      const dezenasVipBloqueadas = modoDegustacao ? new Set(jogo.slice(limiteReveladas)) : new Set();
+
       for (let i = 1; i <= config.totalNumeros; i++) {
         const btn = document.createElement('button');
         const marcado = jogo.includes(i);
         const ehFixo = fixos.includes(i);
         const ehProibido = proibidos.includes(i);
+        const ehVipBloqueada = dezenasVipBloqueadas.has(i);
         const numStr = String(i).padStart(2, '0');
 
         const linhaNum = Math.floor((i - 1) / 10) + 1;
@@ -2966,11 +3050,25 @@
 
         if (ehFixo) estilo = 'bg-emerald-900/90 text-emerald-300 border-2 border-emerald-400 font-black shadow';
         else if (ehProibido) estilo = 'bg-rose-950/90 text-rose-400 border-2 border-rose-600 line-through opacity-60';
+        else if (ehVipBloqueada) estilo = 'bg-amber-950/90 text-amber-300 border-2 border-amber-400 font-black scale-105 shadow-md shadow-amber-500/30';
         else if (marcado) estilo = modalidadeAtual === 'megasena' ? 'bg-emerald-500 text-slate-950 font-black scale-105 border-white shadow-md' : 'bg-purple-500 text-white font-black scale-105 border-white shadow-md';
 
-        btn.innerText = numStr;
+        if (ehVipBloqueada) {
+          btn.innerHTML = `<span class="flex items-center gap-0.5">${numStr}<span class="text-[8px]">🔒</span></span>`;
+          btn.title = 'Dezena VIP calibrada! Desbloqueie com o Plano VIP';
+        } else {
+          btn.innerText = numStr;
+        }
+
         btn.className = `volante-btn rounded-xl font-bold text-xs transition active:scale-90 flex items-center justify-center ${estilo}`;
-        btn.onclick = () => clicarNumeroVolante(i);
+        btn.onclick = () => {
+          if (ehVipBloqueada) {
+            toast('Dezena calibrada VIP! Desbloqueie no Plano VIP ou resgate sua cortesia.', '🔒');
+            abrirModalPaywall('desbloquear_dezenas');
+            return;
+          }
+          clicarNumeroVolante(i);
+        };
         grid.appendChild(btn);
       }
     }
@@ -3022,6 +3120,19 @@
       executarAnaliseVitorio();
     }
 
+    let jogoGratisCortesiaUsado = false;
+    try {
+      jogoGratisCortesiaUsado = localStorage.getItem('loterias_nasa_cortesia_usada') === 'true';
+    } catch(e) {}
+
+    function resgatarJogoGratisCortesia() {
+      jogoGratisCortesiaUsado = true;
+      try { localStorage.setItem('loterias_nasa_cortesia_usada', 'true'); } catch(e) {}
+      atualizarDisplayJogo();
+      renderizarVolante();
+      toast('🎁 Jogo de Cortesia ativado! Todas as dezenas foram 100% reveladas.', '🎉');
+    }
+
     function atualizarDisplayJogo() {
       const jogo = getJogoAtual();
       const config = getConfigAtual();
@@ -3037,14 +3148,55 @@
         return;
       }
 
-      jogo.forEach(num => {
-        const badge = document.createElement('div');
+      const ehPro = planoUsuario === 'pro' || (usuarioSessao && usuarioSessao.tipo === 'master_founder');
+      const modoDegustacao = !ehPro && !jogoGratisCortesiaUsado && jogo.length >= config.minDezenas;
+      const limiteReveladas = modalidadeAtual === 'megasena' ? 4 : 11;
+
+      jogo.forEach((num, idx) => {
         const ehFixo = getFixos().includes(num);
         const cor = ehFixo ? 'bg-emerald-400 text-slate-950 ring-2 ring-emerald-300' : (modalidadeAtual === 'megasena' ? 'bg-emerald-600 text-slate-950 font-black' : 'bg-purple-600 text-white');
-        badge.className = `w-7 h-7 rounded-lg ${cor} font-bold text-xs flex items-center justify-center shadow-sm font-mono`;
-        badge.innerText = String(num).padStart(2, '0');
-        display.appendChild(badge);
+
+        if (modoDegustacao && idx >= limiteReveladas) {
+          const btnVip = document.createElement('button');
+          btnVip.type = 'button';
+          btnVip.onclick = () => abrirModalPaywall('desbloquear_dezenas');
+          btnVip.className = 'w-8 h-8 rounded-xl bg-amber-950/90 border-2 border-amber-400 text-amber-300 font-black text-[9px] flex items-center justify-center shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 transition font-mono cursor-pointer';
+          btnVip.title = 'Dezena VIP calibrada! Clique para desbloquear';
+          btnVip.innerHTML = '🔒 VIP';
+          display.appendChild(btnVip);
+        } else {
+          const badge = document.createElement('div');
+          badge.className = `w-7 h-7 rounded-lg ${cor} font-bold text-xs flex items-center justify-center shadow-sm font-mono`;
+          badge.innerText = String(num).padStart(2, '0');
+          display.appendChild(badge);
+        }
       });
+
+      // Se estiver em modo degustação, exibe aviso elegante de degustação
+      if (modoDegustacao) {
+        const faltam = jogo.length - limiteReveladas;
+        const banner = document.createElement('div');
+        banner.className = 'w-full mt-2.5 p-2 rounded-2xl bg-amber-950/40 border border-amber-500/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left font-sans text-xs';
+        banner.innerHTML = `
+          <div>
+            <div class="text-amber-300 font-bold flex items-center justify-center sm:justify-start gap-1">
+              <span>🧪</span> Modo Degustação Grátis
+            </div>
+            <div class="text-slate-300 text-[10px]">
+              ${limiteReveladas} dezenas reveladas (${faltam} bloqueadas). Desbloqueie todas no Plano VIP!
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 justify-center">
+            <button type="button" onclick="resgatarJogoGratisCortesia()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-700/60 font-bold text-[10px] active:scale-95 transition whitespace-nowrap">
+              🎁 Revelar 1 Jogo Cortesia
+            </button>
+            <button type="button" onclick="abrirModalPaywall('desbloquear_todas')" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-[10px] shadow active:scale-95 transition whitespace-nowrap">
+              👑 Desbloquear VIP
+            </button>
+          </div>
+        `;
+        display.appendChild(banner);
+      }
 
       if (jogo.length >= config.minDezenas) {
         const k = modalidadeAtual === 'megasena' ? 6 : 15;
@@ -5195,7 +5347,7 @@ function executarDesdobramento() {
         }
       }
 
-      ['volante', 'fechamentos', 'calor', 'carteira', 'bolao', 'admin'].forEach(a => {
+      ['inicio', 'volante', 'fechamentos', 'calor', 'carteira', 'bolao', 'admin'].forEach(a => {
         const el = document.getElementById(`view-${a}`);
         const tab = document.getElementById(`tab-${a}`);
         if (el) el.classList.add('hidden');
@@ -5203,7 +5355,7 @@ function executarDesdobramento() {
           if (a === 'admin') {
             tab.className = 'py-1.5 px-0.5 rounded-xl font-bold transition bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 flex items-center justify-center gap-0.5';
           } else {
-            tab.className = 'py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[10px]';
+            tab.className = 'py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[9px]';
           }
         }
       });
@@ -5213,11 +5365,13 @@ function executarDesdobramento() {
       if (elAtivo) elAtivo.classList.remove('hidden');
 
       if (aba === 'admin') {
-        if (tabAtivo) tabAtivo.className = 'py-1.5 px-0.5 rounded-xl transition flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[10px] bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black shadow-lg shadow-amber-500/30';
+        if (tabAtivo) tabAtivo.className = 'py-1.5 px-0.5 rounded-xl transition flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[9px] bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black shadow-lg shadow-amber-500/30';
         renderizarPainelAdmin();
+      } else if (aba === 'inicio') {
+        if (tabAtivo) tabAtivo.className = 'py-1.5 px-0.5 rounded-xl transition flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[9px] bg-gradient-to-r from-cyan-500 to-teal-400 text-slate-950 font-black shadow';
       } else {
         const cor = modalidadeAtual === 'megasena' ? 'bg-emerald-600 text-slate-950 font-black shadow' : 'bg-purple-600 text-white font-black shadow';
-        if (tabAtivo) tabAtivo.className = `py-1.5 px-0.5 rounded-xl transition flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[10px] ${cor}`;
+        if (tabAtivo) tabAtivo.className = `py-1.5 px-0.5 rounded-xl transition flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[9px] ${cor}`;
       }
       
       if (aba === 'calor') {
