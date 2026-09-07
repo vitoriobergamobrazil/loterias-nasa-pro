@@ -6181,7 +6181,7 @@ function abrirModalDialog(msg, callback) {
     }
 
     function iniciarCheckoutCartaoRecorrente() {
-      const planoEscolhido = planoSelecionadoCheckout === 'anual' ? 'Plano C (Anual - R$ 197,00/ano)' : 'Plano B (Mensal - R$ 29,90/mês)';
+      const planoEscolhido = planoCheckoutSelecionado === 'anual' ? 'Plano C (Anual - R$ 197,00/ano)' : 'Plano B (Mensal - R$ 29,90/mês)';
       tocarSomNasa('ignicao');
       // Demonstração da esteira de pagamento com confirmação de assinatura
       confirmarAcaoDialog(
