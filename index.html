@@ -496,6 +496,36 @@
     html:not(.dark) .text-purple-300 {
       color: #7e22ce !important;
     }
+
+    @media (max-width: 640px) {
+      header.sticky > div:first-child {
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+      }
+
+      header.sticky .grid-cols-7 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.35rem;
+      }
+
+      header.sticky .grid-cols-7 button {
+        min-height: 2.25rem;
+        font-size: 0.65rem;
+      }
+
+      main {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+      }
+
+      #view-inicio h1 {
+        font-size: 1.5rem;
+      }
+
+      #view-inicio .grid-cols-1.sm\\:grid-cols-3 {
+        grid-template-columns: 1fr;
+      }
+    }
     
     /* MODAIS NO TEMA CLARO */
     html:not(.dark) #modal-paywall-pro > div,
@@ -1725,7 +1755,7 @@
     </section>
   
     <!-- ============================================================ -->
-    <!-- TELA 7: PAINEL DE CONTROLE DO CEO & FUNDADOR (NASA ADMIN)    -->
+    <!-- TELA 7: PAINEL ADMINISTRATIVO    -->
     <!-- Controle de Usuários, Assinaturas Recorrentes, Gateways/MRR -->
     <!-- ============================================================ -->
     <section id="view-admin" class="space-y-6 hidden font-mono">
@@ -1742,7 +1772,7 @@
               </h2>
             </div>
             <p class="text-xs text-slate-400 font-sans mt-0.5">
-              Gestão Unificada de Clientes, Assinaturas Recorrentes, Gateways e Faturamento em Tempo Real
+              Usuários, acessos de teste, assinaturas e registros de auditoria.
             </p>
           </div>
 
@@ -1753,41 +1783,41 @@
               Administrador autorizado
             </span>
             <span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-lg text-[10px] font-bold">
-              LICENÇA IRREVOGÁVEL
+              SESSÃO PROTEGIDA
             </span>
           </div>
         </div>
 
-        <!-- Barra de Ações Rápidas do CEO -->
+        <!-- Ações administrativas -->
         <div class="mt-4 flex flex-wrap gap-2.5 items-center">
           <button onclick="abrirModalNovoUsuarioAdmin()" class="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow-lg transition flex items-center gap-1.5">
-            <span>➕</span> Cadastrar / Liberar Usuário
+            <span>➕</span> Adicionar acesso de teste
           </button>
           <button onclick="abrirModalSimularWebhook()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 font-bold text-xs rounded-xl transition flex items-center gap-1.5">
-            <span>⚡</span> Simular Webhook de Pagamento
+            <span>⚡</span> Processar evento
           </button>
           <button onclick="exportarBaseClientesCSV()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5">
-            <span>📥</span> Exportar Clientes (.CSV)
+            <span>📥</span> Exportar usuários (.CSV)
           </button>
           <button onclick="resetarDadosDemonstracaoAdmin()" class="px-3 py-2 bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 font-bold text-xs rounded-xl transition flex items-center gap-1.5" title="Restaura a base de demonstração para testes">
-            <span>🔄</span> Restaurar Demo
+            <span>🔄</span> Restaurar dados de teste
           </button>
         </div>
       </div>
 
-      <!-- 4 KPIs Executivos do Negócio (MRR, Clientes, Conversão e Faturamento) -->
+      <!-- Resumo operacional -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <!-- KPI 1: MRR -->
         <div class="bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 rounded-2xl p-4 transition shadow-lg relative overflow-hidden">
           <div class="flex items-center justify-between text-slate-400 text-[11px] font-bold uppercase mb-1">
-            <span>MRR Recorrente</span>
+            <span>Receita recorrente</span>
             <span class="text-emerald-400 text-[10px]">▲ +18.4%</span>
           </div>
           <div class="text-xl sm:text-2xl font-black text-white font-sans" id="kpi-admin-mrr">
             R$ 14.850,00
           </div>
           <div class="text-[10px] text-slate-400 mt-1">
-            Receita Mensal Recorrente projetada
+            Valor informado pelas assinaturas
           </div>
           <div class="h-1 w-full bg-slate-800 rounded-full mt-2 overflow-hidden">
             <div class="h-full bg-amber-500 w-3/4 rounded-full"></div>
@@ -1797,7 +1827,7 @@
         <!-- KPI 2: Assinantes Ativos -->
         <div class="bg-slate-900/90 border border-slate-800 hover:border-emerald-500/40 rounded-2xl p-4 transition shadow-lg">
           <div class="flex items-center justify-between text-slate-400 text-[11px] font-bold uppercase mb-1">
-            <span>Assinantes VIP</span>
+            <span>Acessos ativos</span>
             <span class="text-emerald-400 text-[10px]">● Ativos</span>
           </div>
           <div class="text-xl sm:text-2xl font-black text-emerald-400 font-sans" id="kpi-admin-total-vip">
@@ -1816,14 +1846,14 @@
         <!-- KPI 3: Taxa de Conversão -->
         <div class="bg-slate-900/90 border border-slate-800 hover:border-cyan-500/40 rounded-2xl p-4 transition shadow-lg">
           <div class="flex items-center justify-between text-slate-400 text-[11px] font-bold uppercase mb-1">
-            <span>Conversão Geral</span>
+            <span>Conversão</span>
             <span class="text-cyan-400 text-[10px]">Free ➔ VIP</span>
           </div>
           <div class="text-xl sm:text-2xl font-black text-cyan-400 font-sans" id="kpi-admin-conversao">
             4.2%
           </div>
           <div class="text-[10px] text-slate-400 mt-1">
-            Média de 1.280 visitantes únicos/mês
+            Contas Free que se tornaram pagantes
           </div>
           <div class="h-1 w-full bg-slate-800 rounded-full mt-2 overflow-hidden">
             <div class="h-full bg-cyan-500 w-1/2 rounded-full"></div>
@@ -1833,7 +1863,7 @@
         <!-- KPI 4: Faturamento Bruto Total -->
         <div class="bg-slate-900/90 border border-slate-800 hover:border-purple-500/40 rounded-2xl p-4 transition shadow-lg">
           <div class="flex items-center justify-between text-slate-400 text-[11px] font-bold uppercase mb-1">
-            <span>Faturamento Bruto</span>
+            Pagamentos registrados
             <span class="text-purple-400 text-[10px]">Total YTD</span>
           </div>
           <div class="text-xl sm:text-2xl font-black text-purple-400 font-sans" id="kpi-admin-faturamento-total">
@@ -1860,7 +1890,7 @@
           <span>💳</span> Gateways & Webhooks
         </button>
         <button onclick="alternarSubAbaAdmin('relatorio')" id="subtab-admin-relatorio" class="pb-2.5 px-3 font-bold text-xs border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5">
-          <span>🚀</span> Parecer do Especialista de Lançamento
+            <span>📋</span> Auditoria e registros
         </button>
       </div>
 
