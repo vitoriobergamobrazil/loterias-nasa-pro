@@ -740,7 +740,7 @@
     </div>
   </div>
 
-  <!-- Header Superior com Telemetria NASA Mission Control -->
+  <!-- Cabeçalho principal do aplicativo -->
     <!-- CABEÇALHO UNIFICADO AEROESPACIAL (ZERO COLISÕES AO ROLAR) -->
   <header class="sticky top-0 z-30 bg-slate-950/98 backdrop-blur-xl border-b border-slate-800 shadow-2xl safe-top">
     <!-- Nível 1: Telemetria & Flight Ops -->
@@ -749,8 +749,8 @@
         <span class="text-base animate-rocket" title="NASA Artemis Orbital Vehicle">🚀</span>
         <div class="flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="font-black tracking-wider text-white">NASA MISSION CONTROL</span>
-          <span class="text-cyan-500 font-bold hidden md:inline">// TELEMETRIA ESPACIAL</span>
+          <span class="font-black tracking-wider text-white">LOTERIAS NASA</span>
+          <span class="text-cyan-500 font-bold hidden md:inline">// ORGANIZE SEUS JOGOS</span>
         </div>
       </div>
       <div class="flex items-center gap-1.5 sm:gap-2">
@@ -762,7 +762,7 @@
 
         <!-- Status do Plano -->
         <button type="button" id="btn-status-plano" onclick="abrirModalPaywall('header')" class="cursor-pointer text-[9px] px-2 py-0.5 rounded font-black border transition active:scale-95 flex items-center gap-1 bg-amber-950/80 border-amber-500 text-amber-300 shadow-[0_0_8px_rgba(245,158,11,0.25)]" title="Ver Planos NASA VIP">
-          <span id="icone-plano-topo">⚡</span> <span id="label-plano-topo">FREE • SEJA PRO</span>
+          <span id="icone-plano-topo">⚡</span> <span id="label-plano-topo">PLANO GRATUITO</span>
         </button>
       </div>
     </div>
@@ -787,7 +787,7 @@
           <span id="audio-icon">🔊</span>
         </button>
         <button onclick="sincronizarConcursos()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-emerald-400 text-xs border border-slate-800 font-bold flex items-center gap-1 shadow transition font-mono">
-          <span id="sync-icon">🔄</span> SYNC
+          <span id="sync-icon">🔄</span> RESULTADOS
         </button>
       </div>
     </div>
@@ -802,16 +802,16 @@
           <span>🎯</span> <span class="truncate">Gerador</span>
         </button>
         <button onclick="mudarAba('fechamentos')" id="tab-fechamentos" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
-          <span>📐</span> <span class="truncate">Fechamento</span>
+          <span>📐</span> <span class="truncate">Fechamentos</span>
         </button>
         <button onclick="mudarAba('calor')" id="tab-calor" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
-          <span>🔥</span> <span class="truncate">Calor</span>
+          <span>📊</span> <span class="truncate">Estatísticas</span>
         </button>
         <button onclick="mudarAba('carteira')" id="tab-carteira" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
           <span>💼</span> <span class="truncate">Carteira</span>
         </button>
         <button onclick="mudarAba('bolao')" id="tab-bolao" class="py-1.5 px-0.5 rounded-xl font-bold transition bg-slate-900 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
-          <span>👥</span> <span class="truncate">Bolão</span>
+          <span>👥</span> <span class="truncate">Bolões</span>
         </button>
         <button onclick="mudarAba('admin')" id="tab-admin" class="hidden py-1.5 px-0.5 rounded-xl font-bold transition bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20 hover:text-amber-300 flex items-center justify-center gap-0.5" title="Painel Administrativo">
           <span>👑</span> <span class="truncate font-black">Admin</span>
@@ -833,26 +833,26 @@
         <div class="text-center space-y-2">
           <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-950 border border-cyan-800 text-[10px] font-mono font-black text-cyan-300 tracking-wider uppercase">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>TELEMETRIA ESPACIAL // NASA PRO v2.5</span>
+            <span>ANÁLISE E ORGANIZAÇÃO DE JOGOS</span>
           </div>
           <h1 class="text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
-            A Ciência dos Fechamentos Aeroespaciais
+            Monte seu próximo jogo com clareza
           </h1>
           <p class="text-xs text-slate-300 leading-relaxed max-w-md mx-auto">
-            Diga adeus aos palpites no escuro e às promessas fáceis. O <strong class="text-cyan-300">Loterias NASA Pro</strong> aplica física estatística, matrizes combinatórias e teste de variância para Mega-Sena e Lotofácil.
+            Gere combinações, monte seu volante e acompanhe seus bilhetes de Mega-Sena e Lotofácil em um só lugar. As análises ajudam a organizar escolhas, mas não preveem resultados.
           </p>
         </div>
 
         <!-- BOTÕES DE AÇÃO RÁPIDA -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 font-sans">
           <button type="button" onclick="mudarAba('volante')" class="py-3 px-3 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-2xl shadow-lg shadow-emerald-500/20 active:scale-95 transition flex items-center justify-center gap-1.5 uppercase tracking-wider">
-            <span>🚀</span> Testar Grátis
+            <span>🎯</span> Gerar um jogo
           </button>
           <button type="button" onclick="abrirModalAuthOuPerfil()" class="py-3 px-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-2xl border border-slate-700 active:scale-95 transition flex items-center justify-center gap-1.5">
-            <span>👤</span> Criar Conta / Login
+            <span>👤</span> Entrar ou criar conta
           </button>
           <button type="button" onclick="abrirModalPaywall('inicio')" class="py-3 px-3 bg-amber-950/70 hover:bg-amber-900 text-amber-300 border border-amber-500/60 font-black text-xs rounded-2xl active:scale-95 transition flex items-center justify-center gap-1.5">
-            <span>👑</span> Ver Planos VIP
+            <span>✨</span> Conhecer recursos
           </button>
         </div>
       </div>
@@ -861,9 +861,9 @@
       <div class="space-y-2 font-sans">
         <div class="flex items-center justify-between px-1">
           <span class="text-xs font-black uppercase tracking-wider text-slate-400 font-mono flex items-center gap-1.5">
-            <span>⚡</span> O QUE O NASA PRO FAZ POR VOCÊ
+            <span>⚡</span> FERRAMENTAS PRINCIPAIS
           </span>
-          <span class="text-[10px] text-cyan-400 font-mono font-bold">5 Inovações</span>
+          <span class="text-[10px] text-cyan-400 font-mono font-bold">PARA DECIDIR MELHOR</span>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -871,10 +871,10 @@
           <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-cyan-800/80 transition space-y-1.5">
             <div class="flex items-center gap-2">
               <span class="w-8 h-8 rounded-xl bg-cyan-950 border border-cyan-800 text-cyan-300 flex items-center justify-center text-sm font-black">🛰️</span>
-              <h3 class="text-xs font-black text-white">Matriz 4x4 de Equilíbrio</h3>
+              <h3 class="text-xs font-black text-white">Gerador de jogos</h3>
             </div>
             <p class="text-[11px] text-slate-400 leading-relaxed">
-              Mapeamento da cartela em 4 quadrantes que equilibra linhas e colunas, eliminando 98% das combinações que quase nunca saem na história das loterias.
+              Gere um jogo rapidamente ou monte suas próprias dezenas no volante.
             </p>
           </div>
 
@@ -882,10 +882,10 @@
           <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-emerald-800/80 transition space-y-1.5">
             <div class="flex items-center gap-2">
               <span class="w-8 h-8 rounded-xl bg-emerald-950 border border-emerald-800 text-emerald-300 flex items-center justify-center text-sm font-black">🔬</span>
-              <h3 class="text-xs font-black text-white">Bateria dos 6 Testes Orbitais</h3>
+              <h3 class="text-xs font-black text-white">Análise do jogo</h3>
             </div>
             <p class="text-[11px] text-slate-400 leading-relaxed">
-              Validação matemática em tempo real: Paridade (Pares/Ímpares), Soma Total Ideal, Moldura vs Miolo, Primos, Saltos e Dispersão de Shannon 2D.
+              Veja paridade, soma, distribuição e outros indicadores descritivos da combinação.
             </p>
           </div>
 
@@ -893,10 +893,10 @@
           <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-purple-800/80 transition space-y-1.5">
             <div class="flex items-center gap-2">
               <span class="w-8 h-8 rounded-xl bg-purple-950 border border-purple-800 text-purple-300 flex items-center justify-center text-sm font-black">📐</span>
-              <h3 class="text-xs font-black text-white">Fechamentos Combinatórios C(n,k)</h3>
+              <h3 class="text-xs font-black text-white">Fechamentos</h3>
             </div>
             <p class="text-[11px] text-slate-400 leading-relaxed">
-              Jogue com 18 a 22 dezenas com garantia matemática de prêmio secundário (Quadra/Quina), economizando até 95% em relação ao volante da Caixa.
+              Transforme um conjunto maior de dezenas em combinações menores para comparar custo e cobertura.
             </p>
           </div>
 
@@ -904,10 +904,10 @@
           <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-800/80 transition space-y-1.5">
             <div class="flex items-center gap-2">
               <span class="w-8 h-8 rounded-xl bg-amber-950 border border-amber-800 text-amber-300 flex items-center justify-center text-sm font-black">👥</span>
-              <h3 class="text-xs font-black text-white">Gestão Completa de Bolões</h3>
+              <h3 class="text-xs font-black text-white">Carteira e bolões</h3>
             </div>
             <p class="text-[11px] text-slate-400 leading-relaxed">
-              Calcule cotas, controle pagamentos de amigos e envie comprovantes oficiais formatados com 1 clique direto no grupo do WhatsApp.
+              Salve bilhetes, organize concursos e calcule a divisão de cotas do seu bolão.
             </p>
           </div>
 
@@ -915,10 +915,10 @@
           <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-cyan-800/80 transition space-y-1.5 sm:col-span-2">
             <div class="flex items-center gap-2">
               <span class="w-8 h-8 rounded-xl bg-teal-950 border border-teal-800 text-teal-300 flex items-center justify-center text-sm font-black">🎯</span>
-              <h3 class="text-xs font-black text-white">Regras Personalizadas: Dezenas Fixas 📌 e Proibidas 🚫</h3>
+              <h3 class="text-xs font-black text-white">Preferências do volante</h3>
             </div>
             <p class="text-[11px] text-slate-400 leading-relaxed">
-              Você no controle: defina no volante as dezenas que deseja <strong>obrigatórias</strong> em todas as combinações geradas, ou <strong>exclua</strong> as pedras que você não quer apostar. O motor da NASA respeita 100% das suas preferências.
+              Marque dezenas fixas ou proibidas para que o gerador respeite suas escolhas.
             </p>
           </div>
         </div>
@@ -927,31 +927,31 @@
       <!-- MODELO FREEMIUM EXPLICADO -->
       <div class="p-4 rounded-3xl bg-slate-950 border border-slate-800 space-y-3 font-sans">
         <div class="text-center space-y-1">
-          <span class="text-[10px] font-mono font-black text-amber-400 uppercase tracking-wider">Zero Barreiras • Transparência Absoluta</span>
-          <h3 class="text-sm font-black text-white">Como Funciona o Seu Acesso</h3>
+          <span class="text-[10px] font-mono font-black text-amber-400 uppercase tracking-wider">COMECE SEM COMPLICAÇÃO</span>
+          <h3 class="text-sm font-black text-white">Escolha como usar</h3>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center text-xs">
           <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
             <span class="text-base block">🧪</span>
-            <strong class="text-white text-xs block mt-1">Degustação Grátis</strong>
-            <p class="text-[10px] text-slate-400 mt-1">Gere palpites experimentais com dezenas calibradas na Matriz 4x4 sem precisar cadastrar cartão.</p>
+            <strong class="text-white text-xs block mt-1">Testar agora</strong>
+            <p class="text-[10px] text-slate-400 mt-1">Gere um jogo e conheça o volante sem cadastrar cartão.</p>
           </div>
           <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800">
             <span class="text-base block">👤</span>
-            <strong class="text-white text-xs block mt-1">Conta Pessoal</strong>
-            <p class="text-[10px] text-slate-400 mt-1">Faça login com Google ou e-mail para salvar bilhetes na sua Carteira e acompanhar sorteios.</p>
+            <strong class="text-white text-xs block mt-1">Criar conta</strong>
+            <p class="text-[10px] text-slate-400 mt-1">Salve seus bilhetes e acesse sua carteira em outros dispositivos.</p>
           </div>
           <div class="p-2.5 rounded-xl bg-amber-950/40 border border-amber-500/50">
             <span class="text-base block">👑</span>
-            <strong class="text-amber-300 text-xs block mt-1">Assinante VIP</strong>
-            <p class="text-[10px] text-slate-300 mt-1">Desbloqueie todas as dezenas, 6 testes orbitais sem limites, lotes de apostas e auto-calibração.</p>
+            <strong class="text-amber-300 text-xs block mt-1">Recursos extras</strong>
+            <p class="text-[10px] text-slate-300 mt-1">Veja opções adicionais de geração, fechamentos e análises.</p>
           </div>
         </div>
 
         <div class="pt-2 text-center">
           <button type="button" onclick="mudarAba('volante')" class="w-full py-3 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition font-mono uppercase tracking-wider">
-            🎯 ACESSAR O GERADOR NASA AGORA
+            🎯 ABRIR GERADOR
           </button>
         </div>
       </div>
