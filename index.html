@@ -6082,26 +6082,31 @@ function abrirModalDialog(msg, callback) {
         tabEntrar.className = 'flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition font-bold';
         campoNome.classList.remove('hidden');
         titulo.innerText = 'Crie sua Conta NASA';
-        subtitulo.innerText = 'Comece com degustação gratuita e telemetria completa';
+        subtitulo.innerText = 'Comece gratuitamente e organize seus bilhetes';
         btnTxt.innerText = 'CRIAR MINHA CONTA GRÁTIS';
       } else {
         tabEntrar.className = 'flex-1 py-1.5 rounded-lg transition bg-cyan-600 text-slate-950 font-black';
         tabCadastrar.className = 'flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition font-bold';
         campoNome.classList.add('hidden');
         titulo.innerText = 'Acesse sua Conta NASA';
-        subtitulo.innerText = 'Sincronize seus bilhetes, matrizes e telemetria na nuvem';
+        subtitulo.innerText = 'Acesse seus bilhetes salvos em qualquer dispositivo';
         btnTxt.innerText = 'ENTRAR NA MINHA CONTA';
       }
     }
 
     function autenticarComGoogle() {
+      const config = window.NASA_SUPABASE_CONFIG;
+      if (!config?.googleEnabled) {
+        toast('O login Google será liberado assim que o provedor Google for configurado.', 'ℹ️');
+        return;
+      }
       const cliente = obterClienteSupabase();
       if (!cliente) {
         toast('Login Google indisponível: configure o cliente Supabase primeiro.', '🔒');
         tocarBeep('alert');
         return;
       }
-      cliente.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + window.location.pathname } })
+      cliente.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: config.googleRedirectUrl } })
         .then(({ error }) => {
           if (error) {
             toast(`Falha no login Google: ${error.message}`, '⚠️');

@@ -4,5 +4,6 @@
 window.NASA_SUPABASE_CONFIG = {
   url: 'https://cuqjmzkdwtfiicflksfs.supabase.co',
   anonKey: 'sb_publishable_5-Wy7W0EMaQeyMC_jSuKBQ_oQIokT-4',
-  googleEnabled: false
+  googleEnabled: false,
+  googleRedirectUrl: 'https://vitoriobergamobrazil.github.io/loterias-nasa-pro/'
 };
