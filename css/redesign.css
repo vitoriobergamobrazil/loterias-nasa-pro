@@ -1,0 +1,311 @@
+/* ===================================================================
+   REDESIGN NASA PRO - Bottom Tab Bar + Clean Layout
+   =================================================================== */
+
+/* ========== ESTRUTURA GERAL ========== */
+:root {
+  --bottom-bar-height: 64px;
+  --header-height: 56px;
+}
+
+html.redesign body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-bottom: var(--bottom-bar-height);
+}
+
+html.redesign header {
+  flex-shrink: 0;
+  height: var(--header-height);
+  padding: 0.5rem 1rem !important;
+  overflow: hidden;
+  max-height: var(--header-height);
+}
+
+html.redesign main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 0 0 0 !important;
+}
+
+/* ========== MINI HEADER (Comprimido) ========== */
+html.redesign header .px-3 {
+  padding-left: 0.75rem !important;
+  padding-right: 0.75rem !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+/* Esconder 2º e 3º nível do header (Seletor de modalidade + Abas) */
+html.redesign header > div:nth-child(2),
+html.redesign header > div:nth-child(3) {
+  display: none;
+}
+
+/* Manter apenas nível 1 */
+html.redesign header > div:nth-child(1) {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: none !important;
+}
+
+/* ========== BOTTOM TAB BAR ========== */
+#bottom-tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottom-bar-height);
+  background: linear-gradient(to top, rgb(15, 23, 42), rgba(15, 23, 42, 0.98));
+  border-top: 1px solid rgb(51, 65, 85);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
+  z-index: 40;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Botões da Bottom Tab Bar */
+.bottom-tab-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  color: rgb(148, 163, 184);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 0.75rem;
+  text-decoration: none;
+}
+
+.bottom-tab-btn:hover {
+  color: rgb(248, 250, 252);
+  background: rgba(51, 65, 85, 0.5);
+}
+
+/* Aba ativa */
+.bottom-tab-btn.active {
+  background: linear-gradient(135deg, rgb(34, 197, 94), rgb(6, 182, 212));
+  color: rgb(15, 23, 42);
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.bottom-tab-btn span:first-child {
+  font-size: 1.5rem;
+}
+
+.bottom-tab-btn span:last-child {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ========== MAIN CONTENT ========== */
+html.redesign main {
+  max-width: 100%;
+  padding: 0 !important;
+}
+
+html.redesign main > section {
+  display: none !important;
+}
+
+html.redesign main > section.active {
+  display: block !important;
+}
+
+/* ========== SEÇÃO HOME SIMPLIFICADA ========== */
+#view-inicio-new {
+  padding: 1.5rem 1rem 2rem 1rem;
+  space-y: 1rem;
+}
+
+.hero-simple {
+  background: linear-gradient(135deg, rgb(15, 23, 42), rgb(20, 33, 61));
+  border: 1px solid rgb(30, 58, 138);
+  border-radius: 1.5rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.hero-simple h1 {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: white;
+  margin: 0 0 0.5rem 0;
+}
+
+.hero-simple p {
+  font-size: 0.875rem;
+  color: rgb(203, 213, 225);
+  margin: 0 0 1.5rem 0;
+}
+
+.hero-cta {
+  background: linear-gradient(135deg, rgb(34, 197, 94), rgb(6, 182, 212));
+  color: rgb(15, 23, 42);
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-block;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.hero-cta:active {
+  transform: scale(0.95);
+}
+
+/* ========== CARDS DE INFORMAÇÃO ========== */
+.info-card {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgb(51, 65, 85);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  border-color: rgb(34, 197, 94);
+  background: rgba(34, 197, 94, 0.05);
+}
+
+.info-card-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: rgb(203, 213, 225);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-card-value {
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: rgb(34, 197, 94);
+  margin: 0;
+}
+
+.info-card-subtitle {
+  font-size: 0.75rem;
+  color: rgb(148, 163, 184);
+  margin-top: 0.5rem;
+}
+
+/* ========== PRÓXIMOS SORTEIOS ========== */
+.sorteio-card {
+  background: rgba(30, 41, 59, 0.8);
+  border: 2px solid rgb(6, 182, 212);
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sorteio-info {
+  flex: 1;
+}
+
+.sorteio-modalidade {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgb(6, 182, 212);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sorteio-tempo {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: white;
+  margin: 0.25rem 0;
+}
+
+.sorteio-premio {
+  font-size: 0.875rem;
+  color: rgb(148, 163, 184);
+}
+
+.sorteio-countdown {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: rgb(244, 63, 94);
+  background: rgba(244, 63, 94, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-align: right;
+  min-width: fit-content;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 640px) {
+  :root {
+    --bottom-bar-height: 60px;
+  }
+
+  html.redesign main {
+    padding: 1rem 0.75rem !important;
+  }
+
+  .hero-simple {
+    padding: 1.5rem 1rem;
+  }
+
+  .hero-simple h1 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  html.redesign {
+    --bottom-bar-height: 0px;
+  }
+
+  #bottom-tab-bar {
+    position: static;
+    flex-direction: column;
+    width: 250px;
+    height: 100%;
+    border-right: 1px solid rgb(51, 65, 85);
+    border-top: none;
+    padding: 1rem;
+  }
+
+  .bottom-tab-btn {
+    justify-content: flex-start;
+    gap: 0.75rem;
+  }
+
+  .bottom-tab-btn span:last-child {
+    font-size: 0.875rem;
+  }
+
+  html.redesign main {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
