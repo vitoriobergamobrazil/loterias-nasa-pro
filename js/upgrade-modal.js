@@ -10,10 +10,10 @@ const UPGRADE_CONFIG = {
       price: 'R$ 0',
       period: 'eternamente',
       features: [
-        '✓ 1 palpite por vez',
-        '✓ 2 testes estatísticos',
-        '✓ 2 bilhetes salvos',
-        '✓ Básico'
+        '✓ 1 análise por vez',
+        '✓ 2 de 6 Testes Orbitais',
+        '✓ Gestão de 2 bilhetes',
+        '✓ Diagnóstico básico'
       ],
       cta: 'Seu plano atual',
       color: 'slate',
@@ -25,9 +25,9 @@ const UPGRADE_CONFIG = {
       price: 'R$ 4,90',
       period: 'único',
       features: [
-        '✓ 3 palpites calibrados',
-        '✓ 6 testes orbitais',
-        '✓ Diagnóstico completo',
+        '✓ 3 apostas calibradas',
+        '✓ Bateria completa dos 6 testes',
+        '✓ Diagnóstico científico completo',
         '✓ Exportar WhatsApp'
       ],
       cta: 'Comprar Agora',
@@ -41,9 +41,9 @@ const UPGRADE_CONFIG = {
       price: 'R$ 29,90',
       period: '/mês',
       features: [
-        '✓ Ilimitado',
-        '✓ Matriz 4x4 completa',
-        '✓ Fechamentos C(n,k)',
+        '✓ Gestão de apostas ilimitada',
+        '✓ Bateria completa dos 6 testes',
+        '✓ Matriz 4x4 e fechamentos C(n,k)',
         '✓ Carteira em nuvem'
       ],
       cta: 'Testar 3 dias',
@@ -107,10 +107,10 @@ function generateUpgradeModalHTML() {
 
       <!-- Header -->
       <div class="modal-upgrade-header">
-        <div class="modal-upgrade-badge">🚀 NASA Mission Control</div>
-        <h2 class="modal-upgrade-title">Desbloqueie a Telemetria Completa</h2>
+        <div class="modal-upgrade-badge">🔬 Gestão com Ciência</div>
+        <h2 class="modal-upgrade-title">Veja o Diagnóstico Completo</h2>
         <p class="modal-upgrade-subtitle">
-          Escolha o plano perfeito para sua missão de apostas
+          Desbloqueie a bateria completa dos 6 Testes Orbitais e gerencie suas apostas com todo o rigor estatístico da NASA
         </p>
       </div>
 
@@ -399,14 +399,50 @@ function copiarCodigoPixParaClipboard() {
 }
 
 /**
- * Simulated payment confirmation
+ * Confirmação pós-checkout.
+ *
+ * IMPORTANTE: nenhum gateway real está conectado ainda (Asaas/Mercado
+ * Pago/BTG). Para os fluxos que envolvem dinheiro de verdade (Avulso
+ * PIX e Anual), NUNCA finja sucesso — isso enganaria o usuário sobre
+ * ter pago por algo que não foi cobrado. Só o Trial (que já é
+ * anunciado como "sem cartão, grátis por 3 dias") pode conceder
+ * acesso real, porque nenhum valor é cobrado nesse fluxo.
  */
 function confirmarPagamentoSimulado(planId) {
+  if (planId === 'mensal') {
+    ativarTrialReal();
+    return;
+  }
+
+  // Avulso e Anual dependem de gateway de pagamento real (PIX) que
+  // ainda não está conectado. Mesma mensagem honesta que já existia
+  // no restante do app (ver confirmarPagamentoPixSimulado em index.html).
+  tocarBeep('alert');
+  toast('🔒 Pagamento indisponível: este protótipo ainda não está conectado a um gateway real.', '⚠️');
+}
+
+/**
+ * Concede um trial real de 3 dias (sem cartão, sem cobrança) e
+ * sincroniza com o estado de plano que o resto do app já usa
+ * (planoUsuario / usuarioSessao), disparando a atualização visual e
+ * o gate científico dos 6 testes.
+ */
+function ativarTrialReal() {
+  const expiraEm = Date.now() + (3 * 24 * 60 * 60 * 1000);
+  localStorage.setItem('nasa_trial_expira_em', String(expiraEm));
+
+  if (typeof planoUsuario !== 'undefined') planoUsuario = 'pro';
+  if (typeof usuarioSessao !== 'undefined' && usuarioSessao) usuarioSessao.plano = 'pro';
+
+  if (typeof atualizarVisualPlano === 'function') atualizarVisualPlano();
+  if (typeof aplicarGateCientificoNasa === 'function') aplicarGateCientificoNasa();
+
   tocarSomNasa('sucesso');
 
-  // Simulate payment processing
   const modal = document.getElementById('modal-upgrade-nasa');
   const content = modal.querySelector('.modal-upgrade-content');
+
+  const dataFim = new Date(expiraEm).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
 
   content.innerHTML = `
     <div style="text-align: center; padding: 2rem; animation: slideIn 0.5s ease;">
@@ -414,12 +450,15 @@ function confirmarPagamentoSimulado(planId) {
         🎉
       </div>
       <h3 style="color: rgb(34, 197, 94); font-size: 1.5rem; font-weight: 900; margin: 0 0 0.5rem 0;">
-        Conta Promovida!
+        Trial de 3 Dias Ativado!
       </h3>
-      <p style="color: #cbd5e1; margin: 0 0 1.5rem 0;">
-        Bem-vindo à NASA Pro. Sua missão começou.
+      <p style="color: #cbd5e1; margin: 0 0 0.5rem 0;">
+        Acesso completo liberado até <strong>${dataFim}</strong>. Sem cartão, sem cobrança automática.
       </p>
-      <button onclick="fecharModalUpgrade(); toast('🚀 Novos recursos desbloqueados!', '✨'); tocarBeep('click');"
+      <p style="color: #94a3b8; font-size: 0.75rem; margin: 0 0 1.5rem 0;">
+        Ao final do teste, seu plano volta para o Gratuito automaticamente.
+      </p>
+      <button onclick="fecharModalUpgrade(); toast('🚀 Testes Orbitais completos liberados!', '✨'); tocarBeep('click');"
               style="padding: 0.75rem 2rem; background: linear-gradient(135deg, rgb(34, 197, 94), rgb(6, 182, 212)); color: rgb(15, 23, 42); border: none; border-radius: 0.75rem; font-weight: 700; cursor: pointer; font-size: 1rem;">
         Começar Agora
       </button>
@@ -437,9 +476,7 @@ function confirmarPagamentoSimulado(planId) {
     </style>
   `;
 
-  // Update user plan in localStorage
-  localStorage.setItem('plano_nasa_ativo', planId);
-  console.log(`✅ Plan updated to: ${planId}`);
+  console.log(`✅ Trial ativado até: ${new Date(expiraEm).toISOString()}`);
 }
 
 console.log('🎨 Upgrade modal module loaded');

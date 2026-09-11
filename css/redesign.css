@@ -309,3 +309,62 @@ html.redesign main > section.active {
     margin: 0 auto;
   }
 }
+
+/* ===================================================================
+   SCIENCE GATE - Teaser lock (blur + cadeado) para testes PRO
+   =================================================================== */
+
+.science-lock-blurred > *:not(.science-lock-overlay) {
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.science-lock-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  background: rgba(15, 23, 42, 0.55);
+  border-radius: inherit;
+  cursor: pointer;
+  z-index: 5;
+  transition: background 0.2s ease;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.science-lock-overlay:hover {
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.science-lock-icon {
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+.science-lock-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: rgb(245, 158, 11);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.science-lock-overlay-panel {
+  gap: 0.35rem;
+}
+
+.science-lock-overlay-panel .science-lock-label {
+  font-size: 0.8rem;
+}
+
+.science-lock-sublabel {
+  font-size: 0.7rem;
+  color: rgb(203, 213, 225);
+  max-width: 240px;
+  line-height: 1.3;
+}

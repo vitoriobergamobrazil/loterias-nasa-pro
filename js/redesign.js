@@ -84,10 +84,10 @@ function createSimplifiedHome() {
   homeView.innerHTML = `
     <!-- Hero Card -->
     <div class="hero-simple">
-      <h1>Monte seu próximo jogo</h1>
-      <p>Organize suas dezenas e acompanhe bilhetes com análise estatística</p>
+      <h1>Gestão de Apostas com Ciência</h1>
+      <p>Não é sorte, é estatística: analise suas dezenas com rigor matemático antes de apostar</p>
       <button class="hero-cta" onclick="activateTab('gerar'); tocarBeep('click');">
-        🎯 Gerar um Jogo
+        🔬 Analisar Minha Aposta
       </button>
     </div>
 
@@ -132,9 +132,9 @@ function createSimplifiedHome() {
 
     <!-- Plano PRO -->
     <div class="info-card" style="border-color: rgb(245, 158, 11); background: rgba(245, 158, 11, 0.05);">
-      <div class="info-card-title" style="color: rgb(245, 158, 11);">✨ Desbloqueie Recursos PRO</div>
+      <div class="info-card-title" style="color: rgb(245, 158, 11);">🔬 Análise Científica Completa</div>
       <p style="font-size: 0.875rem; color: rgb(203, 213, 225); margin: 0.75rem 0;">
-        Gere palpites ilimitados, acesse matriz 4x4 completa e 6 testes estatísticos
+        No plano gratuito você vê 2 dos 6 Testes Orbitais. Assine PRO para ver o diagnóstico completo (Entropia de Shannon, Qui-Quadrado e mais) e gerar quantas apostas quiser.
       </p>
       <button onclick="abrirModalPaywall('home'); tocarBeep('click');"
               style="width: 100%; padding: 0.75rem; margin-top: 1rem; background: linear-gradient(135deg, rgb(245, 158, 11), rgb(217, 119, 6)); color: rgb(15, 23, 42); border: none; border-radius: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease;"

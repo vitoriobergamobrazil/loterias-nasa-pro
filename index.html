@@ -17,6 +17,8 @@
   <script src="./js/admin-charts.js" defer></script>
   <!-- Micro-interactions (Sounds, Haptic, Animations) -->
   <script src="./js/micro-interactions.js" defer></script>
+  <!-- Science Gate (enforcement real do paywall + teaser dos 6 testes) -->
+  <script src="./js/science-gate.js" defer></script>
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -1212,7 +1214,7 @@
       </div>
 
       <!-- RESUMO DA ANÁLISE DO JOGO -->
-      <div class="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/50 border border-cyan-800/60 rounded-3xl p-4 shadow-xl font-mono">
+      <div id="painel-score-telemetria" class="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/50 border border-cyan-800/60 rounded-3xl p-4 shadow-xl font-mono relative">
         <div class="flex justify-between items-center">
           <div>
             <span class="text-[9px] uppercase tracking-widest font-black text-cyan-400 block mb-0.5">TELEMETRIA NASA</span>
@@ -1253,8 +1255,8 @@
         </div>
 
         <div id="conteudo-bateria-testes" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs transition-all">
-          <!-- 1º TESTE -->
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <!-- 1º TESTE (Livre no Plano Grátis) -->
+          <div id="teste-card-1" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
               <span class="text-[10px] font-bold text-slate-400 uppercase">1º Seq & Finais (95,2%)</span>
               <span id="badge-status-t1" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
@@ -1263,8 +1265,8 @@
             <p class="text-[10px] text-slate-400 leading-tight font-sans">Elimina sequências longas e colunas verticais viciadas.</p>
           </div>
 
-          <!-- 2º TESTE -->
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <!-- 2º TESTE (PRO) -->
+          <div id="teste-card-2" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
               <span class="text-[10px] font-bold text-slate-400 uppercase">2º Entropia de Shannon (92,8%)</span>
               <span id="badge-status-t2" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
@@ -1273,8 +1275,8 @@
             <p class="text-[10px] text-slate-400 leading-tight font-sans">Dispersão termodinâmica bidimensional na matriz.</p>
           </div>
 
-          <!-- 3º TESTE -->
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <!-- 3º TESTE (PRO) -->
+          <div id="teste-card-3" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
               <span class="text-[10px] font-bold text-slate-400 uppercase">3º Aderência Qui-Quadrado (87,4%)</span>
               <span id="badge-status-t3" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
@@ -1283,8 +1285,8 @@
             <p class="text-[10px] text-slate-400 leading-tight font-sans">Teste de homogeneidade espacial e não-vício setorial.</p>
           </div>
 
-          <!-- 4º TESTE -->
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <!-- 4º TESTE (Livre no Plano Grátis) -->
+          <div id="teste-card-4" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
               <span class="text-[10px] font-bold text-slate-400 uppercase">4º Paridade & Primos (83,6%)</span>
               <span id="badge-status-t4" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
@@ -1293,8 +1295,8 @@
             <p class="text-[10px] text-slate-400 leading-tight font-sans">Equilíbrio harmônico entre pares, ímpares e primos.</p>
           </div>
 
-          <!-- 5º TESTE -->
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <!-- 5º TESTE (PRO) -->
+          <div id="teste-card-5" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
               <span class="text-[10px] font-bold text-slate-400 uppercase">5º Curva Normal da Soma (81,9%)</span>
               <span id="badge-status-t5" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
@@ -1303,8 +1305,8 @@
             <p class="text-[10px] text-slate-400 leading-tight font-sans">Posição gaussiana sem reposição (&mu; &approx; 183).</p>
           </div>
 
-          <!-- 6º TESTE -->
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1">
+          <!-- 6º TESTE (PRO) -->
+          <div id="teste-card-6" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
               <span class="text-[10px] font-bold text-slate-400 uppercase">6º Hipergeométrica (80,8%)</span>
               <span id="badge-status-t6" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
@@ -2660,6 +2662,10 @@
         if (motivoEl) motivoEl.innerText = "Você atingiu o limite de 2 bilhetes salvos no Plano Grátis. Faça upgrade para salvar bilhetes ilimitados.";
       } else if (origem === 'lote_salvar') {
         if (motivoEl) motivoEl.innerText = "O salvamento e exportação em lote de todas as apostas requer a ativação do Plano VIP.";
+      } else if (origem === 'bateria_testes') {
+        if (motivoEl) motivoEl.innerText = "Este teste estatístico faz parte da Bateria Orbital completa, exclusiva do Plano VIP PRO. O Plano Grátis mostra 2 dos 6 testes.";
+      } else if (origem === 'score_telemetria') {
+        if (motivoEl) motivoEl.innerText = "O Score de Eficiência Combinatória é calculado a partir dos 6 Testes Orbitais completos — disponível apenas no Plano VIP PRO.";
       } else {
         if (motivoEl) motivoEl.innerText = "Pare de fazer apostas aleatórias. Utilize algoritmos de telemetria e análise combinatória para calibrar seus jogos.";
       }
@@ -3869,6 +3875,8 @@ function gerarPalpiteInteligente() {
       }
 
       simularDesempenhoHistorico(jogo, modalidadeAtual);
+
+      if (typeof aplicarGateCientificoNasa === 'function') aplicarGateCientificoNasa();
     }
 
     // Gerador de Jogo Único de Alta Qualidade
