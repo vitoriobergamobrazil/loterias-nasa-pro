@@ -2373,21 +2373,24 @@
     <!-- RODAPÉ DE CONFORMIDADE, DISCLAIMER LEGAL +18 & LGPD         -->
     <!-- ============================================================ -->
     <footer class="mt-8 pt-6 pb-12 border-t border-slate-800 text-slate-400 font-mono text-xs space-y-4">
-      <!-- Banner de Jogo Responsável e Aviso Legal -->
-      <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-[11px] font-sans leading-relaxed space-y-2">
-        <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide">
+      <!-- Aviso Legal Colapsável (Accordion) -->
+      <details class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 text-[11px] font-sans leading-relaxed group">
+        <summary class="cursor-pointer flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wide hover:text-amber-300 transition">
           <span class="px-1.5 py-0.5 bg-amber-500/20 border border-amber-500/40 rounded text-[10px]">18+</span>
           <span>Aviso Legal, Estatístico & Jogo Responsável</span>
+          <span class="ml-auto text-sm group-open:rotate-180 transition-transform">▼</span>
+        </summary>
+        <div class="space-y-2 pt-3">
+          <p class="text-slate-400">
+            O <b>Loterias NASA Pro</b> é uma aplicação tecnológica de análise probabilística, cálculo combinatório e apoio estatístico para o apostador.
+            <b class="text-slate-200">NÃO GARANTIMOS GANHOS OU RESULTADOS FINANCEIROS.</b> Loterias são regulamentadas pela Caixa Econômica Federal e são inerentemente jogos de risco e aleatoriedade. O software não realiza apostas com dinheiro real — todas as apostas físicas devem ser efetuadas pelo usuário nas casas lotéricas ou canais oficiais da Caixa.
+          </p>
+          <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-800/80 flex flex-wrap justify-between items-center gap-2">
+            <span>Proibido para menores de 18 anos. Aposte com moderação e consciência orçamentária.</span>
+            <span>Ajuda Ludopatia: <a href="https://jogadoresanonimos.com.br" target="_blank" class="text-cyan-400 underline">Jogadores Anônimos do Brasil</a></span>
+          </div>
         </div>
-        <p class="text-slate-400">
-          O <b>Loterias NASA Pro</b> é uma aplicação tecnológica de análise probabilística, cálculo combinatório e apoio estatístico para o apostador.
-          <b class="text-slate-200">NÃO GARANTIMOS GANHOS OU RESULTADOS FINANCEIROS.</b> Loterias são regulamentadas pela Caixa Econômica Federal e são inerentemente jogos de risco e aleatoriedade. O software não realiza apostas com dinheiro real — todas as apostas físicas devem ser efetuadas pelo usuário nas casas lotéricas ou canais oficiais da Caixa.
-        </p>
-        <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-800/80 flex flex-wrap justify-between items-center gap-2">
-          <span>Proibido para menores de 18 anos. Aposte com moderação e consciência orçamentária.</span>
-          <span>Ajuda Ludopatia: <a href="https://jogadoresanonimos.com.br" target="_blank" class="text-cyan-400 underline">Jogadores Anônimos do Brasil</a></span>
-        </div>
-      </div>
+      </details>
 
       <!-- Links de Navegação Jurídica e Direitos do Titular (LGPD) -->
       <div class="flex flex-wrap justify-between items-center gap-3 text-[10px] font-sans text-slate-500 pt-2">
@@ -3093,12 +3096,17 @@
       const limiteReveladas = modalidadeAtual === 'megasena' ? 4 : 11;
       const dezenasVipBloqueadas = modoDegustacao ? new Set(jogo.slice(limiteReveladas)) : new Set();
 
+      // Números bloqueados quando FREE tenta gerar 2+ jogos (teaser paywall)
+      const numerosBloqueadosRaw = localStorage.getItem('nasa_numeros_bloqueados');
+      const numerosBloqueados = numerosBloqueadosRaw ? new Set(JSON.parse(numerosBloqueadosRaw)) : new Set();
+
       for (let i = 1; i <= config.totalNumeros; i++) {
         const btn = document.createElement('button');
         const marcado = jogo.includes(i);
         const ehFixo = fixos.includes(i);
         const ehProibido = proibidos.includes(i);
         const ehVipBloqueada = dezenasVipBloqueadas.has(i);
+        const ehNumeroBloqueado = numerosBloqueados.has(i) && marcado;
         const numStr = String(i).padStart(2, '0');
 
         const linhaNum = Math.floor((i - 1) / 10) + 1;
@@ -3112,10 +3120,14 @@
 
         if (ehFixo) estilo = 'bg-emerald-900/90 text-emerald-300 border-2 border-emerald-400 font-black shadow';
         else if (ehProibido) estilo = 'bg-rose-950/90 text-rose-400 border-2 border-rose-600 line-through opacity-60';
+        else if (ehNumeroBloqueado) estilo = 'bg-red-950/90 text-red-300 border-2 border-red-500 font-black scale-105 shadow-md shadow-red-500/30';
         else if (ehVipBloqueada) estilo = 'bg-amber-950/90 text-amber-300 border-2 border-amber-400 font-black scale-105 shadow-md shadow-amber-500/30';
         else if (marcado) estilo = modalidadeAtual === 'megasena' ? 'bg-emerald-500 text-slate-950 font-black scale-105 border-white shadow-md' : 'bg-purple-500 text-white font-black scale-105 border-white shadow-md';
 
-        if (ehVipBloqueada) {
+        if (ehNumeroBloqueado) {
+          btn.innerHTML = `<span class="flex items-center gap-0.5">${numStr}<span class="text-[8px]">🔴</span></span>`;
+          btn.title = 'Número bloqueado! Este combo está disponível apenas no Plano PRO.';
+        } else if (ehVipBloqueada) {
           btn.innerHTML = `<span class="flex items-center gap-0.5">${numStr}<span class="text-[8px]">🔒</span></span>`;
           btn.title = 'Dezena VIP calibrada! Desbloqueie com o Plano VIP';
         } else {
@@ -3124,6 +3136,11 @@
 
         btn.className = `volante-btn rounded-xl font-bold text-xs transition active:scale-90 flex items-center justify-center ${estilo}`;
         btn.onclick = () => {
+          if (ehNumeroBloqueado) {
+            toast('Você alcançou o limite de gerações gratuitas. Assine PRO pra gerar quantas apostas quiser!', '🔴');
+            abrirModalPaywall('multi_jogos');
+            return;
+          }
           if (ehVipBloqueada) {
             toast('Dezena calibrada VIP! Desbloqueie no Plano VIP ou resgate sua cortesia.', '🔒');
             abrirModalPaywall('desbloquear_dezenas');
@@ -3961,10 +3978,23 @@ function gerarPalpiteInteligente() {
       }
 
       loteApostasGeradas = apostas;
-      
+
       // Carrega automaticamente a 1ª aposta no volante
       setJogoAtual([...apostas[0].dezenas]);
       atualizarDisplayJogo();
+
+      // Se FREE e qtd > 1: marca 2 números aleatórios como bloqueados (teaser/paywall)
+      const ehProUser = typeof planoUsuario !== 'undefined' && planoUsuario === 'pro';
+      const ehMasterFounder = typeof usuarioSessao !== 'undefined' && usuarioSessao && usuarioSessao.tipo === 'master_founder';
+      if (!ehProUser && !ehMasterFounder && qtd > 1) {
+        const jogo = apostas[0].dezenas;
+        const shuffled = [...jogo].sort(() => Math.random() - 0.5);
+        const numeroBloqueados = shuffled.slice(0, 2);
+        localStorage.setItem('nasa_numeros_bloqueados', JSON.stringify(numeroBloqueados));
+      } else {
+        localStorage.removeItem('nasa_numeros_bloqueados');
+      }
+
       renderizarVolante();
       executarAnaliseDinamicaDoJogo();
       executarAnaliseVitorio();
