@@ -36,6 +36,19 @@ create table public.audit_logs (
   created_at timestamptz not null default now()
 );
 
+create table public.visitor_leads (
+  id uuid primary key default gen_random_uuid(),
+  name text not null check (char_length(name) between 2 and 120),
+  email text not null unique check (char_length(email) between 5 and 254),
+  phone text not null check (char_length(phone) between 8 and 20),
+  marketing_consent boolean not null default false check (marketing_consent = true),
+  consent_at timestamptz not null default now(),
+  source text not null default 'visitor_trial',
+  created_at timestamptz not null default now()
+);
+
+create index visitor_leads_phone_idx on public.visitor_leads (phone);
+
 create index subscriptions_user_id_idx on public.subscriptions(user_id);
 create index subscriptions_status_idx on public.subscriptions(status);
 create index audit_logs_actor_id_idx on public.audit_logs(actor_id);
@@ -80,6 +93,12 @@ for each row execute procedure public.handle_new_user();
 alter table public.profiles enable row level security;
 alter table public.subscriptions enable row level security;
 alter table public.audit_logs enable row level security;
+alter table public.visitor_leads enable row level security;
+
+create policy "visitors can register with consent"
+on public.visitor_leads for insert
+to anon, authenticated
+with check (marketing_consent = true);
 
 create policy "users can read their own profile"
 on public.profiles for select

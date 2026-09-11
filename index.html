@@ -4,6 +4,7 @@
   <link rel="manifest" href="./manifest.json" />
   <script src="./supabase/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/paywall.js"></script>
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -758,15 +759,48 @@
         </button>
       </form>
 
-      <!-- BOTÃO DEGUSTAÇÃO / EXPERIMENTAR GRÁTIS SEM CADASTRO -->
+      <!-- BOTÃO DEGUSTAÇÃO / EXPERIMENTAR GRÁTIS -->
       <div class="pt-2 border-t border-slate-800/80 text-center space-y-1">
-        <button type="button" onclick="entrarComoVisitanteGratis()" class="w-full py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-[11px] rounded-xl border border-slate-700 transition">
-          ✨ Experimentar Teste Grátis (Sem Cadastro)
+        <button type="button" onclick="abrirCadastroVisitante()" class="w-full py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-[11px] rounded-xl border border-slate-700 transition">
+          ✨ Experimentar Teste Grátis
         </button>
         <span class="text-[9px] text-slate-500 block font-sans">
-          Acesso instantâneo à Matriz 4x4 e Bateria dos 6 Testes
+          Informe seu contato para receber atualizações da missão
         </span>
       </div>
+    </div>
+  </div>
+
+  <div id="modal-cadastro-visitante" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-cyan-800/80 rounded-3xl p-5 sm:p-6 max-w-sm w-full space-y-4 shadow-2xl relative font-sans my-auto">
+      <button type="button" onclick="fecharCadastroVisitante()" class="absolute top-4 right-4 w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-xs font-bold transition" aria-label="Fechar cadastro">✕</button>
+      <div class="text-center space-y-1 pt-1">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-emerald-400 mx-auto flex items-center justify-center text-xl shadow-lg shadow-cyan-500/30">🚀</div>
+        <div class="inline-block px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-800 text-[9px] font-mono font-black text-cyan-300 tracking-wider uppercase">NASA Visitor Telemetry</div>
+        <h2 class="text-base font-black text-white">Ative seu teste gratuito</h2>
+        <p class="text-[11px] text-slate-400">Seu contato ajuda a enviar novidades importantes da missão.</p>
+      </div>
+      <form onsubmit="submeterCadastroVisitante(event)" class="space-y-2.5 font-mono text-xs">
+        <div>
+          <label for="input-visitante-nome" class="text-[10px] uppercase font-bold text-slate-400 block mb-1">Nome</label>
+          <input id="input-visitante-nome" type="text" required maxlength="120" placeholder="Seu nome" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500 font-sans" />
+        </div>
+        <div>
+          <label for="input-visitante-email" class="text-[10px] uppercase font-bold text-slate-400 block mb-1">E-mail</label>
+          <input id="input-visitante-email" type="email" required maxlength="254" placeholder="seuemail@exemplo.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500 font-sans" />
+        </div>
+        <div>
+          <label for="input-visitante-telefone" class="text-[10px] uppercase font-bold text-slate-400 block mb-1">Telefone / WhatsApp</label>
+          <input id="input-visitante-telefone" type="tel" required maxlength="20" inputmode="tel" placeholder="(00) 00000-0000" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-cyan-500 font-sans" />
+        </div>
+        <label class="flex items-start gap-2 text-[10px] text-slate-400 leading-relaxed font-sans">
+          <input id="check-visitante-consentimento" type="checkbox" required class="mt-0.5 accent-cyan-500" />
+          <span>Aceito receber novidades da Loterias Nasa por e-mail ou WhatsApp e concordo com a Política de Privacidade.</span>
+        </label>
+        <button type="submit" class="w-full py-2.5 btn-rocket-launch text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center justify-center gap-1.5 font-sans">
+          <span>🚀</span> ATIVAR TESTE GRATUITO
+        </button>
+      </form>
     </div>
   </div>
 
@@ -6163,19 +6197,79 @@ function abrirModalDialog(msg, callback) {
       toast(modoAuthAtual === 'cadastrar' ? `Conta criada com sucesso! Bem-vindo, ${usuarioSessao.nome}!` : 'Login efetuado com sucesso!', '🚀');
     }
 
-    function entrarComoVisitanteGratis() {
+    function abrirCadastroVisitante() {
+      const modal = document.getElementById('modal-cadastro-visitante');
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.getElementById('input-visitante-nome')?.focus();
+      }
+    }
+
+    function fecharCadastroVisitante() {
+      const modal = document.getElementById('modal-cadastro-visitante');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    async function submeterCadastroVisitante(event) {
+      if (event) event.preventDefault();
+      const nome = document.getElementById('input-visitante-nome')?.value.trim();
+      const email = document.getElementById('input-visitante-email')?.value.trim().toLowerCase();
+      const telefone = document.getElementById('input-visitante-telefone')?.value.trim();
+      const consentimento = document.getElementById('check-visitante-consentimento')?.checked === true;
+      const telefoneNumeros = (telefone || '').replace(/\D/g, '');
+
+      if (!nome || !email || telefoneNumeros.length < 10 || !consentimento) {
+        toast('Informe nome, e-mail, telefone e aceite o recebimento de novidades.', '⚠️');
+        return;
+      }
+
+      const lead = {
+        nome,
+        email,
+        telefone,
+        consentimento: true,
+        consentimentoEm: new Date().toISOString()
+      };
+      localStorage.setItem('loterias_nasa_visitor_lead', JSON.stringify(lead));
+
+      const cliente = obterClienteSupabase();
+      let sincronizado = false;
+      if (cliente) {
+        const { error } = await cliente.from('visitor_leads').upsert({
+          name: nome,
+          email,
+          phone: telefone,
+          marketing_consent: true,
+          consent_at: lead.consentimentoEm,
+          source: 'visitor_trial'
+        }, { onConflict: 'email', ignoreDuplicates: true });
+        sincronizado = !error;
+      }
+
+      entrarComoVisitanteGratis(lead);
+      toast(sincronizado ? 'Teste gratuito ativado e contato registrado.' : 'Teste gratuito ativado. Sincronize o Supabase para registrar o contato.', '🚀');
+    }
+
+    function entrarComoVisitanteGratis(lead = null) {
       tocarSomNasa('sucesso');
+      const contato = lead || JSON.parse(localStorage.getItem('loterias_nasa_visitor_lead') || 'null');
       usuarioSessao = {
-        nome: 'Visitante',
-        email: '',
+        nome: contato?.nome || 'Visitante',
+        email: contato?.email || '',
+        telefone: contato?.telefone || '',
         avatar: '🚀',
         tipo: 'visitante',
         plano: 'free'
       };
       localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
       atualizarPerfilUsuarioUI();
+      fecharCadastroVisitante();
       fecharModalAuth();
-      toast('Acesso livre liberado no Modo Teste Grátis!', '✨');
+      if (!lead) toast('Acesso livre liberado no Modo Teste Grátis!', '✨');
     }
 
     function fazerLogout() {
