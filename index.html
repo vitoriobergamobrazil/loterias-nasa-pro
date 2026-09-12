@@ -29,6 +29,8 @@
   <script src="./js/menu-fix.js" defer></script>
   <!-- Sorteios Reais (Real lottery data via APIs) -->
   <script src="./js/sorteios-reais.js" defer></script>
+  <!-- Conferência de bilhetes contra o resultado oficial da Caixa -->
+  <script src="./js/conferencia-real.js" defer></script>
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -156,26 +158,6 @@
       }
     }
 
-    function sincronizarResultadosCaixaOnline() {
-      tocarBeep('click');
-      toast('🔄 Conectando aos servidores oficiais da Caixa Econômica Federal...', '📡');
-
-      // Simulação da telemetria de conexão com API Caixa
-      setTimeout(() => {
-        const elMegaPremio = document.getElementById('cal-mega-premio');
-        const elMegaConc = document.getElementById('cal-mega-concurso');
-        const elLotoPremio = document.getElementById('cal-loto-premio');
-        const elLotoConc = document.getElementById('cal-loto-concurso');
-
-        if (elMegaPremio) elMegaPremio.innerText = 'R$ 56.500.000';
-        if (elMegaConc) elMegaConc.innerText = 'Conc. 2836 • Quarta 20h';
-        if (elLotoPremio) elLotoPremio.innerText = 'R$ 1.850.000';
-        if (elLotoConc) elLotoConc.innerText = 'Conc. 3329 • Hoje 20h';
-
-        tocarSomNasa('sucesso');
-        toast('✅ Concursos Caixa sincronizados com sucesso!', '🎯');
-      }, 900);
-    }
 
   </script>
   <script>
@@ -290,26 +272,6 @@
       }
     }
 
-    function sincronizarResultadosCaixaOnline() {
-      tocarBeep('click');
-      toast('🔄 Conectando aos servidores oficiais da Caixa Econômica Federal...', '📡');
-
-      // Simulação da telemetria de conexão com API Caixa
-      setTimeout(() => {
-        const elMegaPremio = document.getElementById('cal-mega-premio');
-        const elMegaConc = document.getElementById('cal-mega-concurso');
-        const elLotoPremio = document.getElementById('cal-loto-premio');
-        const elLotoConc = document.getElementById('cal-loto-concurso');
-
-        if (elMegaPremio) elMegaPremio.innerText = 'R$ 56.500.000';
-        if (elMegaConc) elMegaConc.innerText = 'Conc. 2836 • Quarta 20h';
-        if (elLotoPremio) elLotoPremio.innerText = 'R$ 1.850.000';
-        if (elLotoConc) elLotoConc.innerText = 'Conc. 3329 • Hoje 20h';
-
-        tocarSomNasa('sucesso');
-        toast('✅ Concursos Caixa sincronizados com sucesso!', '🎯');
-      }, 900);
-    }
 
   </script>
   <style>
@@ -4712,37 +4674,11 @@ function gerarPalpiteInteligente() {
       });
     }
 
-    function conferirTodosBilhetesSalvos() {
-      if (carteiraJogos.length === 0) { toast("Nenhum bilhete na carteira.", "⚠️"); tocarBeep('alert'); return; }
-      
-      tocarBeep('success');
-      const ultMega = baseConcursosMega[0];
-      const ultLoto = baseConcursosLoto[0];
-      let premiadosCont = 0;
-
-      carteiraJogos.forEach(b => {
-        b.conferido = true;
-        if (b.modalidade === 'megasena' && ultMega) {
-          const ac = ultMega.dezenas.filter(d => b.dezenas.includes(d)).length;
-          if (ac === 6) { b.premioGanho = ultMega.premioSena; b.status = '🏆 SENA'; premiadosCont++; }
-          else if (ac === 5) { b.premioGanho = ultMega.premioQuina; b.status = '🥈 QUINA'; premiadosCont++; }
-          else if (ac === 4) { b.premioGanho = ultMega.premioQuadra; b.status = '🥉 QUADRA'; premiadosCont++; }
-          else { b.premioGanho = 0; b.status = 'Não premiado'; }
-        } else if (b.modalidade === 'lotofacil' && ultLoto) {
-          const ac = ultLoto.dezenas.filter(d => b.dezenas.includes(d)).length;
-          if (ac === 15) { b.premioGanho = ultLoto.premio15; b.status = '🏆 15 PONTOS'; premiadosCont++; }
-          else if (ac === 14) { b.premioGanho = 1500; b.status = '14 Pontos'; premiadosCont++; }
-          else if (ac === 13) { b.premioGanho = 30; b.status = '13 Pontos'; premiadosCont++; }
-          else if (ac === 12) { b.premioGanho = 12; b.status = '12 Pontos'; premiadosCont++; }
-          else if (ac === 11) { b.premioGanho = 6; b.status = '11 Pontos'; premiadosCont++; }
-          else { b.premioGanho = 0; b.status = 'Não premiado'; }
-        }
-      });
-
-      salvarCarteiraStorage();
-      atualizarPainelCarteira();
-      toast(`Conferência concluída! ${premiadosCont} premiados.`, "🎉");
-    }
+    // conferirTodosBilhetesSalvos() vive em js/conferencia-real.js:
+    // consulta o resultado oficial da Caixa referente à DATA de cada bilhete.
+    // A versão antiga comparava todos os bilhetes com um concurso fixo de
+    // 28/11/2024 e podia declarar prêmio para um sorteio que não era o do
+    // bilhete.
 
     function exportarBackupJSON() {
       tocarBeep('click');
@@ -5092,35 +5028,45 @@ function executarDesdobramento() {
       toast(`${jogosFechamentoGerados.length} bilhetes salvos na Carteira!`, "💾");
     }
 
+    // Busca o último concurso REAL da Caixa. A versão anterior sorteava as
+    // dezenas com Math.random() e inseria o resultado inventado no topo da
+    // base como se fosse o sorteio mais recente.
     async function sincronizarConcursos() {
       const icon = document.getElementById('sync-icon');
-      icon.classList.add('animate-spin');
-      toast("Sincronizando telemetria...", "🔄");
+      if (icon) icon.classList.add('animate-spin');
+      toast('Buscando último resultado na Caixa...', '🔄');
 
-      setTimeout(() => {
-        icon.classList.remove('animate-spin');
+      try {
+        const resultado = await obterUltimoResultadoOficial(modalidadeAtual);
+
+        if (!resultado) {
+          toast('Resultado indisponível agora. Tente novamente.', '⚠️');
+          tocarBeep('alert');
+          return;
+        }
+
         const base = getBaseAtual();
-        const prox = (base[0]?.concurso || 2800) + 1;
-        const config = getConfigAtual();
-        const s = new Set();
-        const k = modalidadeAtual === 'megasena' ? 6 : 15;
-        while (s.size < k) s.add(Math.floor(Math.random() * config.totalNumeros) + 1);
+        const jaTemos = base.some(c => c.concurso === resultado.concurso);
 
-        base.unshift({
-          concurso: prox,
-          data: new Date().toLocaleDateString('pt-BR'),
-          dezenas: Array.from(s).sort((a,b)=>a-b),
-          acumulado: true,
-          premioSena: 35000000,
-          premioQuina: 45000,
-          premioQuadra: 900,
-          premio15: 1500000
-        });
+        if (!jaTemos) {
+          base.unshift(montarRegistroConcurso(resultado));
+        }
 
-        conferirTodosBilhetesSalvos();
+        await conferirTodosBilhetesSalvos();
         tocarBeep('success');
-        toast(`Concurso #${prox} sincronizado e carteira conferida!`, "✅");
-      }, 700);
+        toast(
+          jaTemos
+            ? `Concurso #${resultado.concurso} já era o mais recente. Carteira conferida!`
+            : `Concurso #${resultado.concurso} (${resultado.data}) sincronizado!`,
+          '✅'
+        );
+      } catch (err) {
+        console.error('Falha ao sincronizar concursos:', err);
+        toast('Não foi possível sincronizar agora.', '⚠️');
+        tocarBeep('alert');
+      } finally {
+        if (icon) icon.classList.remove('animate-spin');
+      }
     }
 
     function obterTodosJogosDisponiveis() {
@@ -7025,26 +6971,6 @@ function abrirModalDialog(msg, callback) {
       }
     }
 
-    function sincronizarResultadosCaixaOnline() {
-      tocarBeep('click');
-      toast('🔄 Conectando aos servidores oficiais da Caixa Econômica Federal...', '📡');
-
-      // Simulação da telemetria de conexão com API Caixa
-      setTimeout(() => {
-        const elMegaPremio = document.getElementById('cal-mega-premio');
-        const elMegaConc = document.getElementById('cal-mega-concurso');
-        const elLotoPremio = document.getElementById('cal-loto-premio');
-        const elLotoConc = document.getElementById('cal-loto-concurso');
-
-        if (elMegaPremio) elMegaPremio.innerText = 'R$ 56.500.000';
-        if (elMegaConc) elMegaConc.innerText = 'Conc. 2836 • Quarta 20h';
-        if (elLotoPremio) elLotoPremio.innerText = 'R$ 1.850.000';
-        if (elLotoConc) elLotoConc.innerText = 'Conc. 3329 • Hoje 20h';
-
-        tocarSomNasa('sucesso');
-        toast('✅ Concursos Caixa sincronizados com sucesso!', '🎯');
-      }, 900);
-    }
 
   </script>
 </body>
