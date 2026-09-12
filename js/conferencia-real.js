@@ -46,23 +46,16 @@ async function obterResultadoOficial(modalidade, dataBR) {
   const chave = `${modalidade}|${dataBR}`;
   if (cacheResultados.has(chave)) return cacheResultados.get(chave);
 
-  const base = CONFERENCIA_CONFIG.functionUrl;
-  if (!base) return null;
+  // Consulta direta ao portal da Caixa: ele libera CORS e responde ao
+  // navegador do usuário, que está no Brasil. A Edge Function equivalente
+  // não serve aqui porque a Caixa recusa conexão dos datacenters do Supabase.
+  const resultado =
+    typeof buscarConcursoPorData === 'function'
+      ? await buscarConcursoPorData(modalidade, dataBR)
+      : null;
 
-  try {
-    const url = `${base}?modalidade=${encodeURIComponent(modalidade)}&data=${encodeURIComponent(dataBR)}`;
-    const resposta = await fetch(url);
-    if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
-
-    const dados = await resposta.json();
-    const resultado = dados?.disponivel ? dados : null;
-    cacheResultados.set(chave, resultado);
-    return resultado;
-  } catch (err) {
-    console.warn(`Resultado indisponível (${modalidade} ${dataBR}):`, err.message);
-    cacheResultados.set(chave, null);
-    return null;
-  }
+  cacheResultados.set(chave, resultado);
+  return resultado;
 }
 
 function dataBRNoFuturo(dataBR) {
@@ -169,19 +162,9 @@ async function conferirTodosBilhetesSalvos() {
 
 /** Último concurso realizado de uma modalidade, direto da Caixa. */
 async function obterUltimoResultadoOficial(modalidade) {
-  const base = CONFERENCIA_CONFIG.functionUrl;
-  if (!base) return null;
-
-  try {
-    const resposta = await fetch(`${base}?modalidade=${encodeURIComponent(modalidade)}`);
-    if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
-
-    const dados = await resposta.json();
-    return dados?.disponivel ? dados : null;
-  } catch (err) {
-    console.warn(`Último resultado indisponível (${modalidade}):`, err.message);
-    return null;
-  }
+  return typeof buscarConcursoCaixa === 'function'
+    ? await buscarConcursoCaixa(modalidade)
+    : null;
 }
 
 /** Converte o retorno da Caixa para o formato usado por baseConcursos*. */

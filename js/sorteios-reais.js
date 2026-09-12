@@ -157,7 +157,42 @@ async function sincronizarSorteiosReais({ silencioso = false } = {}) {
   // Calendário é confiável offline: pinta primeiro pra nunca ficar vazio.
   atualizarSorteiosUI(montarCalendarioLocal(agora), 'calculado');
 
-  // 1) Cache no Supabase (alimentado pela Edge Function)
+  // 1) Direto na Caixa. É a fonte mais fresca e funciona no navegador do
+  // usuário (a Caixa libera CORS); o servidor do Supabase é que não alcança.
+  try {
+    if (typeof buscarConcursoCaixa === 'function') {
+      const [mega, loto] = await Promise.all([
+        buscarConcursoCaixa('megasena'),
+        buscarConcursoCaixa('lotofacil')
+      ]);
+
+      if (mega?.premioProximo || loto?.premioProximo) {
+        const dados = montarCalendarioLocal(agora);
+
+        if (mega) {
+          dados.megasena.premio = mega.premioProximo;
+          dados.megasena.concurso = mega.proximoConcurso;
+        }
+        if (loto) {
+          dados.lotofacil.premio = loto.premioProximo;
+          dados.lotofacil.concurso = loto.proximoConcurso;
+        }
+
+        atualizarSorteiosUI(dados, 'servidor');
+        salvarUltimoSorteio(dados);
+
+        if (!silencioso) {
+          tocarSomNasa('sucesso');
+          toast('✅ Sorteios atualizados', '🎯');
+        }
+        return;
+      }
+    }
+  } catch (err) {
+    console.warn('Caixa indisponível:', err.message);
+  }
+
+  // 2) Cache no Supabase
   try {
     const cliente = obterClienteSupabase();
     if (cliente) {
