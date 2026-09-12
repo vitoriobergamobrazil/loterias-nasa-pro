@@ -31,6 +31,8 @@
   <script src="./js/sorteios-reais.js" defer></script>
   <!-- Conferência de bilhetes contra o resultado oficial da Caixa -->
   <script src="./js/conferencia-real.js" defer></script>
+  <!-- Histórico oficial de concursos (base das análises estatísticas) -->
+  <script src="./js/historico-real.js" defer></script>
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -2556,41 +2558,23 @@
       if ('vibrate' in navigator) navigator.vibrate(ms);
     }
 
+    // O histórico de concursos NÃO é gerado aqui. A versão anterior fabricava
+    // os concursos 2650–2796 com Math.random(), e esse histórico inventado
+    // alimentava o simulador de desempenho, o mapa de calor e o ranking de
+    // dezenas quentes/frias. Agora js/historico-real.js carrega os sorteios
+    // oficiais do Supabase; enquanto não houver dados, as bases ficam vazias
+    // e as análises informam que o histórico está indisponível.
     function gerarHistoricoInicial() {
-      baseConcursosMega = [
-        { concurso: 2800, data: "28/11/2024", dezenas: [11, 15, 20, 21, 38, 48], acumulado: false, premioSena: 64205128.90, premioQuina: 48312.45, premioQuadra: 980.20 },
-        { concurso: 2799, data: "26/11/2024", dezenas: [5, 12, 19, 38, 47, 53], acumulado: true, premioSena: 0, premioQuina: 52110.15, premioQuadra: 890.50 },
-        { concurso: 2798, data: "23/11/2024", dezenas: [6, 17, 22, 33, 49, 56], acumulado: true, premioSena: 0, premioQuina: 41200.00, premioQuadra: 812.30 },
-        { concurso: 2797, data: "21/11/2024", dezenas: [1, 3, 15, 25, 45, 52], acumulado: false, premioSena: 32540110.45, premioQuina: 39500.12, premioQuadra: 780.40 }
-      ];
-
-      for (let i = 2796; i >= 2650; i--) {
-        const s = new Set();
-        while (s.size < 6) s.add(Math.floor(Math.random() * 60) + 1);
-        baseConcursosMega.push({
-          concurso: i,
-          data: `${String((i % 28) + 1).padStart(2, '0')}/08/2024`,
-          dezenas: Array.from(s).sort((a,b)=>a-b),
-          acumulado: Math.random() > 0.35,
-          premioSena: 30000000,
-          premioQuina: 40000,
-          premioQuadra: 900
-        });
-      }
-
-      baseConcursosLoto = [
-        { concurso: 3200, data: "28/11/2024", dezenas: [1, 2, 4, 6, 7, 9, 10, 13, 14, 16, 18, 20, 21, 23, 25], premio15: 1750840.10 },
-        { concurso: 3199, data: "27/11/2024", dezenas: [2, 3, 5, 8, 9, 11, 12, 14, 15, 17, 19, 20, 22, 24, 25], premio15: 4200150.00 }
-      ];
+      baseConcursosMega = [];
+      baseConcursosLoto = [];
 
       const storageCarteira = localStorage.getItem('loterias_carteira_db');
       if (storageCarteira) {
         try { carteiraJogos = JSON.parse(storageCarteira); } catch (e) { carteiraJogos = []; }
       } else {
-        carteiraJogos = [
-          { id: 1, modalidade: 'megasena', dezenas: [11, 15, 20, 21, 38, 48], data: 'Hoje (exemplo)', custo: 5.00, premioGanho: 0, conferido: false, status: 'Pendente' }
-        ];
-        salvarCarteiraStorage();
+        // Carteira nasce vazia: bilhete de exemplo viraria "aposta" na
+        // conferência e poluiria o total investido do usuário.
+        carteiraJogos = [];
       }
     }
 
@@ -3627,7 +3611,20 @@ function gerarPalpiteInteligente() {
       const gradeEl = document.getElementById('grade-retro-resultados');
       const detalheEl = document.getElementById('detalhe-retro-melhor-sorteio');
       const badgeResumoEl = document.getElementById('badge-retro-resumo');
-      if (!gradeEl || !detalheEl || !base || base.length === 0) return;
+      if (!gradeEl || !detalheEl) return;
+
+      // Retro-teste sem sorteios reais não testa nada.
+      if (!base || base.length === 0) {
+        gradeEl.className = 'grid grid-cols-1 gap-2 font-mono text-center';
+        gradeEl.innerHTML = `
+          <div class="p-3 rounded-xl bg-slate-950 border border-amber-800/60 text-amber-300 text-[11px] font-sans">
+            Histórico oficial ainda não sincronizado — não é possível testar
+            este palpite contra concursos anteriores.
+          </div>`;
+        detalheEl.innerText = '';
+        if (badgeResumoEl) badgeResumoEl.innerText = 'Indisponível';
+        return;
+      }
 
       const minNec = mod === 'megasena' ? 6 : 15;
       if (!jogo || jogo.length < minNec) {
@@ -4838,6 +4835,21 @@ function gerarPalpiteInteligente() {
       const rankingFriasEl = document.getElementById('ranking-pedras-frias');
       if (!grid) return;
 
+      // Sem histórico oficial toda dezena teria frequência zero, e um mapa
+      // de calor uniforme passaria a impressão de análise feita.
+      if (!base || base.length === 0) {
+        const aviso = `
+          <div class="col-span-full p-3 rounded-xl bg-slate-950 border border-amber-800/60 text-amber-300 text-[11px] font-sans text-center">
+            Histórico oficial ainda não sincronizado — sem concursos reais não
+            há como calcular frequência de dezenas.
+          </div>`;
+        grid.className = 'grid grid-cols-1';
+        grid.innerHTML = aviso;
+        if (rankingQuentesEl) rankingQuentesEl.innerHTML = aviso;
+        if (rankingFriasEl) rankingFriasEl.innerHTML = aviso;
+        return;
+      }
+
       renderizarCicloDezenas();
 
       grid.innerHTML = '';
@@ -4942,6 +4954,15 @@ function gerarPalpiteInteligente() {
     function carregarPedrasMaisQuentesNoVolante() {
       const config = getConfigAtual();
       const base = getBaseAtual();
+
+      // Sem histórico, "mais quentes" seria só as primeiras dezenas da lista:
+      // preencher o volante com isso passaria por recomendação estatística.
+      if (!base || base.length === 0) {
+        toast('Histórico oficial ainda não sincronizado — sem dados de frequência.', '⚠️');
+        tocarBeep('alert');
+        return;
+      }
+
       const freq = {};
       for (let i = 1; i <= config.totalNumeros; i++) freq[i] = 0;
       base.forEach(c => {
