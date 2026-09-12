@@ -1,76 +1,123 @@
 // ===================================================================
-// SORTEIOS REAIS - Integração com API de Loterias
+// SORTEIOS REAIS - Integração com Supabase (Backend Scraper)
 // ===================================================================
-// Fonte: APIs públicas de loterias brasileiras
-// Fallback: dados conhecidos da Caixa se API falhar
+// Strategy: Backend function fetches real Caixa data, stores in DB
+// App reads from DB (always consistent, no CORS issues)
 
-const SORTEIOS_API = {
-  // API pública de loterias (via caixa-tracker ou similar)
-  lotteriesApi: 'https://api.api-futebol.com.br/v1/loteria',
+const SORTEIOS_CONFIG = {
+  // Supabase Edge Function que busca dados reais
+  functionUrl: 'https://[seu-project-id].supabase.co/functions/v1/fetch-sorteios',
 
-  // Dados fallback (últimos conhecidos) - atualizar periodicamente
+  // Fallback local
   fallback: {
     megasena: {
       nome: 'Mega-Sena',
-      proximoConcurso: 'Conc. 2836',
+      proximoConcurso: 2836,
       proximoSorteio: 'Quarta',
       hora: '20h',
-      premio: 'R$ 60.000.000',
-      updated: new Date().toISOString()
+      premio: 60000000
     },
     lotofacil: {
       nome: 'Lotofácil',
-      proximoConcurso: 'Conc. 3329',
+      proximoConcurso: 3329,
       proximoSorteio: 'Hoje',
       hora: '20h',
-      premio: 'R$ 1.500.000',
-      updated: new Date().toISOString()
+      premio: 1500000
     }
   }
 };
 
 async function sincronizarSorteiosReais() {
   tocarBeep('click');
-  const toast_id = toast('🔄 Buscando últimos sorteios...', '📡');
+  toast('🔄 Buscando últimos sorteios da Caixa...', '📡');
 
   try {
-    // Tentar brazilapi (API pública com CORS habilitado)
-    const response = await fetch('https://api.github.com/repos/brazilapi/brazilapi', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+    // Buscar do Supabase (que tem dados do scraper)
+    const cliente = obterClienteSupabase();
+    if (cliente) {
+      const { data, error } = await cliente
+        .from('sorteios_cache')
+        .select('*');
 
-    // Se conseguir conectar a ALGO, significa que tem internet
+      if (!error && data && data.length > 0) {
+        atualizarSorteiosUIFromDb(data);
+        tocarSomNasa('sucesso');
+        toast('✅ Sorteios atualizados do servidor!', '🎯');
+        return;
+      } else {
+        console.warn('❌ Erro ao buscar DB:', error?.message);
+      }
+    }
+  } catch (err) {
+    console.warn('❌ Erro Supabase:', err.message);
+  }
+
+  // Fallback 2: chamar Edge Function diretamente
+  try {
+    const response = await fetch(SORTEIOS_CONFIG.functionUrl);
     if (response.ok) {
-      // Calcular próximos sorteios baseado em padrão Caixa
-      const agora = new Date();
-      const dados = calcularProximosSorteiosCaixa(agora);
-      atualizarSorteiosUI(dados);
+      const sorteios = await response.json();
+      atualizarSorteiosUI(sorteios);
       tocarSomNasa('sucesso');
       toast('✅ Sorteios atualizados!', '🎯');
-      salvarUltimoSorteio(dados);
       return;
     }
   } catch (err) {
-    console.warn('❌ Sem internet:', err.message);
+    console.warn('❌ Edge Function falhou:', err.message);
   }
 
-  // Fallback: usar dados salvos ou hardcoded
-  console.log('⚠️ Sem conexão. Usando dados locais...');
+  // Fallback 3: dados salvos localmente
+  console.log('⚠️ Usando dados locais/calculados...');
   const sorteiosSalvos = obterSorteiosSalvos();
   if (sorteiosSalvos) {
     atualizarSorteiosUI(sorteiosSalvos);
     const dataAtualizacao = new Date(sorteiosSalvos.updated);
     const horaAgo = Math.floor((Date.now() - dataAtualizacao) / 1000 / 60);
     toast(
-      `ℹ️ Dados de ${horaAgo}min atrás. Conecte à internet pra atualizar.`,
+      `ℹ️ Dados de ${horaAgo}min atrás (offline)`,
       '📌'
     );
   } else {
     atualizarSorteiosUI(gerarSorteiosInteligentes());
-    toast('ℹ️ Modo offline: usando dados calculados.', '📌');
+    toast('ℹ️ Modo offline: dados calculados', '📌');
+  }
+}
+
+function atualizarSorteiosUIFromDb(dbData) {
+  // dbData é array de {modalidade, proximo_concurso, proximo_sorteio, premio_estimado, ...}
+  const megasena = dbData.find(s => s.modalidade === 'megasena');
+  const lotofacil = dbData.find(s => s.modalidade === 'lotofacil');
+
+  if (megasena) {
+    const elMegaPremio = document.getElementById('cal-mega-premio');
+    const elMegaConc = document.getElementById('cal-mega-concurso');
+
+    if (elMegaPremio) {
+      elMegaPremio.innerText = `R$ ${parseInt(megasena.premio_estimado).toLocaleString('pt-BR')}`;
+    }
+    if (elMegaConc) {
+      elMegaConc.innerText = `Conc. ${megasena.proximo_concurso} • ${megasena.proximo_sorteio} ${megasena.hora_sorteio}`;
+    }
+  }
+
+  if (lotofacil) {
+    const elLotoPremio = document.getElementById('cal-loto-premio');
+    const elLotoConc = document.getElementById('cal-loto-concurso');
+
+    if (elLotoPremio) {
+      elLotoPremio.innerText = `R$ ${parseInt(lotofacil.premio_estimado).toLocaleString('pt-BR')}`;
+    }
+    if (elLotoConc) {
+      elLotoConc.innerText = `Conc. ${lotofacil.proximo_concurso} • ${lotofacil.proximo_sorteio} ${lotofacil.hora_sorteio}`;
+    }
+  }
+
+  // Atualizar timestamp
+  const elTimestamp = document.getElementById('sorteios-ultima-sync');
+  if (elTimestamp) {
+    const agora = new Date();
+    elTimestamp.innerText = `Atualizado às ${agora.toLocaleTimeString('pt-BR')}`;
+    elTimestamp.style.display = 'block';
   }
 }
 
