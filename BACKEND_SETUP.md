@@ -26,8 +26,9 @@ Execute na ordem, cada arquivo inteiro:
 | `supabase/migration-visitor-leads-phone.sql` | Torna o telefone opcional — **sem isso nenhum lead é salvo** |
 | `supabase/schema-sorteios.sql` | Cache de prêmio estimado e próximo concurso |
 | `supabase/schema-historico.sql` | Histórico oficial de concursos |
+| `supabase/schema-exclusao.sql` | Fila de pedidos de exclusão de conta (exigência da Play Store) |
 
-Se o banco já existe, pule o `schema.sql` e rode só os outros três.
+Se o banco já existe, pule o `schema.sql` e rode só os outros quatro.
 
 ### 2. Edge Functions
 
@@ -39,6 +40,7 @@ supabase link --project-ref cuqjmzkdwtfiicflksfs
 supabase functions deploy fetch-sorteios
 supabase functions deploy fetch-resultado
 supabase functions deploy sync-historico
+supabase functions deploy delete-account
 ```
 
 | Função | Responsabilidade | Quando roda |
@@ -46,6 +48,11 @@ supabase functions deploy sync-historico
 | `fetch-sorteios` | Prêmio estimado e número do próximo concurso | Cron a cada 6h |
 | `fetch-resultado` | Resultado oficial por concurso ou por data | Sob demanda, ao conferir bilhetes |
 | `sync-historico` | Baixa concursos passados para as análises | Cron diário |
+| `delete-account` | Exclui conta e dados, ou registra o pedido | Sob demanda |
+
+`delete-account` atende dois fluxos: com sessão válida apaga na hora; sem
+sessão (página pública) registra o pedido, porque não há como provar que quem
+digitou o e-mail é o dono dele.
 
 As três usam a `service_role` key, que o Supabase injeta automaticamente.
 Nenhuma chave precisa ser colocada no código do app.

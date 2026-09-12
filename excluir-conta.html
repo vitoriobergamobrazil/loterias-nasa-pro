@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Excluir minha conta — Loterias NASA Pro</title>
+<meta name="description" content="Solicite a exclusão da sua conta e dos seus dados pessoais do Loterias NASA Pro. Sem necessidade de instalar o aplicativo." />
+<link rel="icon" type="image/png" href="./icon-192.png" />
+<script src="./supabase/config.js"></script>
+<style>
+  :root {
+    --fundo: #0f172a;
+    --cartao: #1e293b;
+    --borda: #334155;
+    --texto: #e2e8f0;
+    --suave: #94a3b8;
+    --destaque: #22d3ee;
+    --perigo: #f87171;
+    --ok: #34d399;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--fundo);
+    color: var(--texto);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.65;
+    font-size: 16px;
+  }
+  .envelope { max-width: 680px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+  .marca { display: flex; align-items: center; gap: .6rem; font-weight: 800; color: var(--destaque); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; }
+  h1 { font-size: 1.6rem; margin: .75rem 0 1rem; line-height: 1.25; }
+  h2 { font-size: 1.05rem; margin: 2rem 0 .6rem; color: #fff; }
+  .cartao { background: var(--cartao); border: 1px solid var(--borda); border-radius: 1rem; padding: 1.25rem; margin: 1.25rem 0; }
+  .rotulo { display: block; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--suave); font-weight: 700; margin-bottom: .4rem; }
+  input, textarea {
+    width: 100%; padding: .75rem .9rem; border-radius: .6rem;
+    border: 1px solid var(--borda); background: #0b1220; color: var(--texto);
+    font-family: inherit; font-size: 1rem;
+  }
+  input:focus, textarea:focus { outline: 2px solid var(--destaque); outline-offset: 1px; border-color: var(--destaque); }
+  textarea { min-height: 90px; resize: vertical; }
+  .campo { margin-bottom: 1.1rem; }
+  button {
+    width: 100%; padding: .9rem 1rem; border-radius: .75rem; border: none;
+    background: var(--perigo); color: #450a0a; font-weight: 800; font-size: 1rem;
+    cursor: pointer; font-family: inherit;
+  }
+  button:hover:not(:disabled) { filter: brightness(1.08); }
+  button:disabled { opacity: .6; cursor: not-allowed; }
+  ul { padding-left: 1.25rem; }
+  li { margin: .4rem 0; }
+  a { color: var(--destaque); }
+  .resposta { padding: 1rem 1.1rem; border-radius: .75rem; margin-top: 1.25rem; display: none; }
+  .resposta.ok { display: block; background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.4); color: var(--ok); }
+  .resposta.erro { display: block; background: rgba(248,113,113,.1); border: 1px solid rgba(248,113,113,.4); color: var(--perigo); }
+  .consentimento { display: flex; gap: .6rem; align-items: flex-start; font-size: .9rem; color: var(--suave); margin: 1.1rem 0; }
+  .consentimento input { width: auto; margin-top: .3rem; flex-shrink: 0; }
+  footer { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--borda); color: var(--suave); font-size: .85rem; }
+  table { width: 100%; border-collapse: collapse; font-size: .9rem; display: block; overflow-x: auto; }
+  th, td { border: 1px solid var(--borda); padding: .55rem .7rem; text-align: left; vertical-align: top; }
+  th { font-size: .78rem; text-transform: uppercase; color: var(--suave); }
+</style>
+</head>
+<body>
+<div class="envelope">
+
+  <div class="marca">🚀 Loterias NASA Pro</div>
+  <h1>Excluir minha conta e meus dados</h1>
+
+  <p>
+    Esta página permite pedir a remoção da sua conta sem instalar o aplicativo.
+    Se você já tem o aplicativo, o caminho mais rápido é
+    <strong>menu de conta → “Meus Dados (Art. 18 LGPD)” → “Excluir Todos Meus
+    Dados”</strong>, que apaga tudo na hora.
+  </p>
+
+  <h2>O que é apagado</h2>
+  <table>
+    <thead>
+      <tr><th>Dado</th><th>O que acontece</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Conta e credenciais de acesso</td><td>Excluídas definitivamente</td></tr>
+      <tr><td>Nome, e-mail e telefone</td><td>Excluídos definitivamente</td></tr>
+      <tr><td>Assinatura e histórico de plano</td><td>Excluídos definitivamente</td></tr>
+      <tr><td>Cadastro em comunicações e ofertas</td><td>Excluído definitivamente</td></tr>
+      <tr><td>Jogos salvos na carteira</td><td>Ficam só no seu aparelho — apague desinstalando o app ou limpando os dados do navegador</td></tr>
+      <tr><td>Registros de acesso</td><td>Mantidos por 6 meses sem vínculo com você, por exigência do Marco Civil da Internet (Lei nº 12.965/2014)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Prazo</h2>
+  <p>
+    Pedidos feitos dentro do aplicativo são executados imediatamente. Pedidos
+    feitos por esta página são concluídos <strong>em até 30 dias</strong>: como
+    aqui não há sessão iniciada, precisamos confirmar que o e-mail é seu antes
+    de apagar — sem essa checagem, qualquer pessoa poderia excluir a conta de
+    outra. Você recebe a confirmação no e-mail informado.
+  </p>
+
+  <div class="cartao">
+    <form id="formulario">
+      <div class="campo">
+        <label class="rotulo" for="email">E-mail da conta</label>
+        <input id="email" name="email" type="email" required maxlength="254"
+               placeholder="o e-mail que você usa no aplicativo" autocomplete="email" />
+      </div>
+
+      <div class="campo">
+        <label class="rotulo" for="motivo">Motivo <span style="text-transform:none">(opcional)</span></label>
+        <textarea id="motivo" name="motivo" maxlength="1000"
+                  placeholder="Nos ajuda a melhorar, mas você não precisa responder."></textarea>
+      </div>
+
+      <label class="consentimento">
+        <input id="confirmacao" type="checkbox" required />
+        <span>
+          Confirmo que sou o titular deste e-mail e entendo que a exclusão é
+          <strong>irreversível</strong>.
+        </span>
+      </label>
+
+      <button id="enviar" type="submit">Solicitar exclusão</button>
+    </form>
+
+    <div id="resposta" class="resposta" role="status" aria-live="polite"></div>
+  </div>
+
+  <h2>Outra forma de pedir</h2>
+  <p>
+    Se preferir, escreva para
+    <a href="mailto:vitorio.bergamo@gmail.com?subject=Exclus%C3%A3o%20de%20conta%20-%20Loterias%20NASA%20Pro">vitorio.bergamo@gmail.com</a>
+    com o assunto “Exclusão de conta”. O prazo é o mesmo.
+  </p>
+
+  <footer>
+    <p>
+      <a href="./privacidade.html">Política de Privacidade</a> ·
+      <a href="./">Abrir o aplicativo</a>
+    </p>
+    <p>
+      Loterias NASA Pro · Ferramenta de organização e análise estatística de
+      jogos lotéricos. Não recebe apostas e não paga prêmios.
+    </p>
+  </footer>
+</div>
+
+<script>
+  const formulario = document.getElementById('formulario');
+  const botao = document.getElementById('enviar');
+  const resposta = document.getElementById('resposta');
+
+  function mostrar(texto, tipo) {
+    resposta.textContent = texto;
+    resposta.className = 'resposta ' + tipo;
+  }
+
+  formulario.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+
+    const email = document.getElementById('email').value.trim().toLowerCase();
+    const motivo = document.getElementById('motivo').value.trim();
+
+    if (!document.getElementById('confirmacao').checked) {
+      mostrar('Confirme que você é o titular do e-mail.', 'erro');
+      return;
+    }
+
+    const base = window.NASA_SUPABASE_CONFIG?.url;
+    if (!base) {
+      mostrar(
+        'Não foi possível abrir a solicitação automaticamente. ' +
+        'Escreva para vitorio.bergamo@gmail.com com o assunto "Exclusão de conta".',
+        'erro'
+      );
+      return;
+    }
+
+    botao.disabled = true;
+    botao.textContent = 'Enviando...';
+
+    try {
+      const requisicao = await fetch(base + '/functions/v1/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, motivo })
+      });
+
+      const dados = await requisicao.json();
+
+      if (!requisicao.ok || dados.erro) {
+        throw new Error(dados.erro || 'falha na solicitação');
+      }
+
+      formulario.style.display = 'none';
+      mostrar(
+        'Solicitação registrada. A exclusão será concluída em até 30 dias e ' +
+        'você receberá a confirmação em ' + email + '.',
+        'ok'
+      );
+    } catch (erro) {
+      console.error(erro);
+      mostrar(
+        'Não conseguimos registrar agora. Escreva para ' +
+        'vitorio.bergamo@gmail.com com o assunto "Exclusão de conta" — ' +
+        'seu pedido vale a partir da data do e-mail.',
+        'erro'
+      );
+      botao.disabled = false;
+      botao.textContent = 'Solicitar exclusão';
+    }
+  });
+</script>
+</body>
+</html>

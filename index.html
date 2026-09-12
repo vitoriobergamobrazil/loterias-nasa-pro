@@ -60,107 +60,6 @@
   <!-- Tailwind CSS CDN -->
     <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com">
-    // =========================================================================
-    // COMPLIANCE JURÍDICO, LGPD, CALENDÁRIO OFICIAL CAIXA & PLANO AVULSO
-    // =========================================================================
-
-    function abrirModalTermosLGPD(aba = 'termos') {
-      const modal = document.getElementById('modal-termos-lgpd');
-      if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        trocarAbaTermos(aba);
-      }
-    }
-
-    function fecharModalTermosLGPD() {
-      const modal = document.getElementById('modal-termos-lgpd');
-      if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      }
-    }
-
-    function trocarAbaTermos(aba) {
-      ['termos', 'lgpd', 'direitos'].forEach(a => {
-        const tab = document.getElementById(`tab-modal-${a}`);
-        if (tab) tab.className = 'pb-2 px-2.5 font-bold border-b-2 border-transparent text-slate-400 hover:text-white transition';
-      });
-
-      const tabAtiva = document.getElementById(`tab-modal-${aba}`);
-      if (tabAtiva) tabAtiva.className = 'pb-2 px-2.5 font-bold border-b-2 border-amber-400 text-amber-300 transition';
-
-      const box = document.getElementById('conteudo-modal-termos');
-      if (!box) return;
-
-      if (aba === 'termos') {
-        box.innerHTML = `
-          <div class="space-y-3">
-            <h4 class="text-sm font-bold text-white">Termos e Condições Gerais de Uso</h4>
-            <p><b>1. Objeto do Aplicativo:</b> O Loterias NASA Pro é uma plataforma para organização, conferência, armazenamento de jogos e geração de hipóteses numéricas fundamentadas em análise combinatória e estatística descritiva (frequência, variância e paridade).</p>
-            <p><b>2. Isenção Total de Garantia de Ganho:</b> O usuário reconhece expressamente que as loterias brasileiras operadas pela Caixa Econômica Federal são eventos puramente aleatórios. Nenhuma ferramenta tecnológica, algoritmo ou modelo matemático é capaz de prever o resultado futuro ou garantir premiações.</p>
-            <p><b>3. Ausência de Intermediação de Apostas:</b> O aplicativo não é uma casa lotérica e não comercializa apostas financeiras. A efetivação de qualquer jogo é de responsabilidade estrita do apostador junto aos canais credenciados oficiais.</p>
-            <p><b>4. Maioridade Obrigatória:</b> O uso desta aplicação é restrito a indivíduos com idade igual ou superior a 18 anos.</p>
-          </div>
-        `;
-      } else if (aba === 'lgpd') {
-        box.innerHTML = `
-          <div class="space-y-3">
-            <h4 class="text-sm font-bold text-white">Política de Privacidade e Proteção de Dados (LGPD)</h4>
-            <p><b>1. Princípio da Minimização:</b> Coletamos exclusivamente dados cadastrais essenciais (e-mail, nome de exibição e os bilhetes salvos na sua Carteira local/nuvem) para permitir o funcionamento do serviço.</p>
-            <p><b>2. Sigilo e Não Compartilhamento:</b> Sob nenhuma circunstância comercializamos ou compartilhamos seus dados ou históricos de apostas com terceiros ou anunciantes.</p>
-            <p><b>3. Pagamentos Seguros:</b> Dados bancários e de cartões de crédito são processados diretamente por instituições financeiras autorizadas pelo Banco Central (PCI-DSS compliant). O Loterias NASA Pro não armazena dados de cartão.</p>
-          </div>
-        `;
-      } else {
-        box.innerHTML = `
-          <div class="space-y-3">
-            <h4 class="text-sm font-bold text-white">Painel de Direitos do Titular de Dados (Artigo 18 da LGPD)</h4>
-            <p>Em total respeito à Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018), você tem controle integral sobre todas as informações mantidas na plataforma:</p>
-            <ul class="list-disc pl-5 space-y-1 text-slate-300">
-              <li><b>Confirmação e Acesso:</b> Todos os seus palpites, fechamentos e dados de perfil estão visíveis no seu dispositivo.</li>
-              <li><b>Portabilidade de Dados:</b> Você pode baixar a cópia integral de suas apostas e dados em formato aberto JSON.</li>
-              <li><b>Eliminação Definitiva:</b> Você tem o direito de apagar sua conta e todos os bilhetes a qualquer instante com 1 clique.</li>
-            </ul>
-          </div>
-        `;
-      }
-    }
-
-    function exportarDadosPessoaisLGPD() {
-      const dados = {
-        usuario: usuarioSessao,
-        bilhetesSalvos: JSON.parse(localStorage.getItem('loterias_nasa_bilhetes') || '[]'),
-        fechamentosSalvos: JSON.parse(localStorage.getItem('loterias_nasa_fechamentos') || '[]'),
-        historicoSincronizacao: new Date().toISOString(),
-        termoConsentimento: 'Aceito em conformidade com o Art. 7º, I da Lei 13.709/2018'
-      };
-
-      const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `dados_lgpd_loterias_nasa_${Date.now()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      toast('📥 Seus dados foram exportados com sucesso em arquivo JSON!', '🛡️');
-    }
-
-    function solicitarExclusaoContaLGPD() {
-      if (confirm('ATENÇÃO: Deseja realmente excluir permanentemente sua conta, sessão e todos os jogos salvos da sua Carteira?\n\nEsta ação é irreversível em conformidade com o Art. 18 da LGPD.')) {
-        localStorage.removeItem('loterias_nasa_user');
-        localStorage.removeItem('loterias_nasa_bilhetes');
-        localStorage.removeItem('loterias_nasa_fechamentos');
-        localStorage.removeItem('plano_nasa_ativo');
-        fecharModalTermosLGPD();
-        usuarioSessao = null;
-        fazerLogout();
-        toast('🗑️ Todos os seus dados foram permanentemente eliminados do dispositivo.', '✅');
-      }
-    }
-
-
   </script>
   <script>
     tailwind.config = {
@@ -261,16 +160,93 @@
       toast('📥 Seus dados foram exportados com sucesso em arquivo JSON!', '🛡️');
     }
 
-    function solicitarExclusaoContaLGPD() {
-      if (confirm('ATENÇÃO: Deseja realmente excluir permanentemente sua conta, sessão e todos os jogos salvos da sua Carteira?\n\nEsta ação é irreversível em conformidade com o Art. 18 da LGPD.')) {
-        localStorage.removeItem('loterias_nasa_user');
-        localStorage.removeItem('loterias_nasa_bilhetes');
-        localStorage.removeItem('loterias_nasa_fechamentos');
-        localStorage.removeItem('plano_nasa_ativo');
-        fecharModalTermosLGPD();
-        usuarioSessao = null;
-        fazerLogout();
-        toast('🗑️ Todos os seus dados foram permanentemente eliminados do dispositivo.', '✅');
+    // Chaves que o app grava no navegador. A versão anterior removia três
+    // chaves — duas delas nem existiam mais — e deixava a carteira, o lead e
+    // o trial para trás, ainda assim anunciando exclusão total.
+    const CHAVES_LOCAIS_DO_USUARIO = [
+      'loterias_nasa_user',
+      'loterias_carteira_db',
+      'loterias_nasa_visitor_lead',
+      'loterias_nasa_bilhetes',
+      'loterias_nasa_fechamentos',
+      'loterias_nasa_cortesia_usada',
+      'plano_nasa_ativo',
+      'nasa_trial_expira_em',
+      'nasa_numeros_bloqueados',
+      'sorteios_ultima_sincronizacao',
+      'loterias_nasa_historico_v1',
+      'supabase.auth.token'
+    ];
+
+    async function solicitarExclusaoContaLGPD() {
+      const confirmado = confirm(
+        'ATENÇÃO: isso apaga definitivamente sua conta, seus dados de cadastro ' +
+        'e todos os jogos salvos na Carteira.\n\n' +
+        'A ação é irreversível (Art. 18, VI da LGPD). Deseja continuar?'
+      );
+      if (!confirmado) return;
+
+      let removidoDoServidor = false;
+      let falhaNoServidor = false;
+
+      // Apagar só o navegador deixaria a conta e o cadastro de contato vivos
+      // no servidor — o oposto do que a mensagem promete ao usuário.
+      try {
+        const cliente = obterClienteSupabase();
+        const base = window.NASA_SUPABASE_CONFIG?.url;
+
+        if (cliente && base) {
+          const { data } = await cliente.auth.getSession();
+          const token = data?.session?.access_token;
+
+          if (token) {
+            const resposta = await fetch(`${base}/functions/v1/delete-account`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              }
+            });
+            const corpo = await resposta.json();
+            removidoDoServidor = Boolean(corpo?.excluido);
+            falhaNoServidor = !removidoDoServidor;
+          } else if (usuarioSessao?.email) {
+            // Sem sessão no Supabase (visitante ou login social): registra o
+            // pedido para processamento, como a página pública faz.
+            const resposta = await fetch(`${base}/functions/v1/delete-account`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: usuarioSessao.email, motivo: 'Solicitado no app' })
+            });
+            const corpo = await resposta.json();
+            falhaNoServidor = !corpo?.registrado;
+          }
+
+          if (cliente.auth?.signOut) await cliente.auth.signOut();
+        }
+      } catch (err) {
+        console.error('Falha ao excluir no servidor:', err);
+        falhaNoServidor = true;
+      }
+
+      CHAVES_LOCAIS_DO_USUARIO.forEach(chave => localStorage.removeItem(chave));
+      sessionStorage.clear();
+
+      carteiraJogos = [];
+      usuarioSessao = null;
+      fecharModalTermosLGPD();
+      fazerLogout();
+
+      if (removidoDoServidor) {
+        toast('🗑️ Conta e dados excluídos definitivamente.', '✅');
+      } else if (falhaNoServidor) {
+        toast(
+          '🗑️ Dados apagados deste aparelho. A remoção no servidor será ' +
+          'concluída em até 30 dias.',
+          '⏳'
+        );
+      } else {
+        toast('🗑️ Dados apagados deste aparelho.', '✅');
       }
     }
 
@@ -2387,6 +2363,10 @@
           <button type="button" onclick="abrirModalTermosLGPD('lgpd')" class="hover:text-amber-300 transition underline">Política de Privacidade (LGPD)</button>
           <button type="button" onclick="abrirModalTermosLGPD('direitos')" class="hover:text-cyan-300 transition underline">Meus Dados (Art. 18 LGPD)</button>
           <button type="button" onclick="abrirModalTermosLGPD('disclaimer')" class="hover:text-emerald-300 transition underline">Rigor Estatístico</button>
+          <!-- Páginas públicas: a Play Store exige que privacidade e exclusão
+               de conta sejam alcançáveis sem login e fora do app. -->
+          <a href="./privacidade.html" class="hover:text-amber-300 transition underline">Privacidade (página)</a>
+          <a href="./excluir-conta.html" class="hover:text-rose-300 transition underline">Excluir minha conta</a>
         </div>
       </div>
     </footer>
@@ -6891,106 +6871,6 @@ function abrirModalDialog(msg, callback) {
       toast('📥 Base de clientes exportada em CSV com sucesso!', '📊');
     }
 
-  
-    // =========================================================================
-    // COMPLIANCE JURÍDICO, LGPD, CALENDÁRIO OFICIAL CAIXA & PLANO AVULSO
-    // =========================================================================
-
-    function abrirModalTermosLGPD(aba = 'termos') {
-      const modal = document.getElementById('modal-termos-lgpd');
-      if (modal) {
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        trocarAbaTermos(aba);
-      }
-    }
-
-    function fecharModalTermosLGPD() {
-      const modal = document.getElementById('modal-termos-lgpd');
-      if (modal) {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-      }
-    }
-
-    function trocarAbaTermos(aba) {
-      ['termos', 'lgpd', 'direitos'].forEach(a => {
-        const tab = document.getElementById(`tab-modal-${a}`);
-        if (tab) tab.className = 'pb-2 px-2.5 font-bold border-b-2 border-transparent text-slate-400 hover:text-white transition';
-      });
-
-      const tabAtiva = document.getElementById(`tab-modal-${aba}`);
-      if (tabAtiva) tabAtiva.className = 'pb-2 px-2.5 font-bold border-b-2 border-amber-400 text-amber-300 transition';
-
-      const box = document.getElementById('conteudo-modal-termos');
-      if (!box) return;
-
-      if (aba === 'termos') {
-        box.innerHTML = `
-          <div class="space-y-3">
-            <h4 class="text-sm font-bold text-white">Termos e Condições Gerais de Uso</h4>
-            <p><b>1. Objeto do Aplicativo:</b> O Loterias NASA Pro é uma plataforma para organização, conferência, armazenamento de jogos e geração de hipóteses numéricas fundamentadas em análise combinatória e estatística descritiva (frequência, variância e paridade).</p>
-            <p><b>2. Isenção Total de Garantia de Ganho:</b> O usuário reconhece expressamente que as loterias brasileiras operadas pela Caixa Econômica Federal são eventos puramente aleatórios. Nenhuma ferramenta tecnológica, algoritmo ou modelo matemático é capaz de prever o resultado futuro ou garantir premiações.</p>
-            <p><b>3. Ausência de Intermediação de Apostas:</b> O aplicativo não é uma casa lotérica e não comercializa apostas financeiras. A efetivação de qualquer jogo é de responsabilidade estrita do apostador junto aos canais credenciados oficiais.</p>
-            <p><b>4. Maioridade Obrigatória:</b> O uso desta aplicação é restrito a indivíduos com idade igual ou superior a 18 anos.</p>
-          </div>
-        `;
-      } else if (aba === 'lgpd') {
-        box.innerHTML = `
-          <div class="space-y-3">
-            <h4 class="text-sm font-bold text-white">Política de Privacidade e Proteção de Dados (LGPD)</h4>
-            <p><b>1. Princípio da Minimização:</b> Coletamos exclusivamente dados cadastrais essenciais (e-mail, nome de exibição e os bilhetes salvos na sua Carteira local/nuvem) para permitir o funcionamento do serviço.</p>
-            <p><b>2. Sigilo e Não Compartilhamento:</b> Sob nenhuma circunstância comercializamos ou compartilhamos seus dados ou históricos de apostas com terceiros ou anunciantes.</p>
-            <p><b>3. Pagamentos Seguros:</b> Dados bancários e de cartões de crédito são processados diretamente por instituições financeiras autorizadas pelo Banco Central (PCI-DSS compliant). O Loterias NASA Pro não armazena dados de cartão.</p>
-          </div>
-        `;
-      } else {
-        box.innerHTML = `
-          <div class="space-y-3">
-            <h4 class="text-sm font-bold text-white">Painel de Direitos do Titular de Dados (Artigo 18 da LGPD)</h4>
-            <p>Em total respeito à Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018), você tem controle integral sobre todas as informações mantidas na plataforma:</p>
-            <ul class="list-disc pl-5 space-y-1 text-slate-300">
-              <li><b>Confirmação e Acesso:</b> Todos os seus palpites, fechamentos e dados de perfil estão visíveis no seu dispositivo.</li>
-              <li><b>Portabilidade de Dados:</b> Você pode baixar a cópia integral de suas apostas e dados em formato aberto JSON.</li>
-              <li><b>Eliminação Definitiva:</b> Você tem o direito de apagar sua conta e todos os bilhetes a qualquer instante com 1 clique.</li>
-            </ul>
-          </div>
-        `;
-      }
-    }
-
-    function exportarDadosPessoaisLGPD() {
-      const dados = {
-        usuario: usuarioSessao,
-        bilhetesSalvos: JSON.parse(localStorage.getItem('loterias_nasa_bilhetes') || '[]'),
-        fechamentosSalvos: JSON.parse(localStorage.getItem('loterias_nasa_fechamentos') || '[]'),
-        historicoSincronizacao: new Date().toISOString(),
-        termoConsentimento: 'Aceito em conformidade com o Art. 7º, I da Lei 13.709/2018'
-      };
-
-      const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `dados_lgpd_loterias_nasa_${Date.now()}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      toast('📥 Seus dados foram exportados com sucesso em arquivo JSON!', '🛡️');
-    }
-
-    function solicitarExclusaoContaLGPD() {
-      if (confirm('ATENÇÃO: Deseja realmente excluir permanentemente sua conta, sessão e todos os jogos salvos da sua Carteira?\n\nEsta ação é irreversível em conformidade com o Art. 18 da LGPD.')) {
-        localStorage.removeItem('loterias_nasa_user');
-        localStorage.removeItem('loterias_nasa_bilhetes');
-        localStorage.removeItem('loterias_nasa_fechamentos');
-        localStorage.removeItem('plano_nasa_ativo');
-        fecharModalTermosLGPD();
-        usuarioSessao = null;
-        fazerLogout();
-        toast('🗑️ Todos os seus dados foram permanentemente eliminados do dispositivo.', '✅');
-      }
-    }
 
 
   </script>
