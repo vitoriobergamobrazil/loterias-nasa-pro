@@ -86,6 +86,72 @@ São 4 a 5 execuções por modalidade para chegar a 200 concursos.
 
 `fetch-resultado` não entra no cron: é chamada pelo app na hora de conferir.
 
+## Pagamentos (Asaas)
+
+### Tabelas
+
+Rode `supabase/schema-pagamentos.sql`. Ele cria `cobrancas` e acrescenta
+`asaas_customer_id` em `profiles`.
+
+Repare que `cobrancas` **não tem policy de escrita**: quem grava é a Edge
+Function pela service_role. É isso que impede alguém de marcar o próprio
+pagamento como recebido pelo navegador.
+
+### Secrets
+
+```bash
+# Sandbox
+supabase secrets set ASAAS_API_KEY='<chave do sandbox>'
+supabase secrets set ASAAS_API_URL='https://api-sandbox.asaas.com/v3'
+supabase secrets set ASAAS_WEBHOOK_TOKEN='<uma senha forte inventada por você>'
+```
+
+O `ASAAS_WEBHOOK_TOKEN` é um valor que você escolhe e cadastra igual nos dois
+lados: aqui e no painel do Asaas. É ele que prova que o POST veio do gateway.
+
+Ao migrar para produção, troque a chave e a URL para `https://api.asaas.com/v3`.
+A chave de produção **nunca** entra no Git nem no front-end.
+
+### Funções
+
+```bash
+supabase functions deploy criar-cobranca
+supabase functions deploy asaas-webhook
+```
+
+| Função | Papel |
+|---|---|
+| `criar-cobranca` | Cria cobrança ou assinatura. Exige sessão válida e usa o preço da tabela interna, não o que vem do cliente |
+| `asaas-webhook` | Recebe a confirmação e é o **único** ponto que concede acesso PRO |
+
+### Webhook no painel do Asaas
+
+Configurações → Integrações → Webhooks:
+
+- **URL:** `https://cuqjmzkdwtfiicflksfs.supabase.co/functions/v1/asaas-webhook`
+- **Token de autenticação:** o mesmo valor de `ASAAS_WEBHOOK_TOKEN`
+- **Eventos:** todos os de `PAYMENT_*`
+
+O webhook responde 500 quando falha ao gravar, de propósito: o Asaas reenvia
+o evento depois, então uma indisponibilidade momentânea não faz o cliente
+pagar e ficar sem acesso.
+
+### Fluxo completo
+
+```
+App → criar-cobranca → Asaas devolve link de pagamento
+Cliente paga (PIX ou cartão na página do Asaas)
+Asaas → asaas-webhook → grava cobrança e ativa subscriptions
+App (js/assinatura.js) lê subscriptions e libera PRO
+```
+
+### O que falta no app
+
+A tela de checkout ainda precisa **coletar CPF** — o Asaas exige `cpfCnpj`
+para cadastrar o cliente, e hoje o app não pede esse dado em lugar nenhum.
+Ao adicionar, inclua o CPF na tabela de dados coletados da política de
+privacidade.
+
 ## Como verificar se está no ar
 
 No console do navegador, com o app aberto:
