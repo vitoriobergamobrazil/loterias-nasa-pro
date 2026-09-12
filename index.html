@@ -27,6 +27,8 @@
   <script src="./js/lead-capture.js" defer></script>
   <!-- Menu Fix (ensure bottom tab bar always visible) -->
   <script src="./js/menu-fix.js" defer></script>
+  <!-- Sorteios Reais (Real lottery data via APIs) -->
+  <script src="./js/sorteios-reais.js" defer></script>
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -1396,9 +1398,12 @@
               <span class="text-[10px] text-cyan-400">Próximos Sorteios com Fechamento às 20:00h</span>
             </div>
           </div>
-          <button onclick="sincronizarResultadosCaixaOnline()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-800 rounded-xl text-[10px] font-bold transition flex items-center gap-1" title="Sincronizar direto com os servidores da Caixa">
-            <span>🔄</span> Sincronizar Caixa
-          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="sincronizarSorteiosReais()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-800 rounded-xl text-[10px] font-bold transition flex items-center gap-1" title="Sincronizar direto com os servidores da Caixa">
+              <span>🔄</span> Sincronizar Caixa
+            </button>
+            <span id="sorteios-ultima-sync" class="text-[9px] text-slate-500 hidden">Atualizado agora</span>
+          </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3 text-xs">
