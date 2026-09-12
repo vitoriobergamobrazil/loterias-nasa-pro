@@ -34,13 +34,18 @@ function mostrarModalLeadCapture() {
       <!-- Form -->
       <form onsubmit="submeterLeadCapture(event)" class="space-y-3 relative z-10">
         <div>
-          <label class="text-xs uppercase font-bold text-slate-400 block mb-1.5">Email</label>
+          <label for="lead-nome" class="text-xs uppercase font-bold text-slate-400 block mb-1.5">Nome</label>
+          <input id="lead-nome" type="text" required minlength="2" maxlength="120" placeholder="Como quer ser chamado" class="w-full bg-slate-950/80 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 font-sans text-sm" />
+        </div>
+
+        <div>
+          <label for="lead-email" class="text-xs uppercase font-bold text-slate-400 block mb-1.5">Email</label>
           <input id="lead-email" type="email" required placeholder="seu@email.com" class="w-full bg-slate-950/80 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 font-sans text-sm" />
         </div>
 
         <div>
-          <label class="text-xs uppercase font-bold text-slate-400 block mb-1.5">WhatsApp <span class="text-slate-500">(opcional)</span></label>
-          <input id="lead-whatsapp" type="tel" inputmode="tel" placeholder="(00) 99999-9999" class="w-full bg-slate-950/80 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 font-sans text-sm" />
+          <label for="lead-whatsapp" class="text-xs uppercase font-bold text-slate-400 block mb-1.5">WhatsApp <span class="text-slate-500">(opcional)</span></label>
+          <input id="lead-whatsapp" type="tel" inputmode="tel" maxlength="20" placeholder="(00) 99999-9999" class="w-full bg-slate-950/80 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30 font-sans text-sm" />
         </div>
 
         <label class="flex items-start gap-2 text-xs text-slate-400 leading-relaxed pt-1">
@@ -79,12 +84,13 @@ async function submeterLeadCapture(event) {
   event.preventDefault();
   tocarSomNasa('beep');
 
+  const nome = document.getElementById('lead-nome')?.value.trim();
   const email = document.getElementById('lead-email')?.value.trim().toLowerCase();
   const whatsapp = document.getElementById('lead-whatsapp')?.value.trim() || '';
   const consent = document.getElementById('lead-consent')?.checked;
 
-  if (!email || !consent) {
-    toast('Preencha o email e aceite os termos', '⚠️');
+  if (!nome || nome.length < 2 || !email || !consent) {
+    toast('Preencha nome, email e aceite os termos', '⚠️');
     return;
   }
 
@@ -94,9 +100,18 @@ async function submeterLeadCapture(event) {
     return;
   }
 
+  // O banco valida phone entre 8 e 20 caracteres: um número pela metade
+  // faria o insert inteiro falhar e o lead ser perdido.
+  const whatsappDigitos = whatsapp.replace(/\D/g, '');
+  if (whatsapp && whatsappDigitos.length < 10) {
+    toast('WhatsApp incompleto. Corrija ou deixe em branco.', '⚠️');
+    return;
+  }
+
   try {
     // Salvar localmente
     const lead = {
+      nome,
       email,
       whatsapp,
       consentimento: true,
@@ -108,19 +123,28 @@ async function submeterLeadCapture(event) {
     const cliente = obterClienteSupabase();
     let sincronizado = false;
     if (cliente) {
-      const { error } = await cliente.from('visitor_leads').upsert({
+      const registro = {
+        name: nome,
         email: email,
-        phone: whatsapp || null,
         marketing_consent: true,
         consent_at: lead.consentimentoEm,
         source: 'home_lead_capture'
-      }, { onConflict: 'email', ignoreDuplicates: true });
+      };
+      // phone é opcional no formulário: só enviar quando preenchido, senão
+      // o check de tamanho do banco rejeita a linha.
+      if (whatsapp) registro.phone = whatsapp;
+
+      const { error } = await cliente
+        .from('visitor_leads')
+        .upsert(registro, { onConflict: 'email', ignoreDuplicates: true });
+
+      if (error) console.warn('Lead não sincronizado:', error.message);
       sincronizado = !error;
     }
 
     // Criar usuário visitante
     usuarioSessao = {
-      nome: email.split('@')[0],
+      nome: nome,
       email: email,
       telefone: whatsapp,
       avatar: '✨',

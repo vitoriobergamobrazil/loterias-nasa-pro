@@ -40,7 +40,8 @@ create table public.visitor_leads (
   id uuid primary key default gen_random_uuid(),
   name text not null check (char_length(name) between 2 and 120),
   email text not null unique check (char_length(email) between 5 and 254),
-  phone text not null check (char_length(phone) between 8 and 20),
+  -- opcional: a captura de leads na home não exige telefone
+  phone text check (phone is null or char_length(phone) between 8 and 20),
   marketing_consent boolean not null default false check (marketing_consent = true),
   consent_at timestamptz not null default now(),
   source text not null default 'visitor_trial',

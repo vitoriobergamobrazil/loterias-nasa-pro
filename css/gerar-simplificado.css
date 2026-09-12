@@ -2,11 +2,9 @@
    TELA GERAR - SIMPLIFICADA (Mobile-First)
    =================================================================== */
 
-/* Hide heavy analysis sections by default */
-#card-bateria-testes,
-#conteudo-bateria-testes {
-  display: none !important;
-}
+/* A Bateria dos 6 Testes NÃO pode ser escondida por CSS: é o teaser do
+   paywall (FREE vê 2 de 6 borrados) e o produto que o PRO pagou pra ver.
+   Quem controla a visibilidade é o science-gate.js, por plano. */
 
 /* Make volante smaller on mobile */
 #volante-grid {
@@ -48,8 +46,8 @@
     border-radius: 1rem !important;
   }
 
-  /* Status badges - more readable */
-  #view-volante .text-[10px] {
+  /* Status badges - more readable (colchetes escapados: classe Tailwind arbitrária) */
+  #view-volante .text-\[10px\] {
     font-size: 0.75rem !important;
   }
 

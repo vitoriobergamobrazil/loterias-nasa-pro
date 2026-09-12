@@ -1,166 +1,166 @@
 // ===================================================================
-// OAUTH LOGIN - Google + Meta/Facebook Authentication
+// OAUTH LOGIN - Google + Meta/Facebook
 // ===================================================================
+// O modal usa botões com visual próprio, então o Google entra pelo fluxo
+// de token (initTokenClient), que pode ser disparado a partir de um clique.
+// google.accounts.id.renderButton() exigiria um container para o botão
+// oficial do Google e não serve para botão customizado.
 
 const OAUTH_CONFIG = {
   google: {
     clientId: '121397262223-jkjraet5rgrs86kfkk5auec38l5kgoo1.apps.googleusercontent.com',
-    scope: 'profile email'
+    scope: 'openid profile email',
+    userInfoUrl: 'https://www.googleapis.com/oauth2/v3/userinfo'
   },
   meta: {
     appId: '1517596297056063',
-    scope: 'public_profile,email'
+    scope: 'public_profile,email',
+    version: 'v20.0'
   }
 };
 
+/** O app usa avatar como emoji/inicial (até 2 caracteres). */
+function iniciaisDoNome(nome) {
+  const limpo = (nome || '').trim();
+  return limpo ? limpo[0].toUpperCase() : '👤';
+}
+
+function concluirLoginOAuth(dados) {
+  usuarioSessao = {
+    nome: dados.nome,
+    email: dados.email,
+    avatar: iniciaisDoNome(dados.nome),
+    fotoUrl: dados.fotoUrl || '',
+    tipo: dados.tipo,
+    plano: 'free',
+    provedorId: dados.provedorId,
+    dataConexao: new Date().toISOString()
+  };
+
+  localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
+  atualizarPerfilUsuarioUI();
+  if (typeof atualizarVisualPlano === 'function') atualizarVisualPlano();
+  fecharModalAuth();
+  tocarSomNasa('sucesso');
+  toast(`Bem-vindo, ${usuarioSessao.nome.split(' ')[0]}!`, '🚀');
+}
+
 // ===================================================================
-// GOOGLE SIGN-IN (usando Google Identity Services)
+// GOOGLE
 // ===================================================================
+let googleTokenClient = null;
+
 function loginComGoogle() {
-  if (typeof google === 'undefined') {
-    toast('Google Sign-In não carregou. Tente novamente.', '⚠️');
+  if (typeof google === 'undefined' || !google.accounts?.oauth2) {
+    toast('Google ainda carregando. Tente em instantes.', '⏳');
     tocarBeep('alert');
     return;
   }
 
-  google.accounts.id.initialize({
-    client_id: OAUTH_CONFIG.google.clientId,
-    callback: handleGoogleLogin
-  });
+  if (!googleTokenClient) {
+    googleTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: OAUTH_CONFIG.google.clientId,
+      scope: OAUTH_CONFIG.google.scope,
+      callback: handleGoogleToken
+    });
+  }
 
-  google.accounts.id.renderButton(
-    document.getElementById('google-signin-container'),
-    {
-      type: 'standard',
-      theme: 'dark',
-      size: 'large',
-      width: '100%'
-    }
-  );
-
-  google.accounts.id.prompt((notification) => {
-    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-      google.accounts.id.renderButton(
-        document.getElementById('google-signin-container'),
-        {
-          type: 'standard',
-          theme: 'dark',
-          size: 'large',
-          width: '100%'
-        }
-      );
-    }
-  });
+  googleTokenClient.requestAccessToken();
 }
 
-function handleGoogleLogin(response) {
-  if (!response.credential) {
-    toast('Falha no login com Google', '⚠️');
-    tocarBeep('alert');
+async function handleGoogleToken(resposta) {
+  if (resposta.error || !resposta.access_token) {
+    // O usuário fechar o popup cai aqui e não é erro de verdade.
+    if (resposta.error !== 'popup_closed' && resposta.error !== 'access_denied') {
+      toast('Não foi possível entrar com o Google', '⚠️');
+      tocarBeep('alert');
+    }
     return;
   }
 
   try {
-    // Decodificar JWT do Google
-    const base64Url = response.credential.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
+    const perfil = await fetch(OAUTH_CONFIG.google.userInfoUrl, {
+      headers: { Authorization: `Bearer ${resposta.access_token}` }
+    });
 
-    const userData = JSON.parse(jsonPayload);
+    if (!perfil.ok) throw new Error(`userinfo ${perfil.status}`);
 
-    // Salvar usuário
-    usuarioSessao = {
-      nome: userData.name || userData.email.split('@')[0],
-      email: userData.email,
-      avatar: userData.picture ? userData.picture.charAt(0).toUpperCase() : '👤',
+    const dados = await perfil.json();
+    const email = dados.email || '';
+
+    concluirLoginOAuth({
+      nome: dados.name || dados.given_name || email.split('@')[0] || 'Usuário',
+      email,
+      fotoUrl: dados.picture || '',
       tipo: 'google_oauth',
-      plano: 'free',
-      googleId: userData.sub,
-      dataConexao: new Date().toISOString()
-    };
-
-    localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
-    atualizarPerfilUsuarioUI();
-    fecharModalAuth();
-    tocarSomNasa('sucesso');
-    toast(`Bem-vindo, ${usuarioSessao.nome}! 🎉`, '🚀');
+      provedorId: dados.sub
+    });
   } catch (err) {
-    console.error('Erro ao processar Google login:', err);
-    toast('Erro ao processar login com Google', '⚠️');
+    console.error('Erro no login Google:', err);
+    toast('Erro ao ler seu perfil do Google', '⚠️');
     tocarBeep('alert');
   }
 }
 
 // ===================================================================
-// META/FACEBOOK LOGIN (usando Meta SDK)
+// META / FACEBOOK
 // ===================================================================
 function loginComMeta() {
   if (typeof FB === 'undefined') {
-    toast('Meta SDK não carregou. Tente novamente.', '⚠️');
+    toast('Meta ainda carregando. Tente em instantes.', '⏳');
     tocarBeep('alert');
     return;
   }
 
-  FB.login((response) => {
-    if (response.authResponse) {
-      // Usuário autenticou
-      FB.api('/me', { fields: 'id,name,email,picture.width(200).height(200)' },
-        (userInfo) => {
-          handleMetaLogin(userInfo, response.authResponse);
-        }
-      );
-    } else {
-      toast('Login com Meta foi cancelado', 'ℹ️');
+  FB.login((resposta) => {
+    if (!resposta.authResponse) {
+      toast('Login com Meta cancelado', 'ℹ️');
+      return;
     }
+
+    FB.api(
+      '/me',
+      { fields: 'id,name,email,picture.width(200).height(200)' },
+      (perfil) => {
+        if (!perfil || perfil.error) {
+          console.error('Erro no perfil Meta:', perfil?.error);
+          toast('Erro ao ler seu perfil da Meta', '⚠️');
+          tocarBeep('alert');
+          return;
+        }
+
+        // A Meta pode não devolver e-mail (conta sem e-mail confirmado
+        // ou permissão recusada), então nome e e-mail precisam de fallback.
+        const email = perfil.email || '';
+        const nome = perfil.name || (email ? email.split('@')[0] : 'Usuário');
+
+        concluirLoginOAuth({
+          nome,
+          email,
+          fotoUrl: perfil.picture?.data?.url || '',
+          tipo: 'meta_oauth',
+          provedorId: perfil.id
+        });
+      }
+    );
   }, { scope: OAUTH_CONFIG.meta.scope });
 }
 
-function handleMetaLogin(userInfo, authResponse) {
-  try {
-    usuarioSessao = {
-      nome: userInfo.name || userInfo.email.split('@')[0],
-      email: userInfo.email || 'nao_informado@meta.local',
-      avatar: userInfo.picture?.data?.url ? userInfo.picture.data.url.charAt(0).toUpperCase() : '👤',
-      tipo: 'meta_oauth',
-      plano: 'free',
-      metaId: userInfo.id,
-      dataConexao: new Date().toISOString()
-    };
-
-    localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
-    atualizarPerfilUsuarioUI();
-    fecharModalAuth();
-    tocarSomNasa('sucesso');
-    toast(`Bem-vindo, ${usuarioSessao.nome}! 🎉`, '🚀');
-  } catch (err) {
-    console.error('Erro ao processar Meta login:', err);
-    toast('Erro ao processar login com Meta', '⚠️');
-    tocarBeep('alert');
-  }
-}
-
 // ===================================================================
-// INICIALIZAR OAUTH NO CARREGAMENTO
+// CARREGAR SDKs
 // ===================================================================
 document.addEventListener('DOMContentLoaded', () => {
-  // Google Sign-In
   const googleScript = document.createElement('script');
   googleScript.src = 'https://accounts.google.com/gsi/client';
   googleScript.async = true;
   googleScript.defer = true;
   document.head.appendChild(googleScript);
 
-  // Meta SDK
-  window.fbAsyncInit = function() {
+  window.fbAsyncInit = function () {
     FB.init({
       appId: OAUTH_CONFIG.meta.appId,
-      xfbml: true,
-      version: 'v20.0'
+      xfbml: false,
+      version: OAUTH_CONFIG.meta.version
     });
   };
 
@@ -171,4 +171,4 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.appendChild(metaScript);
 });
 
-console.log('🔐 OAuth Login module loaded (Google + Meta)');
+console.log('🔐 OAuth carregado (Google + Meta)');

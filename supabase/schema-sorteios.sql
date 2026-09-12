@@ -1,43 +1,43 @@
--- Sorteios Cache - Armazena dados atualizados de Mega-Sena e Lotofácil
--- Execute no SQL Editor do Supabase
+-- Cache de sorteios: prêmio estimado e próximo concurso vindos do portal da Caixa.
+-- Execute no SQL Editor do Supabase.
+--
+-- O DIA e o HORÁRIO do sorteio NÃO ficam aqui: são determinísticos
+-- (Mega-Sena quarta/sábado, Lotofácil segunda a sábado, sempre 20h) e o app
+-- calcula no cliente. Aqui guardamos só o que precisa vir de fonte externa.
+--
+-- A gravação é feita pela Edge Function `fetch-sorteios` usando a
+-- service_role key, que ignora RLS. Por isso só existe policy de leitura.
 
-create table public.sorteios_cache (
-  id bigint generated always as identity primary key,
-  modalidade text not null check (modalidade in ('megasena', 'lotofacil')),
-  proximo_concurso integer not null,
-  proximo_sorteio text not null,
-  hora_sorteio text not null default '20h',
-  premio_estimado bigint not null,
-  data_atualizacao timestamptz not null default now(),
-  unique (modalidade)
+create table if not exists public.sorteios_cache (
+  modalidade text primary key check (modalidade in ('megasena', 'lotofacil')),
+  proximo_concurso integer not null check (proximo_concurso > 0),
+  premio_estimado bigint not null check (premio_estimado > 0),
+  data_atualizacao timestamptz not null default now()
 );
 
-create index sorteios_cache_modalidade_idx on public.sorteios_cache (modalidade);
-create index sorteios_cache_data_atualizacao_idx on public.sorteios_cache (data_atualizacao);
+create index if not exists sorteios_cache_data_atualizacao_idx
+  on public.sorteios_cache (data_atualizacao);
 
 alter table public.sorteios_cache enable row level security;
 
--- Permitir que QUALQUER PESSOA leia o cache de sorteios (é info pública)
+-- Prêmio estimado é informação pública: qualquer visitante pode ler.
+drop policy if exists "public can read sorteios cache" on public.sorteios_cache;
 create policy "public can read sorteios cache"
 on public.sorteios_cache for select
 to anon, authenticated
 using (true);
 
--- Apenas admin pode atualizar (via function ou scheduler)
-create policy "admin can update sorteios cache"
-on public.sorteios_cache for update
-to authenticated
-using (exists(select 1 from public.profiles where id = auth.uid() and role = 'owner'))
-with check (exists(select 1 from public.profiles where id = auth.uid() and role = 'owner'));
+-- Sem seed de dados: a tabela nasce vazia de propósito.
+-- Enquanto a Edge Function não rodar, o app mostra "—" no prêmio em vez de
+-- um número inventado. Rode a função uma vez para popular:
+--   curl https://<project-ref>.supabase.co/functions/v1/fetch-sorteios
 
-create policy "admin can insert sorteios cache"
-on public.sorteios_cache for insert
-to authenticated
-with check (exists(select 1 from public.profiles where id = auth.uid() and role = 'owner'));
-
--- Initial seed data (valid for ~2 weeks)
-insert into public.sorteios_cache (modalidade, proximo_concurso, proximo_sorteio, premio_estimado)
-values
-  ('megasena', 2836, 'Quarta', 60000000),
-  ('lotofacil', 3329, 'Hoje', 1500000)
-on conflict (modalidade) do nothing;
+-- ---------------------------------------------------------------------------
+-- MIGRAÇÃO (só se você chegou a criar a versão anterior desta tabela)
+-- ---------------------------------------------------------------------------
+-- A versão anterior tinha id bigint, proximo_sorteio, hora_sorteio e um seed
+-- com valores fictícios. Para migrar, rode:
+--
+--   drop table if exists public.sorteios_cache;
+--
+-- e depois execute este arquivo novamente.

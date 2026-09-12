@@ -1,158 +1,118 @@
 // ===================================================================
-// MENU FIX - Garante que bottom-tab-bar nunca desaparece
+// MENU FIX - rede de segurança para a bottom tab bar
 // ===================================================================
-// Problema: em alguns pontos da navegação, o menu some
-// Solução: monitor contínuo + força visibilidade sempre
+// A causa raiz do menu sumir foi corrigida no CSS (redesign.css marca as
+// propriedades do #bottom-tab-bar como !important com z-index acima dos
+// modais). Este arquivo é só a rede de proteção: reage a mudanças em vez
+// de fazer polling, para não gastar bateria no celular.
 
-const MENU_FIX_CONFIG = {
-  checkInterval: 500, // ms
-  zIndexTarget: 50,
-  requiredProperties: {
-    display: 'grid',
-    position: 'fixed',
-    bottom: '0',
-    left: '0',
-    right: '0',
-    zIndex: '50'
-  }
+const MENU_Z_INDEX_MINIMO = 50;
+
+const MENU_ESTILO_ESPERADO = {
+  display: 'grid',
+  position: 'fixed',
+  bottom: '0',
+  left: '0',
+  right: '0',
+  zIndex: String(MENU_Z_INDEX_MINIMO),
+  visibility: 'visible',
+  opacity: '1',
+  pointerEvents: 'auto'
 };
 
-function verificarVisibilidadeMenu() {
-  const menu = document.getElementById('bottom-tab-bar');
-  if (!menu) {
-    console.warn('⚠️ bottom-tab-bar não encontrado');
-    return;
-  }
+let restaurandoMenu = false;
 
-  const computedStyle = window.getComputedStyle(menu);
-  const isHidden =
-    computedStyle.display === 'none' ||
-    computedStyle.visibility === 'hidden' ||
-    computedStyle.opacity === '0' ||
-    parseInt(computedStyle.zIndex) < MENU_FIX_CONFIG.zIndexTarget;
-
-  if (isHidden) {
-    console.warn('🔴 Menu ocultado detectado! Restaurando...');
-    restaurarMenu();
-  }
+function menuEstaOculto(menu) {
+  const estilo = window.getComputedStyle(menu);
+  return (
+    estilo.display === 'none' ||
+    estilo.visibility === 'hidden' ||
+    parseFloat(estilo.opacity) === 0 ||
+    parseInt(estilo.zIndex, 10) < MENU_Z_INDEX_MINIMO
+  );
 }
 
 function restaurarMenu() {
   const menu = document.getElementById('bottom-tab-bar');
   if (!menu) return;
 
-  // Force all required styles
-  Object.assign(menu.style, {
-    display: 'grid',
-    position: 'fixed',
-    bottom: '0',
-    left: '0',
-    right: '0',
-    zIndex: '50',
-    visibility: 'visible',
-    opacity: '1',
-    pointerEvents: 'auto'
+  // Evita que o próprio MutationObserver reaja à correção e entre em laço.
+  restaurandoMenu = true;
+  Object.assign(menu.style, MENU_ESTILO_ESPERADO);
+
+  menu.querySelectorAll('.bottom-tab-btn').forEach((btn) => {
+    btn.style.display = 'flex';
+    btn.style.pointerEvents = 'auto';
   });
 
-  // Garantir que todos os botões estejam clicáveis
-  menu.querySelectorAll('.bottom-tab-btn').forEach(btn => {
-    Object.assign(btn.style, {
-      display: 'flex',
-      pointerEvents: 'auto',
-      cursor: 'pointer',
-      zIndex: 'auto'
-    });
+  requestAnimationFrame(() => {
+    restaurandoMenu = false;
   });
-
-  console.log('✅ Menu restaurado');
 }
 
-// ===================================================================
-// MONITORAR CONTINUAMENTE
-// ===================================================================
-let menuMonitorInterval = null;
+function verificarVisibilidadeMenu() {
+  if (restaurandoMenu) return;
 
-function iniciarMonitorMenu() {
-  if (menuMonitorInterval) clearInterval(menuMonitorInterval);
+  const menu = document.getElementById('bottom-tab-bar');
+  if (!menu) return;
 
-  menuMonitorInterval = setInterval(() => {
-    verificarVisibilidadeMenu();
-  }, MENU_FIX_CONFIG.checkInterval);
-
-  console.log('📍 Menu monitor iniciado');
-}
-
-function pararMonitorMenu() {
-  if (menuMonitorInterval) {
-    clearInterval(menuMonitorInterval);
-    menuMonitorInterval = null;
-    console.log('⏸️ Menu monitor parado');
+  if (menuEstaOculto(menu)) {
+    console.warn('Menu ficou oculto — restaurando');
+    restaurarMenu();
   }
 }
 
-// ===================================================================
-// OBSERVERS: Detectar mudanças no DOM/CSS
-// ===================================================================
 function observarMudancasMenu() {
   const menu = document.getElementById('bottom-tab-bar');
   if (!menu) return;
 
-  // Observer de atributos (style, class)
-  const attrObserver = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'attributes') {
-        // Se alguém alterou style ou class, verificar
-        setTimeout(verificarVisibilidadeMenu, 100);
-      }
-    });
-  });
-
-  attrObserver.observe(menu, {
+  new MutationObserver(() => {
+    if (!restaurandoMenu) verificarVisibilidadeMenu();
+  }).observe(menu, {
     attributes: true,
-    attributeFilter: ['style', 'class'],
-    subtree: false
+    attributeFilter: ['style', 'class', 'hidden']
   });
-
-  console.log('👁️ Observers ativados no menu');
 }
 
-// ===================================================================
-// INICIALIZAR NA PÁGINA
-// ===================================================================
 document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    restaurarMenu();
-    iniciarMonitorMenu();
+  // redesign.js cria a tab bar no DOMContentLoaded; espera o próximo frame.
+  requestAnimationFrame(() => {
+    verificarVisibilidadeMenu();
     observarMudancasMenu();
 
-    // Garantir que ao trocar de aba, menu fica visível
-    document.querySelectorAll('.bottom-tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        setTimeout(restaurarMenu, 100);
-      });
+    document.querySelectorAll('.bottom-tab-btn').forEach((btn) => {
+      btn.addEventListener('click', () =>
+        requestAnimationFrame(verificarVisibilidadeMenu)
+      );
     });
-  }, 500);
+  });
 });
 
-// Exposar pra debugging no console
+// Momentos em que um modal pode ter deixado estado sujo para trás.
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) verificarVisibilidadeMenu();
+});
+window.addEventListener('pageshow', verificarVisibilidadeMenu);
+window.addEventListener('orientationchange', () =>
+  setTimeout(verificarVisibilidadeMenu, 200)
+);
+
 window.menuFix = {
   verificar: verificarVisibilidadeMenu,
   restaurar: restaurarMenu,
-  iniciar: iniciarMonitorMenu,
-  parar: pararMonitorMenu,
   status: () => {
     const menu = document.getElementById('bottom-tab-bar');
-    if (!menu) return '❌ Menu não encontrado';
-    const style = window.getComputedStyle(menu);
+    if (!menu) return 'Menu não encontrado';
+    const estilo = window.getComputedStyle(menu);
     return {
-      display: style.display,
-      visibility: style.visibility,
-      zIndex: style.zIndex,
-      position: style.position,
-      bottom: style.bottom,
-      opcidade: style.opacity
+      display: estilo.display,
+      visibility: estilo.visibility,
+      opacity: estilo.opacity,
+      zIndex: estilo.zIndex,
+      position: estilo.position,
+      oculto: menuEstaOculto(menu)
     };
   }
 };
 
-console.log('🛠️ Menu Fix loaded. Debug: window.menuFix.status()');
+console.log('🛠️ Menu fix ativo. Debug: window.menuFix.status()');

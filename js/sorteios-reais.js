@@ -1,268 +1,245 @@
 // ===================================================================
-// SORTEIOS REAIS - Integração com Supabase (Backend Scraper)
+// SORTEIOS - Calendário calculado + prêmio/concurso de fonte real
 // ===================================================================
-// Strategy: Backend function fetches real Caixa data, stores in DB
-// App reads from DB (always consistent, no CORS issues)
+// REGRA FUNDAMENTAL: dia e horário do sorteio são determinísticos e
+// podem ser calculados. Prêmio estimado e número do concurso NÃO —
+// só aparecem se vierem de fonte real (Supabase). Sem fonte, a UI
+// mostra "—". Nunca inventar valor de prêmio: além de enganar o
+// usuário, é publicidade enganosa (CDC art. 37).
 
 const SORTEIOS_CONFIG = {
-  // Supabase Edge Function que busca dados reais
-  functionUrl: 'https://[seu-project-id].supabase.co/functions/v1/fetch-sorteios',
-
-  // Fallback local
-  fallback: {
-    megasena: {
-      nome: 'Mega-Sena',
-      proximoConcurso: 2836,
-      proximoSorteio: 'Quarta',
-      hora: '20h',
-      premio: 60000000
-    },
-    lotofacil: {
-      nome: 'Lotofácil',
-      proximoConcurso: 3329,
-      proximoSorteio: 'Hoje',
-      hora: '20h',
-      premio: 1500000
-    }
-  }
+  // Derivado da config do Supabase; evita project-id hardcoded errado
+  get functionUrl() {
+    const base = window.NASA_SUPABASE_CONFIG?.url;
+    return base ? `${base}/functions/v1/fetch-sorteios` : null;
+  },
+  autoRefreshMs: 30 * 60 * 1000
 };
 
-async function sincronizarSorteiosReais() {
-  tocarBeep('click');
-  toast('🔄 Buscando últimos sorteios da Caixa...', '📡');
+const SORTEIOS_CALENDARIO = {
+  // 0=domingo, 1=segunda ... 6=sábado
+  megasena: { dias: [3, 6], hora: 20 },
+  lotofacil: { dias: [1, 2, 3, 4, 5, 6], hora: 20 }
+};
 
-  try {
-    // Buscar do Supabase (que tem dados do scraper)
-    const cliente = obterClienteSupabase();
-    if (cliente) {
-      const { data, error } = await cliente
-        .from('sorteios_cache')
-        .select('*');
+const NOMES_DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
-      if (!error && data && data.length > 0) {
-        atualizarSorteiosUIFromDb(data);
-        tocarSomNasa('sucesso');
-        toast('✅ Sorteios atualizados do servidor!', '🎯');
-        return;
-      } else {
-        console.warn('❌ Erro ao buscar DB:', error?.message);
-      }
+/**
+ * Próximo sorteio de uma modalidade a partir de `agora`.
+ * Se hoje é dia de sorteio e ainda não passou do horário, retorna "Hoje".
+ */
+function calcularProximoSorteio(modalidade, agora = new Date()) {
+  const cfg = SORTEIOS_CALENDARIO[modalidade];
+  if (!cfg) return { dia: '—', hora: '20h' };
+
+  const hojeEhDiaDeSorteio = cfg.dias.includes(agora.getDay());
+  const aindaDaTempoHoje = agora.getHours() < cfg.hora;
+
+  if (hojeEhDiaDeSorteio && aindaDaTempoHoje) {
+    return { dia: 'Hoje', hora: `${cfg.hora}h` };
+  }
+
+  for (let i = 1; i <= 7; i++) {
+    const candidato = (agora.getDay() + i) % 7;
+    if (cfg.dias.includes(candidato)) {
+      const dia = i === 1 ? 'Amanhã' : NOMES_DIAS[candidato];
+      return { dia, hora: `${cfg.hora}h` };
     }
-  } catch (err) {
-    console.warn('❌ Erro Supabase:', err.message);
   }
 
-  // Fallback 2: chamar Edge Function diretamente
-  try {
-    const response = await fetch(SORTEIOS_CONFIG.functionUrl);
-    if (response.ok) {
-      const sorteios = await response.json();
-      atualizarSorteiosUI(sorteios);
-      tocarSomNasa('sucesso');
-      toast('✅ Sorteios atualizados!', '🎯');
-      return;
-    }
-  } catch (err) {
-    console.warn('❌ Edge Function falhou:', err.message);
-  }
-
-  // Fallback 3: dados salvos localmente
-  console.log('⚠️ Usando dados locais/calculados...');
-  const sorteiosSalvos = obterSorteiosSalvos();
-  if (sorteiosSalvos) {
-    atualizarSorteiosUI(sorteiosSalvos);
-    const dataAtualizacao = new Date(sorteiosSalvos.updated);
-    const horaAgo = Math.floor((Date.now() - dataAtualizacao) / 1000 / 60);
-    toast(
-      `ℹ️ Dados de ${horaAgo}min atrás (offline)`,
-      '📌'
-    );
-  } else {
-    atualizarSorteiosUI(gerarSorteiosInteligentes());
-    toast('ℹ️ Modo offline: dados calculados', '📌');
-  }
+  return { dia: '—', hora: `${cfg.hora}h` };
 }
 
-function atualizarSorteiosUIFromDb(dbData) {
-  // dbData é array de {modalidade, proximo_concurso, proximo_sorteio, premio_estimado, ...}
-  const megasena = dbData.find(s => s.modalidade === 'megasena');
-  const lotofacil = dbData.find(s => s.modalidade === 'lotofacil');
+function formatarPremio(valor) {
+  const numero = Number(valor);
+  if (!Number.isFinite(numero) || numero <= 0) return '—';
+  return numero.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    maximumFractionDigits: 0
+  });
+}
 
-  if (megasena) {
-    const elMegaPremio = document.getElementById('cal-mega-premio');
-    const elMegaConc = document.getElementById('cal-mega-concurso');
+/**
+ * Escreve na UI. `dados` é sempre {megasena: {...}, lotofacil: {...}},
+ * onde premio/concurso podem ser null (vira "—" e não um número falso).
+ */
+function atualizarSorteiosUI(dados, origem = 'calculado') {
+  const mapa = [
+    { chave: 'megasena', idPremio: 'cal-mega-premio', idConcurso: 'cal-mega-concurso' },
+    { chave: 'lotofacil', idPremio: 'cal-loto-premio', idConcurso: 'cal-loto-concurso' }
+  ];
 
-    if (elMegaPremio) {
-      elMegaPremio.innerText = `R$ ${parseInt(megasena.premio_estimado).toLocaleString('pt-BR')}`;
+  mapa.forEach(({ chave, idPremio, idConcurso }) => {
+    const info = dados?.[chave];
+    if (!info) return;
+
+    const elPremio = document.getElementById(idPremio);
+    if (elPremio) {
+      elPremio.innerText = formatarPremio(info.premio);
+      elPremio.title = info.premio
+        ? 'Estimativa oficial sincronizada'
+        : 'Estimativa indisponível — consulte o site da Caixa';
     }
-    if (elMegaConc) {
-      elMegaConc.innerText = `Conc. ${megasena.proximo_concurso} • ${megasena.proximo_sorteio} ${megasena.hora_sorteio}`;
-    }
-  }
 
-  if (lotofacil) {
-    const elLotoPremio = document.getElementById('cal-loto-premio');
-    const elLotoConc = document.getElementById('cal-loto-concurso');
-
-    if (elLotoPremio) {
-      elLotoPremio.innerText = `R$ ${parseInt(lotofacil.premio_estimado).toLocaleString('pt-BR')}`;
+    const elConcurso = document.getElementById(idConcurso);
+    if (elConcurso) {
+      const prefixo = info.concurso ? `Conc. ${info.concurso} • ` : '';
+      elConcurso.innerText = `${prefixo}${info.dia} ${info.hora}`;
     }
-    if (elLotoConc) {
-      elLotoConc.innerText = `Conc. ${lotofacil.proximo_concurso} • ${lotofacil.proximo_sorteio} ${lotofacil.hora_sorteio}`;
-    }
-  }
+  });
 
-  // Atualizar timestamp
   const elTimestamp = document.getElementById('sorteios-ultima-sync');
   if (elTimestamp) {
-    const agora = new Date();
-    elTimestamp.innerText = `Atualizado às ${agora.toLocaleTimeString('pt-BR')}`;
-    elTimestamp.style.display = 'block';
+    const hora = new Date().toLocaleTimeString('pt-BR');
+    elTimestamp.innerText = origem === 'servidor'
+      ? `Atualizado às ${hora}`
+      : `Calendário local • ${hora}`;
+    elTimestamp.classList.remove('hidden');
   }
 }
 
-function calcularProximosSorteiosCaixa(data = new Date()) {
-  // Mega-Sena: Quarta e Sábado às 20h
-  // Lotofácil: Todos os dias (seg-sáb) às 20h
-  const diaSemana = data.getDay(); // 0=dom, 1=seg, ..., 6=sáb
-
-  let proximoMega, proximoLoto;
-
-  // Mega-Sena
-  if (diaSemana === 3) { // Quarta
-    proximoMega = 'Quarta';
-  } else if (diaSemana === 6) { // Sábado
-    proximoMega = 'Sábado';
-  } else if (diaSemana < 3) {
-    proximoMega = 'Quarta';
-  } else {
-    proximoMega = 'Sábado';
-  }
-
-  // Lotofácil (diário)
-  proximoLoto = diaSemana === 6 ? 'Segunda' : 'Hoje';
-
-  // Estimar prêmios (baseado em padrão histórico)
-  const premioMegaBase = 50000000 + Math.random() * 50000000;
-  const premioLotoBase = 1000000 + Math.random() * 2000000;
+/** Base sempre confiável: dias corretos, prêmio/concurso vazios. */
+function montarCalendarioLocal(agora = new Date()) {
+  const mega = calcularProximoSorteio('megasena', agora);
+  const loto = calcularProximoSorteio('lotofacil', agora);
 
   return {
-    megasena: {
-      nome: 'Mega-Sena',
-      proximoConcurso: 2836 + Math.floor(Math.random() * 10),
-      proximoSorteio: proximoMega,
-      hora: '20h',
-      premio: premioMegaBase.toFixed(0)
-    },
-    lotofacil: {
-      nome: 'Lotofácil',
-      proximoConcurso: 3329 + Math.floor(Math.random() * 10),
-      proximoSorteio: proximoLoto,
-      hora: '20h',
-      premio: premioLotoBase.toFixed(0)
-    },
-    updated: data.toISOString()
+    megasena: { ...mega, premio: null, concurso: null },
+    lotofacil: { ...loto, premio: null, concurso: null },
+    atualizadoEm: agora.toISOString()
   };
 }
 
-function gerarSorteiosInteligentes() {
-  return calcularProximosSorteiosCaixa();
+/** Mescla dados reais (prêmio/concurso) sobre o calendário calculado. */
+function mesclarDadosServidor(linhas, agora = new Date()) {
+  const base = montarCalendarioLocal(agora);
+
+  linhas.forEach((linha) => {
+    const chave = linha.modalidade;
+    if (!base[chave]) return;
+    base[chave].premio = linha.premio_estimado ?? null;
+    base[chave].concurso = linha.proximo_concurso ?? null;
+  });
+
+  return base;
 }
 
-function atualizarSorteiosUI(data) {
+function salvarUltimoSorteio(dados) {
   try {
-    // Mega-Sena
-    if (data.megasena || data.resultados?.megasena) {
-      const mega = data.megasena || data.resultados.megasena;
-      const elMegaPremio = document.getElementById('cal-mega-premio');
-      const elMegaConc = document.getElementById('cal-mega-concurso');
-
-      if (elMegaPremio) {
-        elMegaPremio.innerText = mega.premio
-          ? `R$ ${parseFloat(mega.premio).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            })}`
-          : 'R$ --';
-      }
-
-      if (elMegaConc) {
-        const concurso = mega.proximoConcurso || mega.concurso || '--';
-        const dia = mega.proximoSorteio || mega.dia || 'Quarta';
-        elMegaConc.innerText = `Conc. ${concurso} • ${dia} 20h`;
-      }
-    }
-
-    // Lotofácil
-    if (data.lotofacil || data.resultados?.lotofacil) {
-      const loto = data.lotofacil || data.resultados.lotofacil;
-      const elLotoPremio = document.getElementById('cal-loto-premio');
-      const elLotoConc = document.getElementById('cal-loto-concurso');
-
-      if (elLotoPremio) {
-        elLotoPremio.innerText = loto.premio
-          ? `R$ ${parseFloat(loto.premio).toLocaleString('pt-BR', {
-              style: 'currency',
-              currency: 'BRL'
-            })}`
-          : 'R$ --';
-      }
-
-      if (elLotoConc) {
-        const concurso = loto.proximoConcurso || loto.concurso || '--';
-        const dia = loto.proximoSorteio || 'Diário';
-        elLotoConc.innerText = `Conc. ${concurso} • ${dia} 20h`;
-      }
-    }
-
-    // Atualizar timestamp
-    const elTimestamp = document.getElementById('sorteios-ultima-sync');
-    if (elTimestamp) {
-      const agora = new Date();
-      elTimestamp.innerText = `Atualizado às ${agora.toLocaleTimeString('pt-BR')}`;
-      elTimestamp.style.display = 'block';
-    }
+    localStorage.setItem(
+      'sorteios_ultima_sincronizacao',
+      JSON.stringify({ ...dados, atualizadoEm: new Date().toISOString() })
+    );
   } catch (err) {
-    console.error('Erro ao atualizar UI:', err);
-  }
-}
-
-function salvarUltimoSorteio(data) {
-  try {
-    data.updated = new Date().toISOString();
-    localStorage.setItem('sorteios_ultima_sincronizacao', JSON.stringify(data));
-  } catch (err) {
-    console.warn('Erro ao salvar sorteios:', err);
+    console.warn('Não foi possível salvar sorteios:', err);
   }
 }
 
 function obterSorteiosSalvos() {
   try {
     const salvos = localStorage.getItem('sorteios_ultima_sincronizacao');
-    if (salvos) return JSON.parse(salvos);
+    return salvos ? JSON.parse(salvos) : null;
   } catch (err) {
-    console.warn('Erro ao recuperar sorteios salvos:', err);
+    console.warn('Não foi possível ler sorteios salvos:', err);
+    return null;
   }
-  return null;
 }
 
-// ===================================================================
-// SINCRONIZAR AUTOMATICAMENTE AO CARREGAR
-// ===================================================================
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    sincronizarSorteiosReais();
+async function sincronizarSorteiosReais({ silencioso = false } = {}) {
+  if (!silencioso) {
+    tocarBeep('click');
+    toast('🔄 Buscando sorteios da Caixa...', '📡');
+  }
 
-    // Auto-refresh a cada 30 minutos
-    setInterval(sincronizarSorteiosReais, 30 * 60 * 1000);
+  const agora = new Date();
+
+  // Calendário é confiável offline: pinta primeiro pra nunca ficar vazio.
+  atualizarSorteiosUI(montarCalendarioLocal(agora), 'calculado');
+
+  // 1) Cache no Supabase (alimentado pela Edge Function)
+  try {
+    const cliente = obterClienteSupabase();
+    if (cliente) {
+      const { data, error } = await cliente.from('sorteios_cache').select('*');
+      if (!error && data?.length) {
+        const dados = mesclarDadosServidor(data, agora);
+        atualizarSorteiosUI(dados, 'servidor');
+        salvarUltimoSorteio(dados);
+        if (!silencioso) {
+          tocarSomNasa('sucesso');
+          toast('✅ Sorteios atualizados', '🎯');
+        }
+        return;
+      }
+      if (error) console.warn('sorteios_cache indisponível:', error.message);
+    }
+  } catch (err) {
+    console.warn('Supabase indisponível:', err.message);
+  }
+
+  // 2) Edge Function direta
+  try {
+    const url = SORTEIOS_CONFIG.functionUrl;
+    if (url) {
+      const resposta = await fetch(url);
+      if (resposta.ok) {
+        const linhas = await resposta.json();
+        if (Array.isArray(linhas) && linhas.length) {
+          const dados = mesclarDadosServidor(linhas, agora);
+          atualizarSorteiosUI(dados, 'servidor');
+          salvarUltimoSorteio(dados);
+          if (!silencioso) {
+            tocarSomNasa('sucesso');
+            toast('✅ Sorteios atualizados', '🎯');
+          }
+          return;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Edge Function indisponível:', err.message);
+  }
+
+  // 3) Último cache local: reaproveita prêmio/concurso, recalcula os dias
+  const salvos = obterSorteiosSalvos();
+  if (salvos?.megasena?.premio || salvos?.lotofacil?.premio) {
+    const dados = montarCalendarioLocal(agora);
+    dados.megasena.premio = salvos.megasena?.premio ?? null;
+    dados.megasena.concurso = salvos.megasena?.concurso ?? null;
+    dados.lotofacil.premio = salvos.lotofacil?.premio ?? null;
+    dados.lotofacil.concurso = salvos.lotofacil?.concurso ?? null;
+    atualizarSorteiosUI(dados, 'servidor');
+
+    if (!silencioso) {
+      const minutos = Math.floor((Date.now() - new Date(salvos.atualizadoEm)) / 60000);
+      toast(`ℹ️ Prêmios de ${minutos} min atrás (offline)`, '📌');
+    }
+    return;
+  }
+
+  // 4) Sem nenhuma fonte: datas corretas, prêmio "—" e aviso honesto
+  if (!silencioso) {
+    toast('ℹ️ Datas confirmadas. Prêmios indisponíveis no momento.', '📌');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  atualizarSorteiosUI(montarCalendarioLocal(), 'calculado');
+
+  setTimeout(() => {
+    sincronizarSorteiosReais({ silencioso: true });
+    setInterval(
+      () => sincronizarSorteiosReais({ silencioso: true }),
+      SORTEIOS_CONFIG.autoRefreshMs
+    );
   }, 1500);
 });
 
-// Exposar no console pra debug
 window.sorteios = {
   sincronizar: sincronizarSorteiosReais,
   ultimos: obterSorteiosSalvos,
-  forceLocal: () => atualizarSorteiosUI(SORTEIOS_API.fallback)
+  calendarioLocal: () => atualizarSorteiosUI(montarCalendarioLocal(), 'calculado')
 };
 
-console.log('🎯 Sorteios Reais module loaded. Debug: window.sorteios.sincronizar()');
+console.log('🎯 Sorteios carregado. Debug: window.sorteios.sincronizar()');
