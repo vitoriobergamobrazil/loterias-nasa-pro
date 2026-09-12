@@ -212,68 +212,18 @@ function processarUpgrade(planId) {
   }
 }
 
-/**
- * Show checkout for Avulso (R$ 4,90)
- */
+// Os checkouts abaixo mostravam "[QR Code PIX] Simulado para teste" com um
+// código copia-e-cola inventado e um botão "Confirmei o Pagamento" que não
+// verificava nada. Agora quem atende avulso e anual é mostrarCheckoutReal(),
+// em js/checkout-asaas.js, que gera cobrança de verdade.
 function mostrarCheckoutAvulso() {
-  tocarSomNasa('purchase');
-
-  const modal = document.getElementById('modal-upgrade-nasa');
-  const content = modal.querySelector('.modal-upgrade-content');
-
-  content.innerHTML = `
-    <button id="btn-close-upgrade-modal" class="modal-upgrade-close" title="Fechar">✕</button>
-
-    <div class="modal-upgrade-checkout">
-      <div class="modal-upgrade-checkout-header">
-        <h3>Checkout - Quero Apenas 1 Jogo</h3>
-        <p>R$ 4,90 • Pagamento único</p>
-      </div>
-
-      <div class="modal-upgrade-checkout-qrcode">
-        <div class="modal-upgrade-qrcode-placeholder">
-          [QR Code PIX]
-          <br/>
-          <small style="color: #94a3b8;">Simulado para teste</small>
-        </div>
-        <p style="text-align: center; font-size: 0.875rem; color: #cbd5e1; margin-top: 1rem;">
-          Escaneie com seu app de banco
-        </p>
-      </div>
-
-      <div class="modal-upgrade-checkout-copia-cola" style="margin: 1.5rem 0;">
-        <p style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 0.5rem;">Ou copie e cola:</p>
-        <div style="background: rgba(51, 65, 85, 0.8); border: 1px solid rgb(71, 85, 105); border-radius: 0.5rem; padding: 0.75rem; font-family: monospace; font-size: 0.75rem; word-break: break-all; color: #0ea5e9;">
-          00020126580014br.gov.bcb.brcode01051.0.063084...
-        </div>
-        <button onclick="copiarCodigoPixParaClipboard()" style="width: 100%; margin-top: 0.75rem; padding: 0.75rem; background: rgb(34, 197, 94); color: white; border: none; border-radius: 0.5rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease;"
-                onmouseover="this.style.transform='translateY(-2px)'"
-                onmouseout="this.style.transform='translateY(0)'">
-          📋 Copiar Código PIX
-        </button>
-      </div>
-
-      <div style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgb(34, 211, 238); border-radius: 0.75rem; padding: 1rem; text-align: center;">
-        <p style="font-size: 0.875rem; color: #0ea5e9; margin: 0;">
-          ⏱️ Você tem <strong>10 minutos</strong> para confirmar o pagamento
-        </p>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.5rem;">
-        <button onclick="fecharModalUpgrade(); tocarBeep('click');"
-                style="padding: 0.75rem; background: rgb(71, 85, 105); color: white; border: none; border-radius: 0.75rem; cursor: pointer;">
-          Voltar
-        </button>
-        <button onclick="confirmarPagamentoSimulado('avulso'); tocarBeep('click');"
-                style="padding: 0.75rem; background: linear-gradient(135deg, rgb(34, 197, 94), rgb(6, 182, 212)); color: rgb(15, 23, 42); border: none; border-radius: 0.75rem; font-weight: 700; cursor: pointer;">
-          ✓ Confirmei o Pagamento
-        </button>
-      </div>
-    </div>
-  `;
-
-  document.getElementById('btn-close-upgrade-modal')?.addEventListener('click', fecharModalUpgrade);
+  return mostrarCheckoutReal('avulso');
 }
+
+function mostrarCheckoutAnual() {
+  return mostrarCheckoutReal('anual');
+}
+
 
 /**
  * Show checkout with 3-day trial
@@ -337,66 +287,6 @@ function mostrarCheckoutComTrial() {
   document.getElementById('btn-close-upgrade-modal')?.addEventListener('click', fecharModalUpgrade);
 }
 
-/**
- * Show checkout for annual plan
- */
-function mostrarCheckoutAnual() {
-  tocarSomNasa('purchase');
-
-  const modal = document.getElementById('modal-upgrade-nasa');
-  const content = modal.querySelector('.modal-upgrade-content');
-
-  content.innerHTML = `
-    <button id="btn-close-upgrade-modal" class="modal-upgrade-close" title="Fechar">✕</button>
-
-    <div class="modal-upgrade-checkout">
-      <div class="modal-upgrade-checkout-header">
-        <h3>Apollo VIP - Plano Anual</h3>
-        <p>R$ 197/ano • R$ 16,41/mês (-45% desconto)</p>
-      </div>
-
-      <div class="modal-upgrade-checkout-qrcode">
-        <div class="modal-upgrade-qrcode-placeholder">
-          [QR Code PIX]
-          <br/>
-          <small style="color: #94a3b8;">Simulado para teste</small>
-        </div>
-        <p style="text-align: center; font-size: 0.875rem; color: #cbd5e1; margin-top: 1rem;">
-          Escaneie com seu app de banco
-        </p>
-      </div>
-
-      <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgb(245, 158, 11); border-radius: 0.75rem; padding: 1rem; text-align: center; margin: 1.5rem 0;">
-        <p style="font-size: 0.875rem; color: rgb(245, 158, 11); margin: 0;">
-          💰 <strong>Economize R$ 161,80/ano</strong> comparado ao plano mensal
-        </p>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.5rem;">
-        <button onclick="fecharModalUpgrade(); tocarBeep('click');"
-                style="padding: 0.75rem; background: rgb(71, 85, 105); color: white; border: none; border-radius: 0.75rem; cursor: pointer;">
-          Voltar
-        </button>
-        <button onclick="confirmarPagamentoSimulado('anual'); tocarBeep('click');"
-                style="padding: 0.75rem; background: linear-gradient(135deg, rgb(245, 158, 11), rgb(217, 119, 6)); color: rgb(15, 23, 42); border: none; border-radius: 0.75rem; font-weight: 700; cursor: pointer;">
-          Assinar Agora
-        </button>
-      </div>
-    </div>
-  `;
-
-  document.getElementById('btn-close-upgrade-modal')?.addEventListener('click', fecharModalUpgrade);
-}
-
-/**
- * Copy PIX code to clipboard
- */
-function copiarCodigoPixParaClipboard() {
-  const codigo = '00020126580014br.gov.bcb.brcode01051.0.063084...';
-  navigator.clipboard.writeText(codigo).then(() => {
-    toast('📋 Código PIX copiado!', '✅');
-  });
-}
 
 /**
  * Confirmação pós-checkout.
