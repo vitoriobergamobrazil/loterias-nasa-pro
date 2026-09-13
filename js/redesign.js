@@ -82,12 +82,17 @@ function createSimplifiedHome() {
   homeView.className = 'active';
 
   homeView.innerHTML = `
-    <!-- Hero Card -->
+    <!-- Hero Card: duas portas de entrada — quem já tem números prontos
+         (abre o modal de colar/digitar, sem gerar nem salvar nada) e quem
+         quer que o app gere e gerencie as apostas (aba Gerar de sempre). -->
     <div class="hero-simple">
       <h1>Gestão de Apostas com Ciência</h1>
       <p>Não é sorte, é estatística: analise suas dezenas com rigor matemático antes de apostar</p>
-      <button class="hero-cta" onclick="activateTab('gerar'); tocarBeep('click');">
-        🔬 Analisar Minha Aposta
+      <button class="hero-cta" onclick="abrirModalAnalisarNumeros(); tocarBeep('click');">
+        🔬 Já Tenho Meus Números
+      </button>
+      <button class="hero-cta hero-cta-secundario" onclick="activateTab('gerar'); tocarBeep('click');">
+        🎯 Gerar e Gerenciar Apostas
       </button>
     </div>
 

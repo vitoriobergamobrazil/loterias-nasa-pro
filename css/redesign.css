@@ -176,6 +176,34 @@ html.redesign main > section.active {
   box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
 }
 
+.hero-cta + .hero-cta {
+  margin-left: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .hero-cta {
+    display: block;
+    width: 100%;
+  }
+  .hero-cta + .hero-cta {
+    margin-left: 0;
+    margin-top: 0.75rem;
+  }
+}
+
+.hero-cta-secundario {
+  background: transparent;
+  color: rgb(203, 213, 225);
+  border: 1px solid rgb(71, 85, 105);
+  box-shadow: none;
+}
+
+.hero-cta-secundario:hover {
+  background: rgba(71, 85, 105, 0.3);
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
 .hero-cta:active {
   transform: scale(0.95);
 }

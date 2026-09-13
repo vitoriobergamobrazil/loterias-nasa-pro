@@ -18,6 +18,29 @@ function usuarioEhPro() {
  * Trava visual de um card de teste: borra o conteúdo e sobrepõe um
  * cadeado com CTA. Idempotente (não duplica a camada se já aplicada).
  */
+/**
+ * "1 análise grátis" = ver o diagnóstico inteiro deste jogo, não um card
+ * por vez — gastar 1 crédito revela os 4 testes bloqueados E o painel de
+ * score juntos. Chamada tanto pelo cadeado de um teste quanto pelo do
+ * painel de score.
+ */
+function revelarDiagnosticoCompletoComCredito(origem) {
+  const revelarTudo = () => {
+    TESTES_BLOQUEADOS_FREE.forEach((idx) => {
+      removerTravaCientifica(document.getElementById(`teste-card-${idx}`));
+    });
+    removerTravaCientifica(document.getElementById('painel-score-telemetria'));
+  };
+
+  if (typeof tratarCliqueTravaCientifica === 'function') {
+    tratarCliqueTravaCientifica(origem, revelarTudo);
+    return;
+  }
+  // Fallback se creditos-gratis.js não carregou por algum motivo.
+  if (typeof abrirModalPaywall === 'function') abrirModalPaywall(origem);
+  if (typeof tocarBeep === 'function') tocarBeep('click');
+}
+
 function aplicarTravaCientifica(card, numeroTeste) {
   if (!card || card.querySelector('.science-lock-overlay')) return;
   card.classList.add('science-lock-blurred');
@@ -28,12 +51,7 @@ function aplicarTravaCientifica(card, numeroTeste) {
     <span class="science-lock-icon">🔒</span>
     <span class="science-lock-label">Teste PRO</span>
   `;
-  overlay.onclick = () => {
-    if (typeof abrirModalPaywall === 'function') {
-      abrirModalPaywall('bateria_testes');
-    }
-    if (typeof tocarBeep === 'function') tocarBeep('click');
-  };
+  overlay.onclick = () => revelarDiagnosticoCompletoComCredito('bateria_testes');
   card.appendChild(overlay);
 }
 
@@ -78,10 +96,7 @@ function aplicarGateCientificoNasa() {
         <span class="science-lock-label">Score completo é PRO</span>
         <span class="science-lock-sublabel">Veja o diagnóstico dos 6 testes e o score de eficiência combinatória</span>
       `;
-      overlay.onclick = () => {
-        if (typeof abrirModalPaywall === 'function') abrirModalPaywall('score_telemetria');
-        if (typeof tocarBeep === 'function') tocarBeep('click');
-      };
+      overlay.onclick = () => revelarDiagnosticoCompletoComCredito('score_telemetria');
       painelScore.appendChild(overlay);
     }
   }
@@ -149,31 +164,12 @@ function aplicarGateCientificoNasa() {
   }
 })();
 
-/**
- * Restaura ou expira o trial gratuito de 3 dias entre recarregamentos
- * de página. planoUsuario é uma variável em memória (reseta pra
- * 'free' a cada load), então sem isso o trial "sumiria" ao dar F5.
- */
-function sincronizarTrialGratuito() {
-  const expiraEmRaw = localStorage.getItem('nasa_trial_expira_em');
-  if (!expiraEmRaw) return;
-
-  const expiraEm = parseInt(expiraEmRaw, 10);
-  if (Number.isNaN(expiraEm) || Date.now() >= expiraEm) {
-    localStorage.removeItem('nasa_trial_expira_em');
-    return;
-  }
-
-  // Trial ainda válido: restaura o plano PRO nesta sessão de página.
-  if (typeof planoUsuario !== 'undefined' && planoUsuario !== 'pro') {
-    planoUsuario = 'pro';
-    if (typeof usuarioSessao !== 'undefined' && usuarioSessao) usuarioSessao.plano = 'pro';
-    if (typeof atualizarVisualPlano === 'function') atualizarVisualPlano();
-  }
-}
-
+// O trial de 3 dias (nasa_trial_expira_em, restaurado aqui a cada F5) foi
+// aposentado: o único mecanismo de "grátis" do app agora são as 3 análises
+// por cadastro, sem prazo (js/creditos-gratis.js). Manter os dois rodando
+// juntos seria recriar o mesmo problema de sistemas de paywall paralelos
+// já corrigido nesta base de código.
 document.addEventListener('DOMContentLoaded', function () {
-  sincronizarTrialGratuito();
   aplicarGateCientificoNasa();
   console.log('🔬 Science gate (paywall real) ativo');
 });

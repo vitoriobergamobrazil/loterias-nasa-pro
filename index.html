@@ -19,7 +19,11 @@
   <!-- Micro-interactions (Sounds, Haptic, Animations) -->
   <script src="./js/micro-interactions.js" defer></script>
   <!-- Science Gate (enforcement real do paywall + teaser dos 6 testes) -->
+  <!-- Créditos de análise grátis (3 por cadastro, sem prazo) -->
+  <script src="./js/creditos-gratis.js" defer></script>
   <script src="./js/science-gate.js" defer></script>
+  <!-- Caminho A: "Já tenho meus números" -->
+  <script src="./js/analisar-numeros.js" defer></script>
   <!-- OAuth Login (Google + Meta) -->
   <script src="./js/oauth-login.js" defer></script>
   <!-- Lead Capture (Email/WhatsApp on Home) -->
@@ -5904,7 +5908,7 @@ function abrirModalDialog(msg, callback) {
       const usuario = data.session.user;
       const { data: perfil } = await cliente
         .from('profiles')
-        .select('display_name, role')
+        .select('display_name, role, analises_gratis_restantes')
         .eq('id', usuario.id)
         .maybeSingle();
       const { data: assinatura } = await cliente
@@ -5923,6 +5927,11 @@ function abrirModalDialog(msg, callback) {
         avatar: 'U',
         tipo: perfil?.role === 'owner' ? 'master_founder' : 'supabase',
         plano: assinatura ? 'pro' : 'free',
+        // Créditos de análise grátis (3 por cadastro, sem prazo — ver
+        // js/creditos-gratis.js). O default 3 vem da coluna no Supabase;
+        // se a linha de profiles ainda não existir por algum motivo,
+        // trata como 0 em vez de undefined (evita "0 > 0" virar NaN).
+        creditosGratis: perfil?.analises_gratis_restantes ?? 0,
         dataConexao: new Date().toISOString()
       };
       planoUsuario = assinatura ? 'pro' : 'free';
@@ -6094,10 +6103,22 @@ function abrirModalDialog(msg, callback) {
         plano: 'free',
         dataConexao: new Date().toISOString()
       };
+
+      // Busca perfil, assinatura e créditos de análise grátis reais em vez
+      // de assumir aqui (evita duplicar a mesma consulta em dois lugares
+      // com risco de um deles ficar desatualizado).
+      await restaurarSessaoSupabase();
+
       atualizarPerfilUsuarioUI();
       fecharModalAuth();
       tocarSomNasa('sucesso');
-      toast(modoAuthAtual === 'cadastrar' ? `Conta criada com sucesso! Bem-vindo, ${usuarioSessao.nome}!` : 'Login efetuado com sucesso!', '🚀');
+      const nomeExibido = usuarioSessao?.nome || nome;
+      toast(
+        modoAuthAtual === 'cadastrar'
+          ? `Conta criada! Bem-vindo, ${nomeExibido} — você ganhou 3 análises completas grátis.`
+          : 'Login efetuado com sucesso!',
+        '🚀'
+      );
     }
 
     function abrirCadastroVisitante() {

@@ -10,8 +10,8 @@ const UPGRADE_CONFIG = {
       price: 'R$ 0',
       period: 'eternamente',
       features: [
-        '✓ 1 análise por vez',
-        '✓ 2 de 6 Testes Orbitais',
+        '✓ 3 análises completas grátis ao cadastrar',
+        '✓ 2 de 6 Testes Orbitais depois',
         '✓ Gestão de 2 bilhetes',
         '✓ Diagnóstico básico'
       ],
@@ -46,7 +46,7 @@ const UPGRADE_CONFIG = {
         '✓ Matriz 4x4 e fechamentos C(n,k)',
         '✓ Carteira em nuvem'
       ],
-      cta: 'Testar 3 dias',
+      cta: 'Assinar Mensal',
       color: 'cyan',
       badge: 'RECOMENDADO',
       icon: '🚀'
@@ -139,9 +139,9 @@ function generateUpgradeModalHTML() {
               ${plan.cta}
             </button>
 
-            ${plan.id === 'mensal' ? `
+            ${plan.id === 'free' ? `
               <div class="modal-upgrade-trial-info">
-                <span>⏱️</span> Teste grátis por 3 dias. Sem cartão necessário.
+                <span>🎁</span> Cadastre-se e ganhe 3 análises completas grátis.
               </div>
             ` : ''}
           </div>
@@ -206,7 +206,7 @@ function processarUpgrade(planId) {
   if (planId === 'avulso') {
     mostrarCheckoutAvulso();
   } else if (planId === 'mensal') {
-    mostrarCheckoutComTrial();
+    mostrarCheckoutReal('mensal');
   } else if (planId === 'anual') {
     mostrarCheckoutAnual();
   }
@@ -225,136 +225,11 @@ function mostrarCheckoutAnual() {
 }
 
 
-/**
- * Show checkout with 3-day trial
- */
-function mostrarCheckoutComTrial() {
-  tocarSomNasa('purchase');
-
-  const modal = document.getElementById('modal-upgrade-nasa');
-  const content = modal.querySelector('.modal-upgrade-content');
-
-  content.innerHTML = `
-    <button id="btn-close-upgrade-modal" class="modal-upgrade-close" title="Fechar">✕</button>
-
-    <div class="modal-upgrade-checkout">
-      <div class="modal-upgrade-checkout-header">
-        <h3>Teste Gratuito - 3 Dias</h3>
-        <p>Astronauta NASA • R$ 29,90/mês após teste</p>
-      </div>
-
-      <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgb(34, 197, 94); border-radius: 0.75rem; padding: 1rem; text-align: center; margin: 1.5rem 0;">
-        <p style="font-size: 1.25rem; font-weight: 900; color: rgb(34, 197, 94); margin: 0;">
-          3️⃣ DIAS GRÁTIS
-        </p>
-        <p style="font-size: 0.875rem; color: #cbd5e1; margin: 0.5rem 0 0 0;">
-          Sem cartão necessário • Cancele a qualquer momento
-        </p>
-      </div>
-
-      <div style="background: rgba(51, 65, 85, 0.5); border: 1px solid rgb(71, 85, 105); border-radius: 0.75rem; padding: 1rem; margin: 1rem 0;">
-        <p style="font-size: 0.875rem; font-weight: 700; color: white; margin: 0 0 0.75rem 0;">✓ O que você terá acesso:</p>
-        <ul style="font-size: 0.875rem; color: #cbd5e1; margin: 0; padding-left: 1.25rem;">
-          <li>Palpites ilimitados</li>
-          <li>Matriz 4x4 completa</li>
-          <li>6 Testes Orbitais</li>
-          <li>Carteira em nuvem</li>
-          <li>Suporte prioritário</li>
-        </ul>
-      </div>
-
-      <div style="display: flex; gap: 0.75rem; margin: 1.5rem 0; align-items: center; font-size: 0.875rem; color: #94a3b8;">
-        <input type="email" id="input-trial-email" placeholder="seu@email.com" style="flex: 1; padding: 0.75rem; background: rgb(51, 65, 85); border: 1px solid rgb(71, 85, 105); border-radius: 0.5rem; color: white; outline: none;" />
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-        <button onclick="fecharModalUpgrade(); tocarBeep('click');"
-                style="padding: 0.75rem; background: rgb(71, 85, 105); color: white; border: none; border-radius: 0.75rem; cursor: pointer;">
-          Voltar
-        </button>
-        <button onclick="confirmarPagamentoSimulado('mensal'); tocarBeep('click');"
-                style="padding: 0.75rem; background: linear-gradient(135deg, rgb(34, 197, 94), rgb(6, 182, 212)); color: rgb(15, 23, 42); border: none; border-radius: 0.75rem; font-weight: 700; cursor: pointer;">
-          Ativar Teste
-        </button>
-      </div>
-
-      <p style="font-size: 0.75rem; color: #64748b; text-align: center; margin: 1rem 0 0 0;">
-        Ao iniciar, você concorda com os Termos de Uso e Política de Privacidade
-      </p>
-    </div>
-  `;
-
-  document.getElementById('btn-close-upgrade-modal')?.addEventListener('click', fecharModalUpgrade);
-}
-
-
-/**
- * Único chamador restante é o botão de Trial (mostrarCheckoutComTrial).
- * Avulso e Anual passaram a usar mostrarCheckoutReal() (js/checkout-asaas.js),
- * que fala com o gateway Asaas de verdade — não voltam mais por aqui.
- */
-function confirmarPagamentoSimulado(planId) {
-  if (planId === 'mensal') {
-    ativarTrialReal();
-  }
-}
-
-/**
- * Concede um trial real de 3 dias (sem cartão, sem cobrança) e
- * sincroniza com o estado de plano que o resto do app já usa
- * (planoUsuario / usuarioSessao), disparando a atualização visual e
- * o gate científico dos 6 testes.
- */
-function ativarTrialReal() {
-  const expiraEm = Date.now() + (3 * 24 * 60 * 60 * 1000);
-  localStorage.setItem('nasa_trial_expira_em', String(expiraEm));
-
-  if (typeof planoUsuario !== 'undefined') planoUsuario = 'pro';
-  if (typeof usuarioSessao !== 'undefined' && usuarioSessao) usuarioSessao.plano = 'pro';
-
-  if (typeof atualizarVisualPlano === 'function') atualizarVisualPlano();
-  if (typeof aplicarGateCientificoNasa === 'function') aplicarGateCientificoNasa();
-
-  tocarSomNasa('sucesso');
-
-  const modal = document.getElementById('modal-upgrade-nasa');
-  const content = modal.querySelector('.modal-upgrade-content');
-
-  const dataFim = new Date(expiraEm).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' });
-
-  content.innerHTML = `
-    <div style="text-align: center; padding: 2rem; animation: slideIn 0.5s ease;">
-      <div style="font-size: 3rem; margin-bottom: 1rem; animation: bounce 0.6s ease;">
-        🎉
-      </div>
-      <h3 style="color: rgb(34, 197, 94); font-size: 1.5rem; font-weight: 900; margin: 0 0 0.5rem 0;">
-        Trial de 3 Dias Ativado!
-      </h3>
-      <p style="color: #cbd5e1; margin: 0 0 0.5rem 0;">
-        Acesso completo liberado até <strong>${dataFim}</strong>. Sem cartão, sem cobrança automática.
-      </p>
-      <p style="color: #94a3b8; font-size: 0.75rem; margin: 0 0 1.5rem 0;">
-        Ao final do teste, seu plano volta para o Gratuito automaticamente.
-      </p>
-      <button onclick="fecharModalUpgrade(); toast('🚀 Testes Orbitais completos liberados!', '✨'); tocarBeep('click');"
-              style="padding: 0.75rem 2rem; background: linear-gradient(135deg, rgb(34, 197, 94), rgb(6, 182, 212)); color: rgb(15, 23, 42); border: none; border-radius: 0.75rem; font-weight: 700; cursor: pointer; font-size: 1rem;">
-        Começar Agora
-      </button>
-    </div>
-
-    <style>
-      @keyframes slideIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      @keyframes bounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-      }
-    </style>
-  `;
-
-  console.log(`✅ Trial ativado até: ${new Date(expiraEm).toISOString()}`);
-}
+// mostrarCheckoutComTrial(), confirmarPagamentoSimulado() e ativarTrialReal()
+// concediam um trial de 3 dias, mecanismo próprio do plano Mensal. Removidas:
+// o único "grátis" do app agora são as 3 análises por cadastro, sem prazo
+// (js/creditos-gratis.js), a mesma oferta para qualquer caminho de entrada.
+// processarUpgrade('mensal') vai direto para mostrarCheckoutReal('mensal')
+// (js/checkout-asaas.js), como Avulso e Anual já faziam.
 
 console.log('🎨 Upgrade modal module loaded');
