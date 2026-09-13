@@ -22,7 +22,7 @@ const UPGRADE_CONFIG = {
     {
       id: 'avulso',
       name: 'Quero Apenas 1 Jogo',
-      price: 'R$ 4,90',
+      price: 'R$ 5,90',
       period: 'único',
       features: [
         '✓ 3 apostas calibradas',

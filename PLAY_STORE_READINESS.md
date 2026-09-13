@@ -28,7 +28,7 @@
 - [x] Free tier functional
 - [x] PRO tier functional with paywall
 - [x] Trial period (3 days) implemented
-- [x] One-time purchase (R$ 4,90 avulso) ready
+- [x] One-time purchase (R$ 5,90 avulso) ready
 - [x] Recurring subscriptions (mensal/anual) ready
 - [x] Payment confirmed with celebratory UX
 
@@ -111,7 +111,7 @@ A NASA oferece matemática, probabilidade e análise estatística.
 - Teste grátis (1 palpite + 2 testes)
 - Plano Mensal: R$ 29,90
 - Plano Anual: R$ 197 (45% OFF)
-- Plano Avulso: R$ 4,90
+- Plano Avulso: R$ 5,90
 
 ✅ SEGURANÇA & PRIVACIDADE
 - Criptografia TLS 1.3 (HTTPS)
@@ -143,7 +143,7 @@ Desenvolvido com rigor matemático e ética clara.
 - Free with in-app purchases
 - PRO: R$ 29,90/month
 - PRO Annual: R$ 197/year
-- Avulso: R$ 4,90 (one-time)
+- Avulso: R$ 5,90 (one-time)
 
 ---
 

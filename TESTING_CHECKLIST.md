@@ -67,7 +67,7 @@
 
 ### Interação com Planos
 - [ ] Clique em "FREE" → mensagem "Seu plano atual"
-- [ ] Clique em "Avulso" (R$ 4,90) → abre checkout PIX
+- [ ] Clique em "Avulso" (R$ 5,90) → abre checkout PIX
   - [ ] QR Code exibido (simulado)
   - [ ] Botão "Copiar Código PIX" → copia para clipboard
   - [ ] Timeout de 10 minutos visível

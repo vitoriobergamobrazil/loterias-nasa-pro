@@ -11,7 +11,7 @@
 //     depois pelo webhook.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -40,7 +40,11 @@ interface Plano {
 const PLANOS: Record<string, Plano> = {
   avulso: {
     nome: "Análise Avulsa",
-    valor: 4.9,
+    // O Asaas recusa cobrança abaixo de R$ 5,00; R$ 4,90 batia nesse piso
+    // e toda tentativa de compra falhava com "valor não pode ser menor
+    // que R$ 5,00" — só foi descoberto simulando uma cobrança de verdade
+    // no sandbox.
+    valor: 5.9,
     recorrente: false,
     descricao: "Loterias NASA Pro — análise avulsa"
   },
