@@ -91,41 +91,48 @@ function createSimplifiedHome() {
       </button>
     </div>
 
-    <!-- Próximos Sorteios -->
+    <!-- Próximos Sorteios: classes js-* são preenchidas por sorteios-reais.js.
+         Antes deste fix, esses valores eram texto fixo no template
+         ("R$ 56.5M", "2h 45min") e nunca mudavam — a home mostrava sempre a
+         mesma mentira, mesmo com o resto do app já lendo dado real da Caixa. -->
     <div class="info-card">
       <div class="info-card-title">📅 Próximos Sorteios</div>
       <div style="space-y: 0.5rem;">
         <div class="sorteio-card">
           <div class="sorteio-info">
             <div class="sorteio-modalidade">Mega-Sena</div>
-            <div class="sorteio-tempo">Quarta 20h</div>
-            <div class="sorteio-premio">Acumulado: R$ 56.5M</div>
+            <div class="sorteio-tempo js-mega-concurso">—</div>
+            <div class="sorteio-premio">Acumulado: <span class="js-mega-premio">—</span></div>
           </div>
-          <div class="sorteio-countdown">2h 45min</div>
+          <div class="sorteio-countdown js-megasena-countdown">—</div>
         </div>
 
         <div class="sorteio-card">
           <div class="sorteio-info">
             <div class="sorteio-modalidade">Lotofácil</div>
-            <div class="sorteio-tempo">Hoje 20h</div>
-            <div class="sorteio-premio">Acumulado: R$ 1.85M</div>
+            <div class="sorteio-tempo js-loto-concurso">—</div>
+            <div class="sorteio-premio">Acumulado: <span class="js-loto-premio">—</span></div>
           </div>
-          <div class="sorteio-countdown">4h 20min</div>
+          <div class="sorteio-countdown js-lotofacil-countdown">—</div>
         </div>
       </div>
     </div>
 
-    <!-- Seu Progresso -->
+    <!-- Resumo da carteira: valores reais vêm de atualizarProgressoHome() em
+         js/redesign.js, chamada sempre que a carteira muda. Antes ficava
+         travado em "0 / R$ 0" mesmo com bilhetes salvos de verdade.
+         Chamava-se "Seu Progresso" — nome trocado porque tratar valor
+         apostado como progresso soa como incentivo a apostar mais. -->
     <div class="info-card">
-      <div class="info-card-title">📊 Seu Progresso</div>
+      <div class="info-card-title">💼 Resumo da Carteira</div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
         <div>
-          <div class="info-card-value">0</div>
+          <div class="info-card-value js-progresso-bilhetes">0</div>
           <div class="info-card-subtitle">Bilhetes salvos</div>
         </div>
         <div>
-          <div class="info-card-value">R$ 0</div>
-          <div class="info-card-subtitle">Investimento</div>
+          <div class="info-card-value js-progresso-investimento">R$ 0</div>
+          <div class="info-card-subtitle">Investido</div>
         </div>
       </div>
     </div>
@@ -151,7 +158,35 @@ function createSimplifiedHome() {
     main.insertBefore(homeView, main.firstChild);
   }
 
+  // O boot do app (index.html) chama atualizarPainelCarteira() ANTES deste
+  // ponto — o listener dele é registrado primeiro porque roda num <script>
+  // inline sem defer, executado no meio do parsing do HTML, enquanto este
+  // arquivo só roda no DOMContentLoaded (depois de todo o documento
+  // processado). Então a primeira tentativa de preencher ".js-progresso-*"
+  // não encontra os elementos, que ainda não existiam. Hidrata aqui com o
+  // que já estiver disponível, em vez de esperar a próxima ação do usuário.
+  if (typeof carteiraJogos !== 'undefined' && Array.isArray(carteiraJogos)) {
+    const totalInvestido = carteiraJogos.reduce((soma, b) => soma + (b.custo || 0), 0);
+    atualizarResumoHome(carteiraJogos.length, totalInvestido);
+  }
+
   console.log('✅ Simplified home view created');
+}
+
+/**
+ * Atualiza o resumo da carteira na home. Chamada por atualizarPainelCarteira()
+ * (index.html) sempre que um bilhete é salvo, conferido ou removido.
+ */
+function atualizarResumoHome(totalBilhetes, totalInvestido) {
+  document.querySelectorAll('.js-progresso-bilhetes').forEach((el) => {
+    el.innerText = totalBilhetes;
+  });
+  document.querySelectorAll('.js-progresso-investimento').forEach((el) => {
+    el.innerText = totalInvestido.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  });
 }
 
 /**

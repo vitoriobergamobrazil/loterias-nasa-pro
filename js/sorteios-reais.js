@@ -50,6 +50,43 @@ function calcularProximoSorteio(modalidade, agora = new Date()) {
   return { dia: '—', hora: `${cfg.hora}h` };
 }
 
+/**
+ * Tempo até o próximo sorteio. Substituiu "2h 45min" fixo no HTML da home,
+ * que nunca mudava e ficava incorreto para todo mundo que não abrisse o
+ * app exatamente no minuto em que aquele texto foi escrito.
+ */
+function calcularContagemRegressiva(modalidade, agora = new Date()) {
+  const cfg = SORTEIOS_CALENDARIO[modalidade];
+  if (!cfg) return '—';
+
+  const alvo = new Date(agora);
+  alvo.setHours(cfg.hora, 0, 0, 0);
+
+  const hojeEhDiaDeSorteio = cfg.dias.includes(agora.getDay());
+  if (!(hojeEhDiaDeSorteio && agora < alvo)) {
+    for (let i = 1; i <= 7; i++) {
+      const candidato = new Date(agora);
+      candidato.setDate(candidato.getDate() + i);
+      if (cfg.dias.includes(candidato.getDay())) {
+        alvo.setTime(candidato.setHours(cfg.hora, 0, 0, 0));
+        break;
+      }
+    }
+  }
+
+  const diffMs = alvo - agora;
+  if (diffMs <= 0) return 'Sorteando...';
+
+  const horas = Math.floor(diffMs / 3_600_000);
+  const minutos = Math.floor((diffMs % 3_600_000) / 60_000);
+
+  if (horas >= 24) {
+    const dias = Math.floor(horas / 24);
+    return `${dias}d ${horas % 24}h`;
+  }
+  return horas > 0 ? `${horas}h ${minutos}min` : `${minutos}min`;
+}
+
 function formatarPremio(valor) {
   const numero = Number(valor);
   if (!Number.isFinite(numero) || numero <= 0) return '—';
@@ -63,40 +100,47 @@ function formatarPremio(valor) {
 /**
  * Escreve na UI. `dados` é sempre {megasena: {...}, lotofacil: {...}},
  * onde premio/concurso podem ser null (vira "—" e não um número falso).
+ *
+ * Usa CLASSE, não id: a home (criada por js/redesign.js) tinha seu próprio
+ * card de "Próximos Sorteios" com valores hardcoded (R$ 56.5M, "2h 45min")
+ * que nunca eram atualizados — só o card da aba Carteira (ids cal-mega-*)
+ * recebia dado real. querySelectorAll atualiza os DOIS cards ao mesmo tempo,
+ * sem duplicar essa lógica em outro arquivo.
  */
 function atualizarSorteiosUI(dados, origem = 'calculado') {
   const mapa = [
-    { chave: 'megasena', idPremio: 'cal-mega-premio', idConcurso: 'cal-mega-concurso' },
-    { chave: 'lotofacil', idPremio: 'cal-loto-premio', idConcurso: 'cal-loto-concurso' }
+    { chave: 'megasena', classePremio: 'js-mega-premio', classeConcurso: 'js-mega-concurso' },
+    { chave: 'lotofacil', classePremio: 'js-loto-premio', classeConcurso: 'js-loto-concurso' }
   ];
 
-  mapa.forEach(({ chave, idPremio, idConcurso }) => {
+  mapa.forEach(({ chave, classePremio, classeConcurso }) => {
     const info = dados?.[chave];
     if (!info) return;
 
-    const elPremio = document.getElementById(idPremio);
-    if (elPremio) {
-      elPremio.innerText = formatarPremio(info.premio);
-      elPremio.title = info.premio
+    document.querySelectorAll(`.${classePremio}`).forEach((el) => {
+      el.innerText = formatarPremio(info.premio);
+      el.title = info.premio
         ? 'Estimativa oficial sincronizada'
         : 'Estimativa indisponível — consulte o site da Caixa';
-    }
+    });
 
-    const elConcurso = document.getElementById(idConcurso);
-    if (elConcurso) {
+    document.querySelectorAll(`.${classeConcurso}`).forEach((el) => {
       const prefixo = info.concurso ? `Conc. ${info.concurso} • ` : '';
-      elConcurso.innerText = `${prefixo}${info.dia} ${info.hora}`;
-    }
+      el.innerText = `${prefixo}${info.dia} ${info.hora}`;
+    });
+
+    document.querySelectorAll(`.js-${chave}-countdown`).forEach((el) => {
+      el.innerText = calcularContagemRegressiva(chave);
+    });
   });
 
-  const elTimestamp = document.getElementById('sorteios-ultima-sync');
-  if (elTimestamp) {
+  document.querySelectorAll('.js-sorteios-sync').forEach((el) => {
     const hora = new Date().toLocaleTimeString('pt-BR');
-    elTimestamp.innerText = origem === 'servidor'
+    el.innerText = origem === 'servidor'
       ? `Atualizado às ${hora}`
       : `Calendário local • ${hora}`;
-    elTimestamp.classList.remove('hidden');
-  }
+    el.classList.remove('hidden');
+  });
 }
 
 /** Base sempre confiável: dias corretos, prêmio/concurso vazios. */
@@ -259,8 +303,22 @@ async function sincronizarSorteiosReais({ silencioso = false } = {}) {
   }
 }
 
+function atualizarContagensRegressivas() {
+  document.querySelectorAll('.js-megasena-countdown').forEach((el) => {
+    el.innerText = calcularContagemRegressiva('megasena');
+  });
+  document.querySelectorAll('.js-lotofacil-countdown').forEach((el) => {
+    el.innerText = calcularContagemRegressiva('lotofacil');
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   atualizarSorteiosUI(montarCalendarioLocal(), 'calculado');
+  atualizarContagensRegressivas();
+
+  // Contagem regressiva não depende de rede: atualiza a cada minuto sozinha,
+  // em vez de ficar presa ao valor do último sync (a cada 30min).
+  setInterval(atualizarContagensRegressivas, 60_000);
 
   setTimeout(() => {
     sincronizarSorteiosReais({ silencioso: true });
