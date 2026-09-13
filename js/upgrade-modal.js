@@ -289,26 +289,14 @@ function mostrarCheckoutComTrial() {
 
 
 /**
- * Confirmação pós-checkout.
- *
- * IMPORTANTE: nenhum gateway real está conectado ainda (Asaas/Mercado
- * Pago/BTG). Para os fluxos que envolvem dinheiro de verdade (Avulso
- * PIX e Anual), NUNCA finja sucesso — isso enganaria o usuário sobre
- * ter pago por algo que não foi cobrado. Só o Trial (que já é
- * anunciado como "sem cartão, grátis por 3 dias") pode conceder
- * acesso real, porque nenhum valor é cobrado nesse fluxo.
+ * Único chamador restante é o botão de Trial (mostrarCheckoutComTrial).
+ * Avulso e Anual passaram a usar mostrarCheckoutReal() (js/checkout-asaas.js),
+ * que fala com o gateway Asaas de verdade — não voltam mais por aqui.
  */
 function confirmarPagamentoSimulado(planId) {
   if (planId === 'mensal') {
     ativarTrialReal();
-    return;
   }
-
-  // Avulso e Anual dependem de gateway de pagamento real (PIX) que
-  // ainda não está conectado. Mesma mensagem honesta que já existia
-  // no restante do app (ver confirmarPagamentoPixSimulado em index.html).
-  tocarBeep('alert');
-  toast('🔒 Pagamento indisponível: este protótipo ainda não está conectado a um gateway real.', '⚠️');
 }
 
 /**

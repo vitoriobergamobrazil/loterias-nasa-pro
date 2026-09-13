@@ -4,7 +4,6 @@
   <link rel="manifest" href="./manifest.json" />
   <script src="./supabase/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./js/paywall.js"></script>
   <!-- Redesign NASA Pro (Bottom Tab Bar + Clean Layout) -->
   <link rel="stylesheet" href="./css/redesign.css" />
   <script src="./js/redesign.js" defer></script>
@@ -504,7 +503,6 @@
     }
     
     /* MODAIS NO TEMA CLARO */
-    html:not(.dark) #modal-paywall-pro > div,
     html:not(.dark) #modal-dialog > div {
       background-color: #ffffff !important;
       border-color: #cbd5e1 !important;
@@ -547,113 +545,6 @@
 
   <!-- MODAL CHECKOUT & ASSINATURA NASA VIP PRO -->
     <!-- MODAL CHECKOUT & APRESENTAÇÃO DE PLANOS A, B e C (SAAS OFICIAL) -->
-  <div id="modal-paywall-pro" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 hidden overflow-y-auto">
-    <div class="bg-slate-900 border border-amber-500/80 rounded-3xl p-5 max-w-md w-full space-y-4 shadow-2xl relative my-auto font-sans">
-      <!-- Glow effect -->
-      <div class="w-40 h-40 bg-amber-500/10 rounded-full blur-3xl absolute -top-10 -right-10 pointer-events-none"></div>
-
-      <!-- Fechar Modal -->
-      <button type="button" onclick="fecharModalPaywall()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm font-bold transition">
-        ✕
-      </button>
-
-      <!-- Cabeçalho do Paywall -->
-      <div class="text-center space-y-1.5 pt-1">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">
-          👑
-        </div>
-        <div class="inline-block px-2.5 py-0.5 rounded-full bg-amber-950 border border-amber-800 text-[9px] font-mono font-black text-amber-300 tracking-wider uppercase">
-          Planos Oficiais NASA VIP PRO
-        </div>
-        <h2 class="text-lg font-black text-white">Escolha seu Nível de Acesso</h2>
-        <p id="paywall-motivo-texto" class="text-xs text-slate-300 leading-relaxed max-w-xs mx-auto">
-          Recurso restrito a assinantes VIP. Desbloqueie todas as matrizes e a inteligência artificial da NASA.
-        </p>
-      </div>
-
-      <!-- TABELA COMPARATIVA DOS 3 PLANOS (A, B e C) -->
-      <div class="grid grid-cols-3 gap-1.5 text-center font-sans text-xs">
-        <!-- PLANO A: FREE -->
-        <div class="p-2 rounded-xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
-          <div>
-            <span class="text-[9px] font-bold text-slate-400 block uppercase">Plano A</span>
-            <strong class="text-white text-xs block mt-0.5">PIONEIRO</strong>
-            <span class="text-[10px] text-emerald-400 font-bold block mt-1">R$ 0,00</span>
-            <span class="text-[8px] text-slate-500 block">Gratuito</span>
-          </div>
-          <div class="text-[9px] text-slate-400 text-left space-y-1 pt-2 mt-2 border-t border-slate-800/80 font-sans">
-            <div>• 1 aposta simples</div>
-            <div>• 2 testes visíveis</div>
-            <div>• Sem desdobramentos</div>
-            <div>• Sem IA em lote</div>
-          </div>
-        </div>
-
-        <!-- PLANO B: MENSAL VIP -->
-        <div id="card-plano-mensal" onclick="selecionarPlanoCheckout('mensal')" class="p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-amber-400/60 cursor-pointer flex flex-col justify-between transition">
-          <div>
-            <span class="text-[9px] font-bold text-slate-400 block uppercase">Plano B</span>
-            <strong class="text-white text-xs block mt-0.5">COMANDANTE</strong>
-            <span class="text-xs text-amber-300 font-black block mt-1">R$ 29,90</span>
-            <span class="text-[8px] text-slate-400 block">por mês</span>
-          </div>
-          <div class="text-[9px] text-slate-300 text-left space-y-1 pt-2 mt-2 border-t border-slate-800/80 font-sans">
-            <div>✓ Lotes de 5 apostas</div>
-            <div>✓ 6 Testes Orbitais</div>
-            <div>✓ Auto-Calibração IA</div>
-            <div>✓ Matrizes C(n,k)</div>
-          </div>
-        </div>
-
-        <!-- PLANO C: ANUAL VIP (DESTAQUE) -->
-        <div id="card-plano-anual" onclick="selecionarPlanoCheckout('anual')" class="p-2 rounded-xl bg-amber-950/30 border-2 border-amber-400 cursor-pointer flex flex-col justify-between relative transition">
-          <span class="absolute -top-2 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 text-[7px] font-black px-1.5 py-0.2 rounded-full uppercase whitespace-nowrap">
-            MAIS VANTAJOSO
-          </span>
-          <div>
-            <span class="text-[9px] font-bold text-amber-300 block uppercase">Plano C</span>
-            <strong class="text-white text-xs block mt-0.5">ALMIRANTE</strong>
-            <span class="text-xs text-amber-300 font-black block mt-1">R$ 197,00</span>
-            <span class="text-[8px] text-amber-200 block">R$ 16,40/mês</span>
-          </div>
-          <div class="text-[9px] text-amber-100 text-left space-y-1 pt-2 mt-2 border-t border-amber-800/80 font-sans">
-            <div>✓ Tudo do Mensal</div>
-            <div>✓ 45% de Economia</div>
-            <div>✓ Scanner Ilimitado</div>
-            <div>✓ Gestor Bolão WhatsApp</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Área de Pagamento com Cartão Recorrente ou PIX -->
-      <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2.5 font-mono">
-        <div class="flex justify-between items-center text-[10px]">
-          <span class="text-emerald-400 font-bold flex items-center gap-1">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> CHECKOUT SEGURO NASA
-          </span>
-          <span class="text-slate-400">Cartão de Crédito ou PIX</span>
-        </div>
-
-        <!-- Botão de Assinatura via Cartão de Crédito (Recorrência) -->
-        <button type="button" onclick="iniciarCheckoutCartaoRecorrente()" class="w-full py-2.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 active:scale-95 transition flex items-center justify-center gap-2 font-sans tracking-wider uppercase">
-          <span>💳</span> Assinar no Cartão (Recorrente)
-        </button>
-
-        <!-- Botão de Pagamento Instantâneo via PIX -->
-        <button type="button" onclick="confirmarPagamentoPixSimulado()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-500/50 font-black text-xs rounded-xl active:scale-95 transition flex items-center justify-center gap-2 font-sans tracking-wider uppercase">
-          <span>⚡</span> Pagar com PIX (Ativação Instantânea)
-        </button>
-
-        <div class="flex items-center justify-center gap-3 text-[9px] text-slate-500 pt-1 font-sans">
-          <span>🔒 Criptografia SSL 256-bit</span>
-          <span>•</span>
-          <span>🛡️ Garantia de 7 Dias</span>
-          <span>•</span>
-          <span>Cancelamento 1-Clique</span>
-        </div>
-      </div>
-    </div>
-  </div>
 
 
     <!-- MODAL DE AUTENTICAÇÃO, GOOGLE SIGN-IN & CADASTRO SAAS -->
@@ -2607,72 +2498,29 @@
     // GESTÃO DE PLANOS SAAS (FREE vs. PRO)
     // A autoridade do plano deve vir de uma sessão validada no servidor.
     let planoUsuario = 'free';
-    let planoCheckoutSelecionado = 'anual';
 
+    // Existia um segundo modal de paywall (#modal-paywall-pro) com um código
+    // PIX copia-e-cola FIXO no HTML, sem relação com nenhuma cobrança real.
+    // O botão de confirmação já dizia "protótipo ainda não conectado" — não
+    // mentia — mas o QR/copia-e-cola exibido antes disso induzia o usuário a
+    // tentar pagar um código que nunca compensaria em lugar nenhum. Removido
+    // esse modal e suas 5 funções de apoio; abrirModalPaywall() agora só
+    // explica o motivo (toast) e abre o checkout real (js/checkout-asaas.js).
     function abrirModalPaywall(origem = 'geral') {
-      const modal = document.getElementById('modal-paywall-pro');
-      const motivoEl = document.getElementById('paywall-motivo-texto');
-      if (!modal) return;
+      const motivos = {
+        multi_jogos: 'A geração simultânea de 2, 3 ou 5 apostas com verificação cruzada é exclusiva do Plano PRO.',
+        carteira_limite: 'Você atingiu o limite de 2 bilhetes salvos no Plano Grátis. Faça upgrade para salvar bilhetes ilimitados.',
+        lote_salvar: 'O salvamento e exportação em lote de todas as apostas requer o Plano PRO.',
+        bateria_testes: 'Este teste faz parte da Bateria Orbital completa, exclusiva do Plano PRO. O Plano Grátis mostra 2 dos 6 testes.',
+        score_telemetria: 'O Score de Eficiência é calculado a partir dos 6 Testes Orbitais completos — disponível apenas no Plano PRO.'
+      };
 
-      if (origem === 'multi_jogos') {
-        if (motivoEl) motivoEl.innerText = "A geração simultânea de 2, 3 ou 5 apostas com verificação cruzada é exclusiva do Plano NASA VIP PRO.";
-      } else if (origem === 'carteira_limite') {
-        if (motivoEl) motivoEl.innerText = "Você atingiu o limite de 2 bilhetes salvos no Plano Grátis. Faça upgrade para salvar bilhetes ilimitados.";
-      } else if (origem === 'lote_salvar') {
-        if (motivoEl) motivoEl.innerText = "O salvamento e exportação em lote de todas as apostas requer a ativação do Plano VIP.";
-      } else if (origem === 'bateria_testes') {
-        if (motivoEl) motivoEl.innerText = "Este teste estatístico faz parte da Bateria Orbital completa, exclusiva do Plano VIP PRO. O Plano Grátis mostra 2 dos 6 testes.";
-      } else if (origem === 'score_telemetria') {
-        if (motivoEl) motivoEl.innerText = "O Score de Eficiência Combinatória é calculado a partir dos 6 Testes Orbitais completos — disponível apenas no Plano VIP PRO.";
-      } else {
-        if (motivoEl) motivoEl.innerText = "Pare de fazer apostas aleatórias. Utilize algoritmos de telemetria e análise combinatória para calibrar seus jogos.";
+      toast(motivos[origem] || 'Recurso exclusivo do Plano PRO.', '🔒');
+      tocarBeep('alert');
+
+      if (typeof abrirModalUpgrade === 'function') {
+        abrirModalUpgrade(origem);
       }
-
-      modal.classList.remove('hidden');
-      tocarBeep('alert');
-    }
-
-    function fecharModalPaywall() {
-      const modal = document.getElementById('modal-paywall-pro');
-      if (modal) modal.classList.add('hidden');
-      tocarBeep('click');
-    }
-
-    function selecionarPlanoCheckout(tipo) {
-      planoCheckoutSelecionado = tipo;
-      const cardAnual = document.getElementById('card-plano-anual');
-      const cardMensal = document.getElementById('card-plano-mensal');
-      const inputPix = document.getElementById('input-pix-copia-cola');
-
-      if (tipo === 'anual') {
-        if (cardAnual) cardAnual.className = 'p-3 rounded-2xl border-2 border-amber-400 bg-amber-950/30 cursor-pointer text-center relative transition';
-        if (cardMensal) cardMensal.className = 'p-3 rounded-2xl border border-slate-800 bg-slate-950 cursor-pointer text-center relative transition opacity-80 hover:opacity-100';
-        if (inputPix) inputPix.value = '00020126580014br.gov.bcb.pix0136loterias-nasa-pro-anual@pagamento.com5204000053039865406147.005802BR5920LOTERIAS NASA PRO6009SAO PAULO62070503***6304A1B2';
-      } else {
-        if (cardMensal) cardMensal.className = 'p-3 rounded-2xl border-2 border-amber-400 bg-amber-950/30 cursor-pointer text-center relative transition';
-        if (cardAnual) cardAnual.className = 'p-3 rounded-2xl border border-slate-800 bg-slate-950 cursor-pointer text-center relative transition opacity-80 hover:opacity-100';
-        if (inputPix) inputPix.value = '00020126580014br.gov.bcb.pix0136loterias-nasa-pro-mensal@pagamento.com520400005303986540529.905802BR5920LOTERIAS NASA PRO6009SAO PAULO62070503***6304C3D4';
-      }
-      tocarBeep('click');
-    }
-
-    function copiarPixCopiaCola() {
-      const input = document.getElementById('input-pix-copia-cola');
-      if (!input) return;
-      input.select();
-      document.execCommand('copy');
-      tocarBeep('success');
-      toast("Código PIX Copiado! Cole no aplicativo do seu banco.", "📋");
-    }
-
-    function confirmarPagamentoPixSimulado() {
-      toast("Pagamento indisponível: este protótipo ainda não está conectado a um gateway real.", "🔒");
-      tocarBeep('alert');
-    }
-
-    function alternarPlanoDev() {
-      toast("A troca de plano exige uma assinatura validada no servidor.", "🔒");
-      tocarBeep('alert');
     }
 
     function atualizarVisualPlano() {
@@ -6336,20 +6184,6 @@ function abrirModalDialog(msg, callback) {
       // Bloqueia e abre o Paywall com o motivo
       abrirModalPaywall(recursoNome);
       return false;
-    }
-
-    function iniciarCheckoutCartaoRecorrente() {
-      const planoEscolhido = planoCheckoutSelecionado === 'anual' ? 'Plano C (Anual - R$ 197,00/ano)' : 'Plano B (Mensal - R$ 29,90/mês)';
-      tocarSomNasa('ignicao');
-      // Demonstração da esteira de pagamento com confirmação de assinatura
-      confirmarAcaoDialog(
-        `Deseja abrir o checkout seguro para o ${planoEscolhido}? Você será redirecionado para a operadora de cartão de crédito.`,
-        () => {
-          confirmarPagamentoPixSimulado();
-        },
-        '💳 Assinatura Recorrente no Cartão',
-        'Prosseguir para Pagamento'
-      );
     }
 
 
