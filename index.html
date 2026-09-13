@@ -3799,14 +3799,34 @@ function gerarPalpiteInteligente() {
       setJogoAtual([...apostas[0].dezenas]);
       atualizarDisplayJogo();
 
-      // Se FREE e qtd > 1: marca 2 números aleatórios como bloqueados (teaser/paywall)
+      // Teaser/paywall: o 1º jogo completo é grátis; do 2º em diante, FREE
+      // vê 2 números bloqueados. A regra ERA "qtd > 1 pedido nesta chamada" —
+      // um visitante clicando em "Gerar 1 jogo" repetidas vezes nunca batia
+      // nela, e recebia jogos completos sem limite algum. Agora conta jogos
+      // completos JÁ recebidos (persistido no navegador), não a quantidade
+      // pedida na hora.
+      //
+      // Limite honesto: localStorage não identifica pessoa, só o navegador.
+      // Aba anônima ou limpar dados reseta a contagem. Não vale trocar isso
+      // por fingerprint de dispositivo — fura a política de privacidade
+      // (que promete não coletar esse tipo de dado) por um teaser de baixo
+      // valor (1 jogo). A fricção de repetir isso a cada vez já desestimula
+      // a maioria; quem contorna não era conversão provável de qualquer forma.
       const ehProUser = typeof planoUsuario !== 'undefined' && planoUsuario === 'pro';
       const ehMasterFounder = typeof usuarioSessao !== 'undefined' && usuarioSessao && usuarioSessao.tipo === 'master_founder';
-      if (!ehProUser && !ehMasterFounder && qtd > 1) {
-        const jogo = apostas[0].dezenas;
-        const shuffled = [...jogo].sort(() => Math.random() - 0.5);
-        const numeroBloqueados = shuffled.slice(0, 2);
-        localStorage.setItem('nasa_numeros_bloqueados', JSON.stringify(numeroBloqueados));
+
+      if (!ehProUser && !ehMasterFounder) {
+        const jogosGratisRecebidos = Number(localStorage.getItem('nasa_jogos_gratis_recebidos') || 0);
+
+        if (jogosGratisRecebidos >= 1) {
+          const jogo = apostas[0].dezenas;
+          const shuffled = [...jogo].sort(() => Math.random() - 0.5);
+          const numeroBloqueados = shuffled.slice(0, 2);
+          localStorage.setItem('nasa_numeros_bloqueados', JSON.stringify(numeroBloqueados));
+        } else {
+          localStorage.removeItem('nasa_numeros_bloqueados');
+          localStorage.setItem('nasa_jogos_gratis_recebidos', '1');
+        }
       } else {
         localStorage.removeItem('nasa_numeros_bloqueados');
       }
