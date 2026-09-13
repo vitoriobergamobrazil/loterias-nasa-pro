@@ -1,4 +1,5 @@
 {
+  "id": "/loterias-nasa-pro/",
   "name": "Loterias Analytics Pro - NASA Edition",
   "short_name": "Loterias NASA",
   "description": "Inteligência Combinatória, Telemetria Espacial 2D e Bateria de Testes Estatísticos para Loterias Caixa.",
@@ -7,6 +8,13 @@
   "orientation": "portrait",
   "background_color": "#070b14",
   "theme_color": "#0b1329",
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "id": "pro.loteriasnasa.app"
+    }
+  ],
   "icons": [
     {
       "src": "icon-192.png",
