@@ -150,6 +150,7 @@ function rerenderizarAnalises() {
   // um jogo, então não precisa ser disparado aqui.
   tentar('renderizarMapaCalor');
   tentar('atualizarPainelCarteira');
+  tentar('atualizarUltimoResultadoHome');
 }
 
 /**

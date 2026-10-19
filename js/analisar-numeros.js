@@ -116,6 +116,7 @@ function confirmarAnaliseDeNumeros() {
   fecharModalAnalisarNumeros();
 
   if (typeof activateTab === 'function') activateTab('gerar');
+  if (typeof alternarSubAbaGerar === 'function') alternarSubAbaGerar('testes');
 
   // Pequeno atraso: activateTab troca a view no DOM; renderizar antes disso
   // pintaria em elementos que acabaram de ficar ocultos/trocados.

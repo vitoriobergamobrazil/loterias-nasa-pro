@@ -5,13 +5,13 @@
   <script src="./supabase/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Redesign NASA Pro (Bottom Tab Bar + Clean Layout) -->
-  <link rel="stylesheet" href="./css/redesign.css" />
-  <script src="./js/redesign.js" defer></script>
+  <link rel="stylesheet" href="./css/redesign.css?v=3.0" />
+  <script src="./js/redesign.js?v=3.0" defer></script>
   <!-- Upgrade Modal (Elegant Checkout) -->
-  <link rel="stylesheet" href="./css/upgrade-modal.css" />
-  <script src="./js/upgrade-modal.js" defer></script>
+  <link rel="stylesheet" href="./css/upgrade-modal.css?v=3.0" />
+  <script src="./js/upgrade-modal.js?v=3.0" defer></script>
   <!-- Gerar Simplificada (Mobile-first, accessibility) -->
-  <link rel="stylesheet" href="./css/gerar-simplificado.css" />
+  <link rel="stylesheet" href="./css/gerar-simplificado.css?v=3.0" />
   <!-- Admin Dashboard (Professional Management) -->
   <link rel="stylesheet" href="./css/admin-dashboard.css" />
   <script src="./js/admin-dashboard.js" defer></script>
@@ -3051,9 +3051,26 @@
           btnVip.innerHTML = '🔒 VIP';
           display.appendChild(btnVip);
         } else {
-          const badge = document.createElement('div');
-          badge.className = `w-7 h-7 rounded-lg ${cor} font-bold text-xs flex items-center justify-center shadow-sm font-mono`;
-          badge.innerText = String(num).padStart(2, '0');
+          const badge = document.createElement('button');
+          badge.type = 'button';
+          badge.className = `w-7 h-7 rounded-lg ${cor} font-bold text-xs flex items-center justify-center shadow-sm font-mono relative active:scale-90 transition cursor-pointer`;
+          badge.title = ehFixo ? 'Dezena Fixada (toque para soltar)' : 'Toque para fixar (📌) esta dezena nos próximos sorteios';
+          badge.innerHTML = ehFixo
+            ? `${String(num).padStart(2, '0')}<span class="absolute -top-1 -right-1 text-[8px] leading-none">📌</span>`
+            : String(num).padStart(2, '0');
+          badge.onclick = () => {
+            const fixos = getFixos();
+            if (fixos.includes(num)) {
+              fixos.splice(fixos.indexOf(num), 1);
+              toast(`Dezena ${String(num).padStart(2, '0')} liberada.`, '🔓');
+            } else {
+              fixos.push(num);
+              toast(`Dezena ${String(num).padStart(2, '0')} travada (📌) para os próximos giros!`, '📌');
+            }
+            tocarBeep('click');
+            atualizarDisplayJogo();
+            renderizarVolante();
+          };
           display.appendChild(badge);
         }
       });

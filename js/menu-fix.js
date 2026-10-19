@@ -6,7 +6,7 @@
 // modais). Este arquivo é só a rede de proteção: reage a mudanças em vez
 // de fazer polling, para não gastar bateria no celular.
 
-const MENU_Z_INDEX_MINIMO = 50;
+const MENU_Z_INDEX_MINIMO = 45;
 
 const MENU_ESTILO_ESPERADO = {
   display: 'grid',

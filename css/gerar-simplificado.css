@@ -1,137 +1,54 @@
 /* ===================================================================
-   TELA GERAR - SIMPLIFICADA (Mobile-First)
+   TELA GERAR - ERGONOMIA MOBILE-FIRST & CONTROLES RESPONSIVOS
+   ===================================================================
+   Nota importante: Nenhuma funcionalidade (Matriz 4x4, 6 Testes,
+   Simulador de Backtesting ou Fixos/Proibidos) é escondida à força.
+   A visibilidade é controlada pelas Sub-Abas ("Rápido IA" | "Volante" | "6 Testes")
+   em js/redesign.js e pelo paywall em js/science-gate.js.
    =================================================================== */
 
-/* A Bateria dos 6 Testes NÃO pode ser escondida por CSS: é o teaser do
-   paywall (FREE vê 2 de 6 borrados) e o produto que o PRO pagou pra ver.
-   Quem controla a visibilidade é o science-gate.js, por plano. */
-
-/* Make volante smaller on mobile */
-#volante-grid {
-  max-height: 400px !important;
-  overflow-y: auto !important;
+/* Transições suaves nos cards da tela de geração */
+#view-volante > div {
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
-/* Simplify the main card layout */
-#view-volante .bg-gradient-to-b {
-  padding: 1rem !important;
+/* Botões de quantidade de jogos (1, 2, 3, 5 Jogos) confortáveis para toque */
+#view-volante .grid.grid-cols-4 button {
+  min-height: 44px !important;
+  padding: 0.45rem 0.35rem !important;
+  font-size: 0.76rem !important;
+  border-radius: 12px !important;
 }
 
-#view-volante .space-y-4 {
-  gap: 1.5rem !important;
+/* Botão principal de Ignição / Gerar Jogo */
+#view-volante button[onclick*="gerarApostaNasaComMatriz4x4"] {
+  min-height: 54px !important;
+  font-size: 0.95rem !important;
+  border-radius: 16px !important;
 }
 
-/* Make quantity buttons bigger on mobile */
-.grid.grid-cols-4 button {
-  padding: 0.75rem !important;
-  font-size: 0.875rem !important;
-  min-height: 48px !important;
+/* Botões de modo de toque no Volante (Normal / Fixar / Proibir) */
+#btn-modo-normal,
+#btn-modo-fixo,
+#btn-modo-proibido {
+  min-height: 38px !important;
+  padding: 0.4rem 0.75rem !important;
+  font-size: 0.74rem !important;
+  border-radius: 10px !important;
 }
 
-/* Improve accessibility: bigger fonts on mobile */
-@media (max-width: 640px) {
-  #view-volante {
-    padding: 0.75rem !important;
-  }
-
-  #view-volante .bg-gradient-to-b {
-    padding: 1.25rem !important;
-  }
-
-  /* Main button - larger target */
-  #view-volante button[onclick*="gerarApostaNasaComMatriz4x4"] {
-    padding: 1rem !important;
-    font-size: 1rem !important;
-    min-height: 56px !important;
-    border-radius: 1rem !important;
-  }
-
-  /* Status badges - more readable (colchetes escapados: classe Tailwind arbitrária) */
-  #view-volante .text-\[10px\] {
-    font-size: 0.75rem !important;
-  }
-
-  #view-volante .text-xs {
-    font-size: 0.875rem !important;
-  }
-
-  /* Mode buttons - more space */
-  .p-2.bg-slate-950 {
-    padding: 1rem !important;
-    gap: 0.75rem !important;
-  }
-
-  /* Hide advanced controls on mobile (until they click) */
-  #painel-regras-ativas,
-  #container-abas-jogos-gerados,
-  .flex.justify-between.items-center.cursor-pointer.select-none {
-    max-width: 100% !important;
-  }
-}
-
-/* Responsive volante grid */
-@media (max-width: 480px) {
-  #volante-grid {
-    grid-template-columns: repeat(5, 1fr) !important;
-  }
-
-  .volante-btn {
-    padding: 0.5rem !important;
-    font-size: 0.625rem !important;
-  }
-}
-
-/* Make numbers in volante readable */
-.volante-btn {
-  min-width: 32px !important;
-  min-height: 32px !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.5px !important;
-}
-
-/* Score panel always visible */
+/* Score panel sempre visível quando ativo na sub-aba */
 #painel-score-telemetria {
-  display: block !important;
+  display: block;
 }
 
-/* Collapse matriz by default (mobile) */
-@media (max-width: 640px) {
-  #conteudo-matriz-vitorio {
-    max-height: 0 !important;
-    overflow: hidden !important;
-    transition: max-height 0.3s ease !important;
-  }
-
-  #conteudo-matriz-vitorio.expanded {
-    max-height: 500px !important;
-  }
-}
-
-/* Improve contrast on focus/hover */
-.bottom-tab-btn:focus,
-button:focus {
-  outline: 2px solid rgb(34, 197, 94) !important;
-  outline-offset: 2px !important;
-}
-
-/* Better touch targets */
-@media (hover: none) and (pointer: coarse) {
-  button {
-    min-height: 44px !important;
-    padding: 0.875rem !important;
-  }
-}
-
-/* Print-friendly (hide UI chrome) */
+/* Impressão limpa (oculta barras de navegação) */
 @media print {
   #bottom-tab-bar,
   .bottom-tab-btn,
   header,
-  #btn-user-profile,
-  #btn-status-plano,
-  button[onclick*="limpar"],
-  button[onclick*="salvar"],
-  .flex.items-center.gap-1 {
+  .nasa-segmented-bar,
+  #nasa-profile-drawer-backdrop {
     display: none !important;
   }
 
