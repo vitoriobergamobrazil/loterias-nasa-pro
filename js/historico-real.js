@@ -1,30 +1,31 @@
 // ===================================================================
-// HISTÓRICO OFICIAL DE CONCURSOS
+// HISTÓRICO OFICIAL DE CONCURSOS (SUPABASE + FALLBACK DIRETO CAIXA)
 // ===================================================================
-// Carrega os sorteios reais da Caixa (tabela concursos_historico, populada
-// pela Edge Function sync-historico) para dentro de baseConcursosMega e
-// baseConcursosLoto.
+// Carrega os sorteios reais da Caixa (tabela concursos_historico ou busca
+// direta na API oficial da Caixa no navegador) para dentro de
+// baseConcursosMega e baseConcursosLoto.
 //
-// Antes, gerarHistoricoInicial() fabricava os concursos 2650–2796 com
-// Math.random(). O simulador de desempenho, o mapa de calor e o ranking de
-// dezenas quentes/frias rodavam sobre sorteios que nunca aconteceram — o
-// oposto do que o produto promete ao falar em análise estatística.
-//
-// Regra: sem histórico real, as bases ficam vazias. Nada de preencher.
+// Regra de ouro: NUNCA fabricar sorteios com Math.random(). Apenas dados
+// oficiais da Caixa Econômica Federal são utilizados.
 
 const HISTORICO_CONFIG = {
   limite: 300,
-  chaveCache: 'loterias_nasa_historico_v1',
+  qtdFallbackCaixa: 10, // busca lote enxuto para não acionar rate-limit da Caixa
+  chaveCache: 'loterias_nasa_historico_v2',
   validadeCacheMs: 12 * 60 * 60 * 1000
 };
 
+let historicoCarregandoPromise = null;
+
 /** "2024-11-28" -> "28/11/2024" (formato usado na UI e na carteira) */
 function dataISOParaBR(iso) {
-  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
-  return m ? `${m[3]}/${m[2]}/${m[1]}` : '';
+  const s = String(iso || '').trim();
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : s;
 }
 
-/** Converte a linha do banco para o formato que as análises já esperam. */
+/** Converte a linha do banco ou da API da Caixa para o formato que as análises esperam. */
 function converterConcurso(linha) {
   const premioDaFaixa = (acertos) => {
     const faixa = (linha.rateio || []).find((f) => Number(f.acertos) === acertos);
@@ -32,8 +33,8 @@ function converterConcurso(linha) {
   };
 
   const registro = {
-    concurso: linha.concurso,
-    data: dataISOParaBR(linha.data_apuracao),
+    concurso: Number(linha.concurso),
+    data: dataISOParaBR(linha.data_apuracao || linha.data),
     dezenas: (linha.dezenas || []).map(Number),
     acumulado: Boolean(linha.acumulado)
   };
@@ -50,7 +51,6 @@ function converterConcurso(linha) {
 }
 
 function aplicarHistorico({ megasena, lotofacil }) {
-  // As análises assumem ordem decrescente (índice 0 = concurso mais recente).
   const ordenar = (lista) => [...lista].sort((a, b) => b.concurso - a.concurso);
 
   if (megasena?.length) baseConcursosMega = ordenar(megasena);
@@ -64,7 +64,6 @@ function salvarCacheHistorico(dados) {
       JSON.stringify({ ...dados, salvoEm: Date.now() })
     );
   } catch (err) {
-    // Histórico grande pode estourar a cota; seguir sem cache é aceitável.
     console.warn('Histórico não cacheado:', err.message);
   }
 }
@@ -78,13 +77,88 @@ function lerCacheHistorico() {
     const idade = Date.now() - (dados.salvoEm || 0);
     if (idade > HISTORICO_CONFIG.validadeCacheMs) return null;
 
+    if (!dados.megasena?.length && !dados.lotofacil?.length) return null;
     return dados;
   } catch {
     return null;
   }
 }
 
+/**
+ * Busca os últimos N concursos reais diretamente na API pública da Caixa
+ * quando a tabela do Supabase ainda não foi populada.
+ */
+async function buscarUltimosConcursosDiretoCaixa(modalidade, qtd = 15) {
+  if (!window.caixaApi || typeof window.caixaApi.ultimo !== 'function') return [];
+
+  try {
+    const ultimo = await window.caixaApi.ultimo(modalidade);
+    if (!ultimo || !ultimo.concurso) return [];
+
+    const lista = [converterConcurso(ultimo)];
+    const numerosAnteriores = [];
+    for (let i = 1; i < qtd; i++) {
+      if (ultimo.concurso - i >= 1) {
+        numerosAnteriores.push(ultimo.concurso - i);
+      }
+    }
+
+  // Renderiza o primeiro concurso imediatamente para a tela nunca ficar vazia enquanto busca os anteriores
+  if (lista.length > 0) {
+    if (modalidade === 'megasena' && (!baseConcursosMega || baseConcursosMega.length === 0)) {
+      baseConcursosMega = [...lista];
+      rerenderizarAnalises();
+    } else if (modalidade === 'lotofacil' && (!baseConcursosLoto || baseConcursosLoto.length === 0)) {
+      baseConcursosLoto = [...lista];
+      rerenderizarAnalises();
+    }
+  }
+
+    // Busca em lotes de 3 para ser rápido e nunca acionar rate-limit da Caixa
+    for (let i = 0; i < numerosAnteriores.length; i += 3) {
+      const lote = numerosAnteriores.slice(i, i + 3);
+      const resultados = await Promise.all(
+        lote.map((num) => window.caixaApi.ultimo(modalidade, num).catch(() => null))
+      );
+      resultados.forEach((res) => {
+        if (res && Array.isArray(res.dezenas) && res.dezenas.length > 0) {
+          lista.push(converterConcurso(res));
+        }
+      });
+    }
+
+    return lista.sort((a, b) => b.concurso - a.concurso);
+  } catch (err) {
+    console.warn(`Falha ao buscar histórico direto da Caixa (${modalidade}):`, err.message);
+    return [];
+  }
+}
+
 async function carregarHistoricoReal({ silencioso = true } = {}) {
+  // Se já temos histórico carregado na memória, apenas re-renderiza e evita bater na Caixa de novo
+  if (
+    (typeof baseConcursosMega !== 'undefined' && baseConcursosMega.length > 0) ||
+    (typeof baseConcursosLoto !== 'undefined' && baseConcursosLoto.length > 0)
+  ) {
+    rerenderizarAnalises();
+    if (!silencioso) toast('Histórico oficial sincronizado', '📊');
+    return true;
+  }
+
+  if (historicoCarregandoPromise) {
+    return historicoCarregandoPromise;
+  }
+
+  historicoCarregandoPromise = (async () => {
+    try {
+      // 1. Primeiro verifica se já temos cache recente válido para resposta instantânea
+      const cache = lerCacheHistorico();
+      if (cache && silencioso) {
+        aplicarHistorico(cache);
+        rerenderizarAnalises();
+      }
+
+  // 2. Tenta buscar o histórico completo no Supabase
   const cliente = typeof obterClienteSupabase === 'function' ? obterClienteSupabase() : null;
 
   if (cliente) {
@@ -103,37 +177,65 @@ async function carregarHistoricoReal({ silencioso = true } = {}) {
           lotofacil: data.filter((l) => l.modalidade === 'lotofacil').map(converterConcurso)
         };
 
-        aplicarHistorico(convertidos);
-        salvarCacheHistorico(convertidos);
-        rerenderizarAnalises();
+        if (convertidos.megasena.length > 0 || convertidos.lotofacil.length > 0) {
+          aplicarHistorico(convertidos);
+          salvarCacheHistorico(convertidos);
+          rerenderizarAnalises();
 
-        if (!silencioso) {
-          const total = convertidos.megasena.length + convertidos.lotofacil.length;
-          toast(`${total} concursos oficiais carregados`, '📊');
+          if (!silencioso) {
+            const total = convertidos.megasena.length + convertidos.lotofacil.length;
+            toast(`${total} concursos oficiais carregados`, '📊');
+          }
+          return true;
         }
-        return true;
       }
     } catch (err) {
-      console.warn('Histórico indisponível no servidor:', err.message);
+      console.warn('Histórico indisponível no Supabase, tentando API direta da Caixa:', err.message);
     }
   }
 
-  // Offline ou servidor fora: reaproveita o último histórico real baixado.
-  const cache = lerCacheHistorico();
-  if (cache) {
+  // 3. Se já aplicamos o cache acima, estamos prontos
+  if (cache && (cache.megasena?.length || cache.lotofacil?.length)) {
     aplicarHistorico(cache);
     rerenderizarAnalises();
-    if (!silencioso) toast('Histórico carregado do cache local', '📌');
+    if (!silencioso) toast('Histórico oficial carregado', '📊');
     return true;
   }
 
-  // Sem dados reais em lugar nenhum: as bases permanecem vazias de propósito.
-  console.warn('Sem histórico oficial. Análises estatísticas ficam indisponíveis.');
-  marcarAnalisesIndisponiveis();
-  if (!silencioso) {
-    toast('Histórico de concursos indisponível no momento', '⚠️');
+  // 4. Fallback automático: busca os últimos sorteios direto da API oficial da Caixa no navegador!
+  try {
+    const megaDireto = await buscarUltimosConcursosDiretoCaixa('megasena', HISTORICO_CONFIG.qtdFallbackCaixa);
+    const lotoDireto = await buscarUltimosConcursosDiretoCaixa('lotofacil', HISTORICO_CONFIG.qtdFallbackCaixa);
+
+    if (megaDireto.length > 0 || lotoDireto.length > 0) {
+      const convertidos = { megasena: megaDireto, lotofacil: lotoDireto };
+      aplicarHistorico(convertidos);
+      salvarCacheHistorico(convertidos);
+      rerenderizarAnalises();
+
+      if (!silencioso) {
+        const total = megaDireto.length + lotoDireto.length;
+        toast(`${total} concursos sincronizados direto da Caixa!`, '🏛️');
+      }
+      return true;
+    }
+  } catch (err) {
+    console.warn('Fallback direto da Caixa falhou:', err.message);
   }
-  return false;
+
+      // 5. Sem dados reais em lugar nenhum
+      console.warn('Sem histórico oficial. Análises estatísticas ficam indisponíveis.');
+      marcarAnalisesIndisponiveis();
+      if (!silencioso) {
+        toast('Histórico de concursos indisponível no momento', '⚠️');
+      }
+      return false;
+    } finally {
+      historicoCarregandoPromise = null;
+    }
+  })();
+
+  return historicoCarregandoPromise;
 }
 
 function rerenderizarAnalises() {
@@ -145,24 +247,19 @@ function rerenderizarAnalises() {
     }
   };
 
-  // renderizarMapaCalor() também preenche os rankings de dezenas
-  // quentes/frias. O retro-teste é recalculado quando o usuário analisa
-  // um jogo, então não precisa ser disparado aqui.
   tentar('renderizarMapaCalor');
   tentar('atualizarPainelCarteira');
   tentar('atualizarUltimoResultadoHome');
+  tentar('executarAnaliseDinamicaDoJogo');
 }
 
-/**
- * Sem histórico não há como calcular frequência, mapa de calor nem
- * retro-teste. Deixa isso explícito na tela em vez de mostrar zeros que
- * parecem resultado de análise.
- */
 function marcarAnalisesIndisponiveis() {
   const aviso = `
-    <div class="col-span-full p-3 rounded-xl bg-slate-950 border border-amber-800/60 text-amber-300 text-[11px] font-sans text-center">
-      Histórico oficial ainda não sincronizado — análises de frequência
-      indisponíveis. Elas aparecem assim que os concursos forem carregados.
+    <div class="col-span-full p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-slate-300 text-xs font-sans text-center space-y-2">
+      <div>Sincronizando concursos oficiais da Caixa Econômica Federal...</div>
+      <button type="button" onclick="window.historico.carregar()" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-slate-950 font-black text-xs">
+        🔄 Sincronizar Agora
+      </button>
     </div>
   `;
 
@@ -174,8 +271,7 @@ function marcarAnalisesIndisponiveis() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Depois do boot do app, que é quem zera as bases.
-  setTimeout(() => carregarHistoricoReal({ silencioso: true }), 900);
+  setTimeout(() => carregarHistoricoReal({ silencioso: true }), 400);
 });
 
 window.historico = {
@@ -187,4 +283,4 @@ window.historico = {
   limparCache: () => localStorage.removeItem(HISTORICO_CONFIG.chaveCache)
 };
 
-console.log('📊 Histórico oficial carregado. Debug: window.historico.total()');
+console.log('📊 Histórico oficial + Fallback direto Caixa configurado.');

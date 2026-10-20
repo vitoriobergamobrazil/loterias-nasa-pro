@@ -428,13 +428,13 @@ function configurarSubAbasGerar() {
   segBar.className = 'nasa-segmented-bar';
   segBar.innerHTML = `
     <button type="button" id="seg-gerar-rapido" class="nasa-seg-btn active" onclick="alternarSubAbaGerar('rapido')">
-      <span>🚀</span> <span>Gerador IA</span>
+      <span>🚀</span> <span>Gerar</span>
     </button>
     <button type="button" id="seg-gerar-volante" class="nasa-seg-btn" onclick="alternarSubAbaGerar('volante')">
       <span>🎯</span> <span>Volante</span>
     </button>
     <button type="button" id="seg-gerar-testes" class="nasa-seg-btn" onclick="alternarSubAbaGerar('testes')">
-      <span>🛡️</span> <span>6 Testes (<span id="seg-badge-testes-count">6/6</span>)</span>
+      <span>🛡️</span> <span>Testes (<span id="seg-badge-testes-count">6/6</span>)</span>
     </button>
     <button type="button" id="seg-gerar-todos" class="nasa-seg-btn" onclick="alternarSubAbaGerar('todos')" title="Mostrar tudo na mesma tela">
       <span>📋</span> <span>Tudo</span>
@@ -511,24 +511,24 @@ function configurarToggleGradeVolante() {
   const cardVolante = document.getElementById('card-volante-manual');
   if (!cardVolante || document.getElementById('btn-toggle-volante-cols')) return;
 
-  const headerRow = cardVolante.querySelector('.flex.justify-between.items-center');
-  if (!headerRow) return;
+  const controlsBox = document.getElementById('volante-top-controls') || cardVolante.querySelector('.flex.justify-between.items-center');
+  if (!controlsBox) return;
 
   const btnToggle = document.createElement('button');
   btnToggle.type = 'button';
   btnToggle.id = 'btn-toggle-volante-cols';
-  btnToggle.className = 'px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 text-[10px] font-bold transition items-center gap-1';
-  btnToggle.innerHTML = '<span>📱</span> <span id="lbl-toggle-cols">Grade 6x10 (Grande)</span>';
+  btnToggle.className = 'px-2.5 py-1 rounded-lg bg-slate-950 hover:bg-slate-800 text-cyan-300 border border-slate-800 text-[11px] font-bold transition inline-flex items-center gap-1';
+  btnToggle.innerHTML = '<span>📱</span> <span id="lbl-toggle-cols">Grade 6x10</span>';
   btnToggle.onclick = () => {
     volanteModo10Colunas = !volanteModo10Colunas;
     const grid = document.getElementById('volante-grid');
     const lbl = document.getElementById('lbl-toggle-cols');
     if (grid) grid.classList.toggle('classic-10x6', volanteModo10Colunas);
-    if (lbl) lbl.innerText = volanteModo10Colunas ? 'Grade 10x6 (Clássica)' : 'Grade 6x10 (Grande)';
+    if (lbl) lbl.innerText = volanteModo10Colunas ? 'Grade 10x6' : 'Grade 6x10';
     if (typeof tocarBeep === 'function') tocarBeep('click');
   };
 
-  headerRow.appendChild(btnToggle);
+  controlsBox.appendChild(btnToggle);
 }
 
 // ===================================================================
@@ -656,13 +656,13 @@ function configurarSubAbasCarteiraEBolao() {
   segBar.className = 'nasa-segmented-bar';
   segBar.innerHTML = `
     <button type="button" id="seg-cart-bilhetes" class="nasa-seg-btn active" onclick="alternarSubAbaCarteira('bilhetes')">
-      <span>💼</span> <span>Meus Bilhetes</span>
+      <span>💼</span> <span>Bilhetes</span>
     </button>
     <button type="button" id="seg-cart-bolao" class="nasa-seg-btn" onclick="alternarSubAbaCarteira('bolao')">
       <span>👥</span> <span>Bolão & Cotas</span>
     </button>
     <button type="button" id="seg-cart-ferramentas" class="nasa-seg-btn" onclick="alternarSubAbaCarteira('ferramentas')">
-      <span>📡</span> <span>Scanner & Backup</span>
+      <span>📡</span> <span>Scanner</span>
     </button>
   `;
 
@@ -953,6 +953,8 @@ function atualizarResumoHome(totalBilhetes, totalInvestido) {
 }
 
 function activateTab(tabId) {
+  document.body.setAttribute('data-active-tab', tabId);
+
   TABS_CONFIG.forEach((tab) => {
     const btn = document.getElementById(`bottom-nav-${tab.id}`);
     if (btn) {

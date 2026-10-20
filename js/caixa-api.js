@@ -21,6 +21,7 @@ const CAIXA_API = {
 };
 
 const cacheCaixa = new Map();
+const requisicoesEmAndamento = new Map();
 
 function dataBRParaDate(texto) {
   const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(texto || '').trim());
@@ -55,34 +56,44 @@ function normalizarConcurso(dados, modalidade) {
 async function buscarConcursoCaixa(modalidade, concurso = null) {
   const chave = `${modalidade}|${concurso ?? 'ultimo'}`;
   if (cacheCaixa.has(chave)) return cacheCaixa.get(chave);
+  if (requisicoesEmAndamento.has(chave)) return requisicoesEmAndamento.get(chave);
 
-  const url = concurso
-    ? `${CAIXA_API.base}/${modalidade}/${concurso}`
-    : `${CAIXA_API.base}/${modalidade}`;
+  const promessa = (async () => {
+    const url = concurso
+      ? `${CAIXA_API.base}/${modalidade}/${concurso}`
+      : `${CAIXA_API.base}/${modalidade}`;
 
-  const controle = new AbortController();
-  const limite = setTimeout(() => controle.abort(), CAIXA_API.timeoutMs);
+    const controle = new AbortController();
+    const limite = setTimeout(() => controle.abort(), CAIXA_API.timeoutMs);
 
-  try {
-    const resposta = await fetch(url, {
-      signal: controle.signal,
-      headers: { Accept: 'application/json' }
-    });
+    try {
+      const resposta = await fetch(url, {
+        signal: controle.signal,
+        headers: { Accept: 'application/json' }
+      });
 
-    if (!resposta.ok) return null;
+      if (!resposta.ok) return null;
 
-    const resultado = normalizarConcurso(await resposta.json(), modalidade);
+      const resultado = normalizarConcurso(await resposta.json(), modalidade);
 
-    // Concurso passado nunca muda: cachear evita reconsulta na mesma sessão.
-    if (resultado && concurso) cacheCaixa.set(chave, resultado);
+      // Cacheia tanto o último quanto os passados nesta sessão para evitar rate-limit da Caixa
+      if (resultado) {
+        cacheCaixa.set(chave, resultado);
+        cacheCaixa.set(`${modalidade}|${resultado.concurso}`, resultado);
+      }
 
-    return resultado;
-  } catch (err) {
-    console.warn(`Caixa indisponível (${modalidade}/${concurso ?? 'último'}):`, err.message);
-    return null;
-  } finally {
-    clearTimeout(limite);
-  }
+      return resultado;
+    } catch (err) {
+      console.warn(`Caixa indisponível (${modalidade}/${concurso ?? 'último'}):`, err.message);
+      return null;
+    } finally {
+      clearTimeout(limite);
+      requisicoesEmAndamento.delete(chave);
+    }
+  })();
+
+  requisicoesEmAndamento.set(chave, promessa);
+  return promessa;
 }
 
 /** Quantos sorteios da modalidade existem entre duas datas. */

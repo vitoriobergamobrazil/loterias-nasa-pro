@@ -266,18 +266,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Add CSS animations to document
   addAnimationStyles();
 
-  // Add ripple effect to all buttons
-  document.addEventListener('click', function(e) {
-    if (e.target.tagName === 'BUTTON' && MICRO_CONFIG.animations) {
-      if (e.target.style.position !== 'absolute') {
-        if (e.target.parentElement.style.position !== 'relative') {
-          e.target.parentElement.style.position = 'relative';
-        }
-      }
-      createRipple(e);
-    }
-  });
-
   console.log('✅ Micro-interactions initialized');
 });
 

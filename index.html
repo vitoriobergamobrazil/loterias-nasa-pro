@@ -5,13 +5,13 @@
   <script src="./supabase/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Redesign NASA Pro (Bottom Tab Bar + Clean Layout) -->
-  <link rel="stylesheet" href="./css/redesign.css?v=3.0" />
-  <script src="./js/redesign.js?v=3.0" defer></script>
+  <link rel="stylesheet" href="./css/redesign.css?v=3.1" />
+  <script src="./js/redesign.js?v=3.1" defer></script>
   <!-- Upgrade Modal (Elegant Checkout) -->
-  <link rel="stylesheet" href="./css/upgrade-modal.css?v=3.0" />
-  <script src="./js/upgrade-modal.js?v=3.0" defer></script>
+  <link rel="stylesheet" href="./css/upgrade-modal.css?v=3.1" />
+  <script src="./js/upgrade-modal.js?v=3.1" defer></script>
   <!-- Gerar Simplificada (Mobile-first, accessibility) -->
-  <link rel="stylesheet" href="./css/gerar-simplificado.css?v=3.0" />
+  <link rel="stylesheet" href="./css/gerar-simplificado.css?v=3.1" />
   <!-- Admin Dashboard (Professional Management) -->
   <link rel="stylesheet" href="./css/admin-dashboard.css" />
   <script src="./js/admin-dashboard.js" defer></script>
@@ -903,64 +903,63 @@
     <section id="view-volante" class="space-y-4 hidden">
       
       <!-- CARD PRINCIPAL DO GERADOR -->
-      <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-emerald-800/60 rounded-3xl p-4 shadow-2xl space-y-3 font-mono">
-        <div class="flex items-center justify-between">
-          <div>
-            <span id="modalidade-label" class="text-xs font-black uppercase tracking-wider text-emerald-400 block">
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3.5 font-sans">
+        <div class="space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <span id="modalidade-label" class="text-xs font-black uppercase tracking-wider text-emerald-400">
               🎯 GERADOR DE JOGOS
             </span>
-            <div class="flex items-center gap-2 mt-0.5 font-mono">
-              <span class="text-[10px] uppercase font-bold text-slate-400">STATUS:</span>
-              <span class="px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-black text-xs">
-                <span id="qtd-selecionadas">6</span> / <span id="max-selecao-label">20</span>
-              </span>
-              <span id="badge-custo-inline" class="px-2 py-0.5 rounded-lg bg-cyan-500/15 border border-cyan-500/40 text-cyan-700 dark:text-cyan-300 font-bold text-[11px]">
-                R$ 5,00
-              </span>
+            <div class="flex items-center gap-1.5">
+              <button onclick="salvarJogoNaCarteira()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-black rounded-xl shadow flex items-center gap-1 active:scale-95 transition whitespace-nowrap">
+                <span>💾</span> <span>Salvar</span>
+              </button>
+              <button onclick="limparSelecao()" class="px-2.5 py-1.5 bg-slate-800 text-slate-300 hover:text-white text-xs font-bold rounded-xl border border-slate-700 flex items-center gap-1 whitespace-nowrap">
+                <span>🧹</span> <span>Limpar</span>
+              </button>
             </div>
           </div>
-          
-          <div class="flex gap-1.5">
-            <button onclick="salvarJogoNaCarteira()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-black rounded-xl shadow flex items-center gap-1 active:scale-95 transition">
-              💾 Salvar
-            </button>
-            <button onclick="limparSelecao()" class="px-2.5 py-1.5 bg-slate-800 text-slate-400 hover:text-white text-xs font-bold rounded-xl border border-slate-700">
-              🧹 Limpar
-            </button>
+
+          <div class="flex items-center gap-2 flex-wrap font-mono">
+            <span class="px-2.5 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/35 text-emerald-400 font-black text-xs">
+              <span id="qtd-selecionadas">6</span> / <span id="max-selecao-label">20</span> dezenas
+            </span>
+            <span id="badge-custo-inline" class="px-2.5 py-0.5 rounded-lg bg-cyan-500/15 border border-cyan-500/35 text-cyan-300 font-bold text-xs">
+              R$ 5,00
+            </span>
           </div>
         </div>
 
         <!-- SELETOR DE QUANTIDADE DE NÚMEROS DO JOGO -->
-        <div class="pt-2 border-t border-slate-800/80">
+        <div class="pt-2.5 border-t border-slate-800/80">
           <div class="flex justify-between items-center mb-1.5">
-              <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Números por jogo</span>
-            <span id="label-qtd-ativa" class="text-[10px] text-cyan-300 font-bold bg-cyan-950 px-2 py-0.5 rounded border border-cyan-800">6 números</span>
+            <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Dezenas por aposta</span>
+            <span id="label-qtd-ativa" class="text-[10px] text-cyan-300 font-bold bg-cyan-950 px-2 py-0.5 rounded-md border border-cyan-800 font-mono">6 números</span>
           </div>
-          <div id="container-seletores-qtd" class="flex flex-wrap gap-1"></div>
+          <div id="container-seletores-qtd" class="flex flex-nowrap gap-1.5 overflow-x-auto no-scrollbar pb-1"></div>
         </div>
 
         <!-- SELETOR DE QUANTOS JOGOS GERAR (Ex: 1, 2, 3 ou 5 jogos de 6 números) -->
-        <div class="pt-2 border-t border-slate-800/80">
+        <div class="pt-2.5 border-t border-slate-800/80">
           <div class="flex justify-between items-center mb-1.5">
-              <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Quantidade de jogos</span>
-            <span id="label-qtd-jogos-ativa" class="text-[10px] text-emerald-300 font-bold bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">1 jogo</span>
+            <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Quantidade de jogos</span>
+            <span id="label-qtd-jogos-ativa" class="text-[10px] text-emerald-300 font-bold bg-emerald-950 px-2 py-0.5 rounded-md border border-emerald-800 font-mono">1 jogo</span>
           </div>
           <div class="grid grid-cols-4 gap-1.5 text-center">
-            <button type="button" id="btn-qtd-jogos-1" onclick="setQtdJogosParaGerar(1)" class="py-1 rounded-xl text-xs font-black transition bg-emerald-600 text-slate-950 shadow">1 Jogo</button>
-            <button type="button" id="btn-qtd-jogos-2" onclick="setQtdJogosParaGerar(2)" class="py-1 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
-              <span>2 Jogos</span><span id="selo-pro-qtd-2" class="text-[8px] bg-amber-500 text-slate-950 px-1 rounded font-black">VIP</span>
+            <button type="button" id="btn-qtd-jogos-1" onclick="setQtdJogosParaGerar(1)" class="py-2 rounded-xl text-xs font-black transition bg-emerald-600 text-slate-950 shadow">1 Jogo</button>
+            <button type="button" id="btn-qtd-jogos-2" onclick="setQtdJogosParaGerar(2)" class="py-2 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-300 border border-slate-800 hover:text-white flex items-center justify-center gap-1">
+              <span>2 Jogos</span><span id="selo-pro-qtd-2" class="text-[9px] bg-amber-500 text-slate-950 px-1 rounded font-black">PRO</span>
             </button>
-            <button type="button" id="btn-qtd-jogos-3" onclick="setQtdJogosParaGerar(3)" class="py-1 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
-              <span>3 Jogos</span><span id="selo-pro-qtd-3" class="text-[8px] bg-amber-500 text-slate-950 px-1 rounded font-black">VIP</span>
+            <button type="button" id="btn-qtd-jogos-3" onclick="setQtdJogosParaGerar(3)" class="py-2 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-300 border border-slate-800 hover:text-white flex items-center justify-center gap-1">
+              <span>3 Jogos</span><span id="selo-pro-qtd-3" class="text-[9px] bg-amber-500 text-slate-950 px-1 rounded font-black">PRO</span>
             </button>
-            <button type="button" id="btn-qtd-jogos-5" onclick="setQtdJogosParaGerar(5)" class="py-1 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-400 border border-slate-800 hover:text-white flex items-center justify-center gap-0.5">
-              <span>5 Jogos</span><span id="selo-pro-qtd-5" class="text-[8px] bg-amber-500 text-slate-950 px-1 rounded font-black">VIP</span>
+            <button type="button" id="btn-qtd-jogos-5" onclick="setQtdJogosParaGerar(5)" class="py-2 rounded-xl text-xs font-bold transition bg-slate-950 text-slate-300 border border-slate-800 hover:text-white flex items-center justify-center gap-1">
+              <span>5 Jogos</span><span id="selo-pro-qtd-5" class="text-[9px] bg-amber-500 text-slate-950 px-1 rounded font-black">PRO</span>
             </button>
           </div>
         </div>
 
         <!-- BANNER DE CONVERSÃO PLANO NASA VIP PRO -->
-        <div id="banner-cta-pro-volante" onclick="abrirModalPaywall('banner_volante')" class="p-2.5 rounded-2xl bg-gradient-to-r from-amber-950/70 via-slate-900 to-amber-950/70 border border-amber-500/70 cursor-pointer shadow-lg hover:border-amber-400 transition flex items-center justify-between gap-2 active:scale-98">
+        <div id="banner-cta-pro-volante" onclick="abrirModalPaywall('banner_volante')" class="hidden p-2.5 rounded-2xl bg-gradient-to-r from-amber-950/70 via-slate-900 to-amber-950/70 border border-amber-500/70 cursor-pointer shadow-lg hover:border-amber-400 transition items-center justify-between gap-2 active:scale-98">
           <div class="flex items-center gap-2">
             <span class="text-xl">👑</span>
             <div>
@@ -975,10 +974,9 @@
 
         <!-- BOTÃO DE AÇÃO PRINCIPAL: IGNIÇÃO ORBITAL & FOGUETE NASA -->
         <div class="pt-1">
-          <button type="button" onclick="gerarApostaNasaComMatriz4x4()" class="w-full py-4 px-3.5 btn-rocket-launch text-slate-950 font-black text-sm rounded-2xl active:scale-95 transition flex items-center justify-center gap-2.5 font-sans tracking-wide cursor-pointer">
-            <span class="text-xl animate-flame">🎯</span>
-            <span id="txt-btn-gerar-principal" class="tracking-wider">GERAR JOGO</span>
-            <span class="text-[10px] opacity-80 font-mono hidden sm:inline">[ALEATÓRIO]</span>
+          <button type="button" onclick="gerarApostaNasaComMatriz4x4()" class="w-full py-3.5 px-4 btn-rocket-launch text-slate-950 font-black text-sm rounded-2xl active:scale-95 transition flex items-center justify-center gap-2 font-sans tracking-wide cursor-pointer">
+            <span class="text-lg">🚀</span>
+            <span id="txt-btn-gerar-principal" class="tracking-wide">GERAR JOGO CALIBRADO</span>
           </button>
         </div>
 
@@ -993,22 +991,24 @@
 
         <!-- DEZENAS GERADAS / ATIVAS NO JOGO ATUAL -->
         <div class="space-y-1.5 pt-1">
-          <div class="flex justify-between items-center text-[10px]">
-            <span id="label-titulo-jogo-ativo" class="text-slate-400 uppercase font-bold">Seu jogo</span>
-            <span id="custo-jogo-selecionado" class="text-emerald-400 font-black">Custo: R$ 5,00 (1 jogo)</span>
+          <div class="flex justify-between items-center text-[11px]">
+            <span id="label-titulo-jogo-ativo" class="text-slate-400 font-bold">Toque numa bola para fixar (📌):</span>
+            <span id="custo-jogo-selecionado" class="text-emerald-400 font-black font-mono">R$ 5,00 (1 aposta)</span>
           </div>
-          <div id="display-meu-jogo" class="flex flex-wrap gap-2 min-h-[46px] p-2.5 rounded-2xl bg-slate-950 border border-slate-800 items-center justify-center"></div>
+          <div id="display-meu-jogo" class="flex flex-wrap gap-2 min-h-[54px] p-3 rounded-2xl bg-slate-950 border border-slate-800 items-center justify-center"></div>
         </div>
       </div>
 
       <!-- VOLANTE DIGITAL INTERATIVO -->
-      <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 space-y-3 font-mono">
-        <div class="flex justify-between items-center px-1">
-          <span id="volante-titulo-tipo" class="text-xs font-bold text-white">Volante Interativo (1 a 60)</span>
-          <label class="flex items-center gap-1.5 text-[11px] text-cyan-300 cursor-pointer font-bold">
-            <input id="chk-destaque-subgrid" type="checkbox" checked onchange="renderizarVolante()" class="rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-0 w-3.5 h-3.5" />
-            <span>Destacar distribuição</span>
-          </label>
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 space-y-3 font-sans">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <span id="volante-titulo-tipo" class="text-sm font-black text-white">Volante Mega-Sena (1 a 60)</span>
+          <div id="volante-top-controls" class="flex items-center gap-2 flex-wrap">
+            <label class="flex items-center gap-1.5 text-[11px] text-cyan-300 cursor-pointer font-bold bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
+              <input id="chk-destaque-subgrid" type="checkbox" checked onchange="renderizarVolante()" class="rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-0 w-3.5 h-3.5" />
+              <span>Subgrid 4x4</span>
+            </label>
+          </div>
         </div>
 
         <!-- BARRA DE MODO DE CALIBRAÇÃO (NORMAL, FIXAR, PROIBIR/EXCLUIR) -->
@@ -1233,19 +1233,19 @@
 
       <!-- TELEMETRIA DO CALENDÁRIO OFICIAL DAS LOTERIAS CAIXA -->
       <div class="bg-gradient-to-r from-slate-900 via-cyan-950/30 to-slate-900 border border-cyan-800/50 rounded-3xl p-4 sm:p-5 shadow-xl font-mono">
-        <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+        <div class="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-800">
           <div class="flex items-center gap-2">
-            <span class="text-xl animate-pulse">📅</span>
+            <span class="text-lg">📅</span>
             <div>
-              <h3 class="text-xs sm:text-sm font-black text-white font-sans uppercase">Calendário Oficial Caixa & Encerramento</h3>
-              <span class="text-[10px] text-cyan-400">Próximos Sorteios com Fechamento às 20:00h</span>
+              <h3 class="text-xs sm:text-sm font-black text-white font-sans uppercase">Calendário Oficial Caixa</h3>
+              <span class="text-[10px] text-cyan-400 font-sans">Próximos sorteios às 20:00h</span>
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="sincronizarSorteiosReais()" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-800 rounded-xl text-[10px] font-bold transition flex items-center gap-1" title="Sincronizar direto com os servidores da Caixa">
-              <span>🔄</span> Sincronizar Caixa
+            <button onclick="sincronizarSorteiosReais()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-800 rounded-xl text-[11px] font-bold transition flex items-center gap-1 whitespace-nowrap font-sans" title="Sincronizar direto com os servidores da Caixa">
+              <span>🔄</span> <span>Sincronizar</span>
             </button>
-            <span id="sorteios-ultima-sync" class="js-sorteios-sync text-[9px] text-slate-500 hidden">Atualizado agora</span>
+            <span id="sorteios-ultima-sync" class="js-sorteios-sync text-[9px] text-slate-500 hidden"></span>
           </div>
         </div>
 
@@ -1516,22 +1516,22 @@
         </div>
 
         <!-- Card de Telemetria da Matriz -->
-        <div id="card-telemetria-matriz" class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2 text-xs">
-          <div class="flex justify-between items-center">
+        <div id="card-telemetria-matriz" class="p-3.5 bg-slate-950 rounded-2xl border border-slate-800 space-y-2.5 text-xs">
+          <div class="flex justify-between items-center gap-2">
             <span class="text-slate-400 text-[11px]">Dezenas no Fechamento:</span>
-            <span id="matriz-info-dezenas" class="text-white font-black text-xs">18 dezenas</span>
+            <span id="matriz-info-dezenas" class="text-white font-black text-xs text-right">18 dezenas</span>
           </div>
-          <div class="flex justify-between items-center">
-            <span class="text-slate-400 text-[11px]">Garantia Oficial:</span>
-            <span id="matriz-info-garantia" class="text-emerald-400 font-black text-xs">14 Pontos Acertando 15</span>
+          <div class="flex justify-between items-center gap-2">
+            <span class="text-slate-400 text-[11px] shrink-0">Garantia Oficial:</span>
+            <span id="matriz-info-garantia" class="text-emerald-400 font-black text-xs text-right">14 Pontos Acertando 15</span>
           </div>
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center gap-2">
             <span class="text-slate-400 text-[11px]">Total de Apostas:</span>
-            <span id="matriz-info-jogos" class="text-cyan-300 font-black text-xs">24 jogos (R$ 72,00)</span>
+            <span id="matriz-info-jogos" class="text-cyan-300 font-black text-xs text-right">24 jogos (R$ 72,00)</span>
           </div>
-          <div class="flex justify-between items-center pt-1.5 border-t border-slate-800/80">
+          <div class="flex flex-wrap justify-between items-center gap-2 pt-2 border-t border-slate-800/80">
             <span class="text-amber-400 font-bold text-[10px] uppercase tracking-wider">Economia vs Aposta da Caixa:</span>
-            <span id="matriz-info-economia" class="text-emerald-400 font-bold text-xs bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">
+            <span id="matriz-info-economia" class="text-emerald-400 font-bold text-xs bg-emerald-950/80 px-2.5 py-1 rounded-lg border border-emerald-800">
               Economia de 97.1% (R$ 2.376,00)
             </span>
           </div>
@@ -1590,13 +1590,13 @@
 
       <!-- TOP 10 PEDRAS MAIS SORTEADAS (QUENTES) -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 font-mono">
-        <div class="flex justify-between items-center">
-          <div class="flex items-center gap-1.5">
-            <span class="text-sm">🔥</span>
-            <h3 class="text-xs font-black text-white font-sans uppercase">Top 10 Pedras Mais Sorteadas (Quentes)</h3>
+        <div class="flex justify-between items-center gap-2">
+          <div class="flex items-center gap-1.5 min-w-0">
+            <span class="text-sm shrink-0">🔥</span>
+            <h3 class="text-xs font-black text-white font-sans uppercase leading-tight">Top 10 Mais Sorteadas (Quentes)</h3>
           </div>
-          <button onclick="carregarPedrasMaisQuentesNoVolante()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-[10px] font-black rounded-lg shadow active:scale-95 transition">
-            🎯 Jogar no Volante
+          <button onclick="carregarPedrasMaisQuentesNoVolante()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-[11px] font-black rounded-xl shadow active:scale-95 transition whitespace-nowrap shrink-0 flex items-center gap-1 font-sans">
+            <span>🎯</span> <span>Usar no Volante</span>
           </button>
         </div>
         <div id="ranking-pedras-quentes" class="grid grid-cols-5 sm:grid-cols-10 gap-1.5 text-center"></div>
@@ -2899,12 +2899,9 @@
       }
 
       const ehPro = planoUsuario === 'pro' || (usuarioSessao && usuarioSessao.tipo === 'master_founder');
-      const modoDegustacao = !ehPro && !jogoGratisCortesiaUsado && jogo.length >= config.minDezenas;
-      const limiteReveladas = modalidadeAtual === 'megasena' ? 4 : 11;
-      const dezenasVipBloqueadas = modoDegustacao ? new Set(jogo.slice(limiteReveladas)) : new Set();
 
-      // Números bloqueados quando FREE tenta gerar 2+ jogos (teaser paywall)
-      const numerosBloqueadosRaw = localStorage.getItem('nasa_numeros_bloqueados');
+      // Números bloqueados a partir do 2º jogo gratuito (o 1º jogo é sempre 100% liberado)
+      const numerosBloqueadosRaw = !ehPro ? localStorage.getItem('nasa_numeros_bloqueados') : null;
       const numerosBloqueados = numerosBloqueadosRaw ? new Set(JSON.parse(numerosBloqueadosRaw)) : new Set();
 
       for (let i = 1; i <= config.totalNumeros; i++) {
@@ -2912,7 +2909,6 @@
         const marcado = jogo.includes(i);
         const ehFixo = fixos.includes(i);
         const ehProibido = proibidos.includes(i);
-        const ehVipBloqueada = dezenasVipBloqueadas.has(i);
         const ehNumeroBloqueado = numerosBloqueados.has(i) && marcado;
         const numStr = String(i).padStart(2, '0');
 
@@ -2927,16 +2923,12 @@
 
         if (ehFixo) estilo = 'bg-emerald-900/90 text-emerald-300 border-2 border-emerald-400 font-black shadow';
         else if (ehProibido) estilo = 'bg-rose-950/90 text-rose-400 border-2 border-rose-600 line-through opacity-60';
-        else if (ehNumeroBloqueado) estilo = 'bg-red-950/90 text-red-300 border-2 border-red-500 font-black scale-105 shadow-md shadow-red-500/30';
-        else if (ehVipBloqueada) estilo = 'bg-amber-950/90 text-amber-300 border-2 border-amber-400 font-black scale-105 shadow-md shadow-amber-500/30';
+        else if (ehNumeroBloqueado) estilo = 'bg-amber-950/90 text-amber-300 border-2 border-amber-400 font-black scale-105 shadow-md shadow-amber-500/30';
         else if (marcado) estilo = modalidadeAtual === 'megasena' ? 'bg-emerald-500 text-slate-950 font-black scale-105 border-white shadow-md' : 'bg-purple-500 text-white font-black scale-105 border-white shadow-md';
 
         if (ehNumeroBloqueado) {
-          btn.innerHTML = `<span class="flex items-center gap-0.5">${numStr}<span class="text-[8px]">🔴</span></span>`;
-          btn.title = 'Número bloqueado! Este combo está disponível apenas no Plano PRO.';
-        } else if (ehVipBloqueada) {
           btn.innerHTML = `<span class="flex items-center gap-0.5">${numStr}<span class="text-[8px]">🔒</span></span>`;
-          btn.title = 'Dezena VIP calibrada! Desbloqueie com o Plano VIP';
+          btn.title = 'Dezena bloqueada! Assine PRO para desbloquear gerações ilimitadas.';
         } else {
           btn.innerText = numStr;
         }
@@ -2944,13 +2936,8 @@
         btn.className = `volante-btn rounded-xl font-bold text-xs transition active:scale-90 flex items-center justify-center ${estilo}`;
         btn.onclick = () => {
           if (ehNumeroBloqueado) {
-            toast('Você alcançou o limite de gerações gratuitas. Assine PRO pra gerar quantas apostas quiser!', '🔴');
+            toast('Você alcançou o limite de gerações gratuitas. Assine PRO para gerar quantas apostas quiser!', '🔒');
             abrirModalPaywall('multi_jogos');
-            return;
-          }
-          if (ehVipBloqueada) {
-            toast('Dezena calibrada VIP! Desbloqueie no Plano VIP ou resgate sua cortesia.', '🔒');
-            abrirModalPaywall('desbloquear_dezenas');
             return;
           }
           clicarNumeroVolante(i);
@@ -3035,25 +3022,28 @@
       }
 
       const ehPro = planoUsuario === 'pro' || (usuarioSessao && usuarioSessao.tipo === 'master_founder');
-      const modoDegustacao = !ehPro && !jogoGratisCortesiaUsado && jogo.length >= config.minDezenas;
-      const limiteReveladas = modalidadeAtual === 'megasena' ? 4 : 11;
+      const numerosBloqueadosRaw = !ehPro ? localStorage.getItem('nasa_numeros_bloqueados') : null;
+      const numerosBloqueados = numerosBloqueadosRaw ? new Set(JSON.parse(numerosBloqueadosRaw)) : new Set();
 
-      jogo.forEach((num, idx) => {
+      jogo.forEach((num) => {
         const ehFixo = getFixos().includes(num);
-        const cor = ehFixo ? 'bg-emerald-400 text-slate-950 ring-2 ring-emerald-300' : (modalidadeAtual === 'megasena' ? 'bg-emerald-600 text-slate-950 font-black' : 'bg-purple-600 text-white');
+        const ehNumeroBloqueado = numerosBloqueados.has(num);
+        const cor = ehFixo
+          ? 'bg-emerald-400 text-slate-950 ring-2 ring-emerald-300'
+          : (modalidadeAtual === 'megasena' ? 'bg-emerald-600 text-slate-950 font-black' : 'bg-purple-600 text-white');
 
-        if (modoDegustacao && idx >= limiteReveladas) {
+        if (ehNumeroBloqueado) {
           const btnVip = document.createElement('button');
           btnVip.type = 'button';
           btnVip.onclick = () => abrirModalPaywall('desbloquear_dezenas');
-          btnVip.className = 'w-8 h-8 rounded-xl bg-amber-950/90 border-2 border-amber-400 text-amber-300 font-black text-[9px] flex items-center justify-center shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 transition font-mono cursor-pointer';
-          btnVip.title = 'Dezena VIP calibrada! Clique para desbloquear';
-          btnVip.innerHTML = '🔒 VIP';
+          btnVip.className = 'w-10 h-10 rounded-xl bg-amber-950/90 border-2 border-amber-400 text-amber-300 font-black text-[10px] flex items-center justify-center shadow-lg shadow-amber-500/20 hover:scale-105 active:scale-95 transition font-mono cursor-pointer';
+          btnVip.title = 'Dezena bloqueada! Clique para desbloquear';
+          btnVip.innerHTML = '🔒';
           display.appendChild(btnVip);
         } else {
           const badge = document.createElement('button');
           badge.type = 'button';
-          badge.className = `w-7 h-7 rounded-lg ${cor} font-bold text-xs flex items-center justify-center shadow-sm font-mono relative active:scale-90 transition cursor-pointer`;
+          badge.className = `w-10 h-10 rounded-xl ${cor} font-bold text-xs flex items-center justify-center shadow-sm font-mono relative active:scale-90 transition cursor-pointer`;
           badge.title = ehFixo ? 'Dezena Fixada (toque para soltar)' : 'Toque para fixar (📌) esta dezena nos próximos sorteios';
           badge.innerHTML = ehFixo
             ? `${String(num).padStart(2, '0')}<span class="absolute -top-1 -right-1 text-[8px] leading-none">📌</span>`
@@ -3075,28 +3065,17 @@
         }
       });
 
-      // Se estiver em modo degustação, exibe aviso elegante de degustação
-      if (modoDegustacao) {
-        const faltam = jogo.length - limiteReveladas;
+      if (numerosBloqueados.size > 0) {
         const banner = document.createElement('div');
-        banner.className = 'w-full mt-2.5 p-2 rounded-2xl bg-amber-950/40 border border-amber-500/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left font-sans text-xs';
+        banner.className = 'w-full mt-2 p-2.5 rounded-2xl bg-amber-950/40 border border-amber-500/50 flex items-center justify-between gap-2 font-sans text-xs';
         banner.innerHTML = `
-          <div>
-            <div class="text-amber-300 font-bold flex items-center justify-center sm:justify-start gap-1">
-              <span>🧪</span> Modo Degustação Grátis
-            </div>
-            <div class="text-slate-300 text-[10px]">
-              ${limiteReveladas} dezenas reveladas (${faltam} bloqueadas). Desbloqueie todas no Plano VIP!
-            </div>
+          <div class="text-left">
+            <div class="text-amber-300 font-bold text-[11px]">🔒 ${numerosBloqueados.size} dezenas bloqueadas</div>
+            <div class="text-slate-300 text-[10px]">Desbloqueie gerações ilimitadas no Plano PRO</div>
           </div>
-          <div class="flex items-center gap-1.5 justify-center">
-            <button type="button" onclick="resgatarJogoGratisCortesia()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-700/60 font-bold text-[10px] active:scale-95 transition whitespace-nowrap">
-              🎁 Revelar 1 Jogo Cortesia
-            </button>
-            <button type="button" onclick="abrirModalPaywall('desbloquear_todas')" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-[10px] shadow active:scale-95 transition whitespace-nowrap">
-              👑 Desbloquear VIP
-            </button>
-          </div>
+          <button type="button" onclick="abrirModalPaywall('desbloquear_todas')" class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-[11px] shadow active:scale-95 transition whitespace-nowrap">
+            👑 Desbloquear
+          </button>
         `;
         display.appendChild(banner);
       }
@@ -3818,21 +3797,7 @@ function gerarPalpiteInteligente() {
 
       // Carrega automaticamente a 1ª aposta no volante
       setJogoAtual([...apostas[0].dezenas]);
-      atualizarDisplayJogo();
 
-      // Teaser/paywall: o 1º jogo completo é grátis; do 2º em diante, FREE
-      // vê 2 números bloqueados. A regra ERA "qtd > 1 pedido nesta chamada" —
-      // um visitante clicando em "Gerar 1 jogo" repetidas vezes nunca batia
-      // nela, e recebia jogos completos sem limite algum. Agora conta jogos
-      // completos JÁ recebidos (persistido no navegador), não a quantidade
-      // pedida na hora.
-      //
-      // Limite honesto: localStorage não identifica pessoa, só o navegador.
-      // Aba anônima ou limpar dados reseta a contagem. Não vale trocar isso
-      // por fingerprint de dispositivo — fura a política de privacidade
-      // (que promete não coletar esse tipo de dado) por um teaser de baixo
-      // valor (1 jogo). A fricção de repetir isso a cada vez já desestimula
-      // a maioria; quem contorna não era conversão provável de qualquer forma.
       const ehProUser = typeof planoUsuario !== 'undefined' && planoUsuario === 'pro';
       const ehMasterFounder = typeof usuarioSessao !== 'undefined' && usuarioSessao && usuarioSessao.tipo === 'master_founder';
 
@@ -3852,6 +3817,7 @@ function gerarPalpiteInteligente() {
         localStorage.removeItem('nasa_numeros_bloqueados');
       }
 
+      atualizarDisplayJogo();
       renderizarVolante();
       executarAnaliseDinamicaDoJogo();
       executarAnaliseVitorio();
@@ -4722,9 +4688,11 @@ function gerarPalpiteInteligente() {
       // de calor uniforme passaria a impressão de análise feita.
       if (!base || base.length === 0) {
         const aviso = `
-          <div class="col-span-full p-3 rounded-xl bg-slate-950 border border-amber-800/60 text-amber-300 text-[11px] font-sans text-center">
-            Histórico oficial ainda não sincronizado — sem concursos reais não
-            há como calcular frequência de dezenas.
+          <div class="col-span-full p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-slate-300 text-xs font-sans text-center space-y-2">
+            <div>Sincronizando concursos oficiais da Caixa Econômica Federal...</div>
+            <button type="button" onclick="window.historico.carregar()" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-slate-950 font-black text-xs">
+              🔄 Sincronizar Agora
+            </button>
           </div>`;
         grid.className = 'grid grid-cols-1';
         grid.innerHTML = aviso;

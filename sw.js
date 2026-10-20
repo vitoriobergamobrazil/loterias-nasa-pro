@@ -3,8 +3,8 @@
 // Estratégia: Cache-First para assets estáticos, Network-First para dados
 // =========================================================================
 
-const CACHE_NAME = 'loterias-nasa-pro-v3';
-const CACHE_STATIC = 'nasa-static-v3';
+const CACHE_NAME = 'loterias-nasa-pro-v4';
+const CACHE_STATIC = 'nasa-static-v4';
 
 // Assets críticos para funcionamento offline
 const ASSETS_TO_CACHE = [
@@ -78,7 +78,24 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Para assets locais e CDN — Cache-First com atualização em background
+  // Para HTML/CSS/JS locais — Network-First com fallback para cache (garante atualização imediata no celular)
+  const isLocalCode = url.hostname === self.location.hostname || url.hostname.includes('github.io');
+  if (isLocalCode && !url.pathname.endsWith('.png')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_STATIC).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Para imagens e CDNs — Cache-First com atualização em background
   event.respondWith(
     caches.open(CACHE_STATIC).then((cache) => {
       return cache.match(event.request).then((cachedResponse) => {
