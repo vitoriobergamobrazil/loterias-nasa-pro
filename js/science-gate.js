@@ -1,13 +1,8 @@
 // ===================================================================
-// SCIENCE GATE - Real enforcement of Free vs PRO limits + teaser lock
+// SCIENCE GATE - Generous First Experience & Clean Paywall Logic
 // ===================================================================
-// Contexto: o app tinha um paywall "de fachada" - o seletor de
-// quantidade bloqueava a UI, mas a função de geração nunca checava o
-// plano de verdade, e os 6 Testes Orbitais apareciam 100% liberados
-// pra todo mundo. Este arquivo fecha essas duas brechas sem tocar na
-// lógica matemática existente (defesa em profundidade via wrapping).
 
-const TESTES_BLOQUEADOS_FREE = [2, 3, 5, 6]; // Sequência (1) e Paridade (4) ficam livres
+const TESTES_BLOQUEADOS_FREE = [2, 3, 5, 6];
 
 function usuarioEhPro() {
   if (typeof usuarioSessao !== 'undefined' && usuarioSessao && usuarioSessao.tipo === 'master_founder') return true;
@@ -15,15 +10,26 @@ function usuarioEhPro() {
 }
 
 /**
- * Trava visual de um card de teste: borra o conteúdo e sobrepõe um
- * cadeado com CTA. Idempotente (não duplica a camada se já aplicada).
+ * 1º Jogo Sempre 100% Liberado de Cortesia
+ * Permite ao usuário experimentar todos os 6 testes e score de telemetria
+ * sem nenhum cadeado na primeira vez.
  */
-/**
- * "1 análise grátis" = ver o diagnóstico inteiro deste jogo, não um card
- * por vez — gastar 1 crédito revela os 4 testes bloqueados E o painel de
- * score juntos. Chamada tanto pelo cadeado de um teste quanto pelo do
- * painel de score.
- */
+function primeiroJogoLiberado() {
+  try {
+    const salvo = localStorage.getItem('nasa_primeiro_jogo_visto');
+    if (!salvo) {
+      return true;
+    }
+  } catch (e) {}
+  return false;
+}
+
+function marcarPrimeiroJogoVisto() {
+  try {
+    localStorage.setItem('nasa_primeiro_jogo_visto', 'true');
+  } catch (e) {}
+}
+
 function revelarDiagnosticoCompletoComCredito(origem) {
   const revelarTudo = () => {
     TESTES_BLOQUEADOS_FREE.forEach((idx) => {
@@ -36,7 +42,6 @@ function revelarDiagnosticoCompletoComCredito(origem) {
     tratarCliqueTravaCientifica(origem, revelarTudo);
     return;
   }
-  // Fallback se creditos-gratis.js não carregou por algum motivo.
   if (typeof abrirModalPaywall === 'function') abrirModalPaywall(origem);
   if (typeof tocarBeep === 'function') tocarBeep('click');
 }
@@ -63,29 +68,27 @@ function removerTravaCientifica(card) {
 }
 
 /**
- * Aplica/remove a trava nos testes 2, 3, 5 e 6 e no painel de score
- * agregado, de acordo com o plano real do usuário.
+ * Aplica trava apenas se não for PRO E já tiver usado a degustação do 1º jogo
  */
 function aplicarGateCientificoNasa() {
   const pro = usuarioEhPro();
+  const liberadoCortesia = primeiroJogoLiberado();
 
   TESTES_BLOQUEADOS_FREE.forEach(idx => {
     const card = document.getElementById(`teste-card-${idx}`);
     if (!card) return;
-    if (pro) {
+    if (pro || liberadoCortesia) {
       removerTravaCientifica(card);
     } else {
       aplicarTravaCientifica(card, idx);
     }
   });
 
-  // O score agregado é derivado dos 6 testes - mostrar o número
-  // completo pra quem é FREE anularia o motivo de travar os 4 acima.
   const painelScore = document.getElementById('painel-score-telemetria');
   const badgeTotal = document.getElementById('badge-total-testes-ok');
 
   if (painelScore) {
-    if (pro) {
+    if (pro || liberadoCortesia) {
       removerTravaCientifica(painelScore);
     } else if (!painelScore.querySelector('.science-lock-overlay')) {
       painelScore.classList.add('science-lock-blurred');
@@ -101,18 +104,11 @@ function aplicarGateCientificoNasa() {
     }
   }
 
-  if (badgeTotal && !pro) {
-    badgeTotal.innerText = '2 de 6 visíveis';
+  if (badgeTotal) {
+    badgeTotal.innerText = (pro || liberadoCortesia) ? '6 de 6 Aprovados' : '2 de 6 visíveis';
   }
 }
 
-/**
- * Defesa em profundidade: mesmo que o seletor de quantidade tenha
- * sido burlado (ou o app tenha carregado com qtdApostasDesejada > 1
- * por padrão), a geração em si nunca deveria produzir mais de 1 jogo
- * pra quem não é PRO. Faz o wrap da função original em vez de
- * reescrevê-la, pra não arriscar quebrar a lógica combinatória.
- */
 (function blindarGeracaoMultipla() {
   const tentarWrap = () => {
     if (typeof gerarMultiplasApostas !== 'function' || gerarMultiplasApostas.__scienceGated) {
@@ -134,16 +130,10 @@ function aplicarGateCientificoNasa() {
   };
 
   if (!tentarWrap()) {
-    // Scripts carregam com defer; se ainda não existir, tenta de novo no DOMContentLoaded
     document.addEventListener('DOMContentLoaded', tentarWrap);
   }
 })();
 
-/**
- * Faz o wrap de atualizarVisualPlano (chamada sempre que a sessão ou
- * o plano mudam) pra manter a trava científica sincronizada em tempo
- * real, sem duplicar a lógica de carregamento de sessão existente.
- */
 (function sincronizarGateComPlano() {
   const tentarWrap = () => {
     if (typeof atualizarVisualPlano !== 'function' || atualizarVisualPlano.__scienceGated) {
@@ -164,12 +154,7 @@ function aplicarGateCientificoNasa() {
   }
 })();
 
-// O trial de 3 dias (nasa_trial_expira_em, restaurado aqui a cada F5) foi
-// aposentado: o único mecanismo de "grátis" do app agora são as 3 análises
-// por cadastro, sem prazo (js/creditos-gratis.js). Manter os dois rodando
-// juntos seria recriar o mesmo problema de sistemas de paywall paralelos
-// já corrigido nesta base de código.
 document.addEventListener('DOMContentLoaded', function () {
   aplicarGateCientificoNasa();
-  console.log('🔬 Science gate (paywall real) ativo');
+  console.log('🔬 Science gate generoso ativo (1º jogo livre)');
 });

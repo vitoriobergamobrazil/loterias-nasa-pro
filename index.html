@@ -995,7 +995,19 @@
             <span id="label-titulo-jogo-ativo" class="text-slate-400 font-bold">Toque numa bola para fixar (📌):</span>
             <span id="custo-jogo-selecionado" class="text-emerald-400 font-black font-mono">R$ 5,00 (1 aposta)</span>
           </div>
-          <div id="display-meu-jogo" class="flex flex-wrap gap-2 min-h-[54px] p-3 rounded-2xl bg-slate-950 border border-slate-800 items-center justify-center"></div>
+          
+<div id="display-meu-jogo" class="flex flex-wrap gap-2 min-h-[54px] p-3 rounded-2xl bg-slate-950 border border-slate-800 items-center justify-center"></div>
+
+          <!-- Ações Rápidas do Jogo: Salvar na Carteira & WhatsApp -->
+          <div class="grid grid-cols-2 gap-2 pt-2">
+            <button type="button" onclick="salvarJogoAtivoNaCarteira(); tocarSomNasa('sucesso');" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs border border-slate-700 active:scale-95 transition flex items-center justify-center gap-1.5">
+              <span>💼</span> Salvar na Carteira
+            </button>
+            <button type="button" onclick="compartilharJogoGeradoWhatsapp()" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs active:scale-95 transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20">
+              <span>📱</span> Enviar no WhatsApp
+            </button>
+          </div>
+
         </div>
       </div>
 
@@ -1042,8 +1054,8 @@
         <div class="flex justify-between items-center cursor-pointer select-none" onclick="alternarCard('conteudo-matriz-vitorio', 'seta-matriz-vitorio')" title="Clique para abrir ou fechar este painel">
           <div class="flex items-center gap-1.5">
             <span class="text-base">📐</span>
-            <h3 class="text-xs font-black text-white font-sans uppercase">Matriz 4x4 de Equilíbrio</h3>
-            <span class="text-[9px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold ml-1">79.4% Histórico</span>
+            <h3 class="text-xs font-black text-white font-sans uppercase">Distribuição no Volante (Sem Aglomeração)</h3>
+            <span class="text-[9px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-bold ml-1">79.4% dos Concursos</span>
           </div>
           <div class="flex items-center gap-1 text-cyan-400 text-xs font-bold">
             <span class="text-[10px] text-slate-400 font-sans hidden sm:inline">Expandir/Recolher</span>
@@ -1062,13 +1074,13 @@
               <strong id="vit-colunas" class="text-teal-400 text-xs block mt-0.5">4 Colunas</strong>
             </div>
             <div class="p-2 bg-slate-950 rounded-xl border border-slate-800">
-              <span class="text-[9px] text-slate-400 block font-sans">Área Subgrid</span>
+              <span class="text-[9px] text-slate-400 block font-sans">Dezenas Cobertas</span>
               <strong id="vit-area" class="text-emerald-400 text-xs block mt-0.5">16 dezenas</strong>
             </div>
           </div>
 
           <div class="flex justify-between items-center text-xs pt-1 border-t border-slate-800/80">
-            <span class="text-slate-400 font-sans text-[11px]">Quadrante Excluído Propositalmente:</span>
+            <span class="text-slate-400 font-sans text-[11px]">Área Vazia Proposital (Técnica NASA):</span>
             <strong id="vit-quad-vazios" class="text-emerald-400 text-xs">-</strong>
           </div>
         </div>
@@ -1079,7 +1091,7 @@
         <div class="flex justify-between items-center">
           <div>
             <span class="text-[9px] uppercase tracking-widest font-black text-cyan-400 block mb-0.5">TELEMETRIA NASA</span>
-            <h2 class="text-sm font-black text-white font-sans">Score de Eficiência Combinatória</h2>
+            <h2 class="text-sm font-black text-white font-sans">Nota de Equilíbrio do Jogo</h2>
           </div>
           <div class="px-3 py-1.5 rounded-xl bg-slate-950 border border-cyan-400 flex items-baseline gap-1 shadow-lg shadow-cyan-500/20">
             <span id="score-numero" class="text-xl font-black text-cyan-300 leading-none">--</span>
@@ -1119,61 +1131,61 @@
           <!-- 1º TESTE (Livre no Plano Grátis) -->
           <div id="teste-card-1" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">1º Seq & Finais (95,2%)</span>
+              <span class="text-[10px] font-bold text-slate-400 uppercase">1º Sem Sequências Viciadas (95%)</span>
               <span id="badge-status-t1" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
             </div>
             <strong id="val-t1" class="text-white text-xs font-bold block truncate">-</strong>
-            <p class="text-[10px] text-slate-400 leading-tight font-sans">Elimina sequências longas e colunas verticais viciadas.</p>
+            <p class="text-[10px] text-slate-400 leading-tight font-sans">Evita números colados (ex: 1, 2, 3) ou linhas inteiras que quase nunca saem.</p>
           </div>
 
           <!-- 2º TESTE (PRO) -->
           <div id="teste-card-2" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">2º Entropia de Shannon (92,8%)</span>
+              <span class="text-[10px] font-bold text-slate-400 uppercase">2º Espalhamento no Bilhete (93%)</span>
               <span id="badge-status-t2" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
             </div>
             <strong id="val-t2" class="text-white text-xs font-bold block">0.000 bits</strong>
-            <p class="text-[10px] text-slate-400 leading-tight font-sans">Dispersão termodinâmica bidimensional na matriz.</p>
+            <p class="text-[10px] text-slate-400 leading-tight font-sans">Garante que os números estejam espalhados por todo o cartão.</p>
           </div>
 
           <!-- 3º TESTE (PRO) -->
           <div id="teste-card-3" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">3º Aderência Qui-Quadrado (87,4%)</span>
+              <span class="text-[10px] font-bold text-slate-400 uppercase">3º Equilíbrio Espacial (87%)</span>
               <span id="badge-status-t3" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
             </div>
             <strong id="val-t3" class="text-white text-xs font-bold block">χ² = 0.00</strong>
-            <p class="text-[10px] text-slate-400 leading-tight font-sans">Teste de homogeneidade espacial e não-vício setorial.</p>
+            <p class="text-[10px] text-slate-400 leading-tight font-sans">Impede que todos os números fiquem amontoados em um único canto.</p>
           </div>
 
           <!-- 4º TESTE (Livre no Plano Grátis) -->
           <div id="teste-card-4" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">4º Paridade & Primos (83,6%)</span>
+              <span class="text-[10px] font-bold text-slate-400 uppercase">4º Pares, Ímpares e Primos (84%)</span>
               <span id="badge-status-t4" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
             </div>
             <strong id="val-t4" class="text-white text-xs font-bold block">-</strong>
-            <p class="text-[10px] text-slate-400 leading-tight font-sans">Equilíbrio harmônico entre pares, ímpares e primos.</p>
+            <p class="text-[10px] text-slate-400 leading-tight font-sans">Mantém a proporção que mais sai na história dos sorteios.</p>
           </div>
 
           <!-- 5º TESTE (PRO) -->
           <div id="teste-card-5" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">5º Curva Normal da Soma (81,9%)</span>
+              <span class="text-[10px] font-bold text-slate-400 uppercase">5º Soma Equilibrada (82%)</span>
               <span id="badge-status-t5" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
             </div>
             <strong id="val-t5" class="text-white text-xs font-bold block">Soma: 0</strong>
-            <p class="text-[10px] text-slate-400 leading-tight font-sans">Posição gaussiana sem reposição (&mu; &approx; 183).</p>
+            <p class="text-[10px] text-slate-400 leading-tight font-sans">A soma dos números fica na faixa onde ocorrem mais de 80% dos prêmios.</p>
           </div>
 
           <!-- 6º TESTE (PRO) -->
           <div id="teste-card-6" class="p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-1 relative">
             <div class="flex justify-between items-center">
-              <span class="text-[10px] font-bold text-slate-400 uppercase">6º Hipergeométrica (80,8%)</span>
+              <span class="text-[10px] font-bold text-slate-400 uppercase">6º Balanço por Quadrantes (81%)</span>
               <span id="badge-status-t6" class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">Aprovado</span>
             </div>
             <strong id="val-t6" class="text-white text-xs font-bold block truncate">-</strong>
-            <p class="text-[10px] text-slate-400 leading-tight font-sans">Partição combinatória exata nos 4 quadrantes.</p>
+            <p class="text-[10px] text-slate-400 leading-tight font-sans">Distribui as dezenas proporcionalmente nos 4 cantos do volante.</p>
           </div>
         </div>
       </div>
@@ -6748,5 +6760,6 @@ function abrirModalDialog(msg, callback) {
 
 
   </script>
+  <script src="js/whatsapp-share.js"></script>
 </body>
 </html>
