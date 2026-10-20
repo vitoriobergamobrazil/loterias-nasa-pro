@@ -2111,7 +2111,7 @@
 
     <!-- MODAL: CADASTRAR / LIBERAR NOVO USUÁRIO (AÇÃO DO CEO) -->
     <div id="modal-novo-usuario-admin" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
-      <div class="bg-slate-900 border-2 border-amber-500/50 rounded-3xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl relative">
+      <div class="bg-slate-900 border-2 border-amber-500/50 rounded-3xl max-w-sm w-full p-5 space-y-3.5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
         <button onclick="fecharModalNovoUsuarioAdmin()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
 
         <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
@@ -2175,7 +2175,7 @@
 
     <!-- MODAL: SIMULAR WEBHOOK DE PAGAMENTO -->
     <div id="modal-simular-webhook" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
-      <div class="bg-slate-900 border-2 border-emerald-500/50 rounded-3xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl relative font-mono">
+      <div class="bg-slate-900 border-2 border-emerald-500/50 rounded-3xl max-w-sm w-full p-5 space-y-3.5 shadow-2xl relative font-mono max-h-[90vh] overflow-y-auto">
         <button onclick="fecharModalSimularWebhook()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
 
         <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
@@ -2622,7 +2622,7 @@
       }
 
       renderizarTelaCompleta();
-      toast(`Modalidade ativa: ${mod === 'megasena' ? 'Mega-Sena' : 'Lotofácil'}`, "🔄");
+      // Toast redundante removido
     }
 
     function getJogoAtual() { return modalidadeAtual === 'megasena' ? meuJogoMega : meuJogoLoto; }
