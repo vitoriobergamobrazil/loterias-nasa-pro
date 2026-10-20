@@ -1,20 +1,11 @@
 // ===================================================================
-// CHECKOUT - cobrança real via Asaas
+// CHECKOUT - cobrança real via Asaas (Mobile-First Polish)
 // ===================================================================
-// Substitui as telas que mostravam "[QR Code PIX] Simulado para teste" e um
-// código copia-e-cola inventado, com um botão "Confirmei o Pagamento" que não
-// confirmava nada.
-//
-// Fluxo: coleta CPF -> criar-cobranca (servidor) -> página de pagamento do
-// Asaas -> webhook confirma -> assinatura.js libera o PRO.
-//
-// O pagamento acontece na página hospedada do Asaas, não aqui. Assim o app
-// nunca toca em número de cartão e fica fora do escopo de PCI.
 
 const CHECKOUT_PLANOS = {
-  avulso: { nome: 'Análise Avulsa', preco: 'R$ 5,90', periodo: 'pagamento único' },
-  mensal: { nome: 'PRO Mensal', preco: 'R$ 29,90', periodo: 'por mês' },
-  anual: { nome: 'PRO Anual', preco: 'R$ 197', periodo: 'por ano · equivale a R$ 16,41/mês' }
+  avulso: { nome: '🎯 Análise Avulsa 1 Jogo', preco: 'R$ 5,90', periodo: 'pagamento único' },
+  mensal: { nome: '🚀 Astronauta PRO Mensal', preco: 'R$ 29,90', periodo: 'por mês' },
+  anual: { nome: '👑 Apollo VIP Anual', preco: 'R$ 197', periodo: 'por ano · equivale a R$ 16,41/mês' }
 };
 
 /** Valida CPF pelos dígitos verificadores, para não criar cliente inválido no gateway. */
@@ -63,7 +54,16 @@ function mostrarCheckoutReal(planId) {
   const nomeSugerido = (typeof usuarioSessao !== 'undefined' && usuarioSessao?.nome) || '';
 
   content.innerHTML = `
-    <button id="btn-close-upgrade-modal" class="modal-upgrade-close" title="Fechar">✕</button>
+    <!-- Top Bar -->
+    <div class="modal-upgrade-topbar">
+      <div class="modal-upgrade-badge">
+        <span>🔒</span>
+        <span>PAGAMENTO SEGURO</span>
+      </div>
+      <button id="btn-close-upgrade-modal" class="modal-upgrade-close" title="Fechar" type="button" onclick="fecharModalUpgrade(); tocarBeep('click');">
+        ✕
+      </button>
+    </div>
 
     <div class="modal-upgrade-checkout">
       <div class="modal-upgrade-checkout-header">
@@ -71,34 +71,33 @@ function mostrarCheckoutReal(planId) {
         <p>${plano.preco} • ${plano.periodo}</p>
       </div>
 
-      <div style="background: rgba(51,65,85,.5); border: 1px solid rgb(71,85,105); border-radius: .75rem; padding: 1rem; margin: 1.25rem 0;">
-        <label for="checkout-nome" style="display:block; font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; color:#94a3b8; font-weight:700; margin-bottom:.4rem;">Nome completo</label>
+      <div style="background: rgba(15,23,42,0.85); border: 1px solid rgba(51,65,85,0.7); border-radius: 1rem; padding: 0.85rem; margin: 0.75rem 0;">
+        <label for="checkout-nome" style="display:block; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.05em; color:#94a3b8; font-weight:700; margin-bottom:0.35rem;">Nome completo</label>
         <input id="checkout-nome" type="text" value="${nomeSugerido}" maxlength="120" placeholder="Como está no documento"
-               style="width:100%; padding:.75rem; background:rgb(15,23,42); border:1px solid rgb(71,85,105); border-radius:.5rem; color:white; outline:none; font-size:1rem;" />
+               style="width:100%; box-sizing:border-box; padding:0.65rem 0.75rem; background:rgba(2,6,23,0.8); border:1px solid rgba(71,85,105,0.8); border-radius:0.6rem; color:white; outline:none; font-size:0.85rem;" />
 
-        <label for="checkout-cpf" style="display:block; font-size:.75rem; text-transform:uppercase; letter-spacing:.05em; color:#94a3b8; font-weight:700; margin:1rem 0 .4rem;">CPF</label>
+        <label for="checkout-cpf" style="display:block; font-size:0.68rem; text-transform:uppercase; letter-spacing:0.05em; color:#94a3b8; font-weight:700; margin:0.75rem 0 0.35rem;">CPF</label>
         <input id="checkout-cpf" type="text" inputmode="numeric" maxlength="14" placeholder="000.000.000-00"
-               style="width:100%; padding:.75rem; background:rgb(15,23,42); border:1px solid rgb(71,85,105); border-radius:.5rem; color:white; outline:none; font-size:1rem;" />
-        <p style="font-size:.75rem; color:#64748b; margin:.5rem 0 0;">
-          Exigido pelo Asaas para emitir a cobrança. Não fica salvo no aplicativo.
+               style="width:100%; box-sizing:border-box; padding:0.65rem 0.75rem; background:rgba(2,6,23,0.8); border:1px solid rgba(71,85,105,0.8); border-radius:0.6rem; color:white; outline:none; font-size:0.85rem;" />
+        <p style="font-size:0.65rem; color:#64748b; margin:0.35rem 0 0; line-height:1.3;">
+          Exigido pelo gateway oficial do Asaas para emissão de PIX.
         </p>
       </div>
 
-      <div style="background: rgba(6,182,212,.1); border:1px solid rgb(34,211,238); border-radius:.75rem; padding:.9rem; font-size:.8rem; color:#7dd3fc;">
-        Você será levado à página segura do Asaas, onde escolhe pagar por
-        <strong>PIX</strong> ou <strong>cartão</strong>.
+      <div style="background: rgba(6,182,212,0.1); border: 1px solid rgba(34,211,238,0.4); border-radius: 0.75rem; padding: 0.65rem 0.85rem; font-size: 0.74rem; color: #7dd3fc; line-height: 1.35;">
+        Você será levado à página segura do Asaas para pagar via <strong>PIX instantâneo</strong> ou <strong>Cartão</strong>.
       </div>
 
-      <div id="checkout-erro" style="display:none; background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.4); border-radius:.75rem; padding:.9rem; margin-top:1rem; font-size:.85rem; color:#fca5a5;"></div>
+      <div id="checkout-erro" style="display:none; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.4); border-radius:0.75rem; padding:0.65rem; margin-top:0.65rem; font-size:0.75rem; color:#fca5a5;"></div>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-top:1.5rem;">
-        <button type="button" onclick="fecharModalUpgrade(); tocarBeep('click');"
-                style="padding:.85rem; background:rgb(71,85,105); color:white; border:none; border-radius:.75rem; cursor:pointer; font-size:1rem;">
+      <div style="display:grid; grid-template-columns:1fr 1.6fr; gap:0.6rem; margin-top:1rem;">
+        <button type="button" onclick="abrirModalUpgrade('voltar'); tocarBeep('click');"
+                style="padding:0.65rem; background:rgba(51,65,85,0.8); color:#cbd5e1; border:1px solid rgba(71,85,105,0.8); border-radius:0.75rem; cursor:pointer; font-size:0.8rem; font-weight:700;">
           Voltar
         </button>
         <button type="button" id="checkout-continuar"
-                style="padding:.85rem; background:linear-gradient(135deg, rgb(34,197,94), rgb(6,182,212)); color:rgb(15,23,42); border:none; border-radius:.75rem; font-weight:700; cursor:pointer; font-size:1rem;">
-          Ir para o pagamento
+                style="padding:0.65rem; background:linear-gradient(135deg, rgb(34,197,94), rgb(6,182,212)); color:rgb(15,23,42); border:none; border-radius:0.75rem; font-weight:800; cursor:pointer; font-size:0.82rem;">
+          Ir para Pagamento ➔
         </button>
       </div>
     </div>
@@ -138,18 +137,19 @@ async function iniciarPagamento(planId) {
     return;
   }
 
-  // A cobrança precisa de dono: é a sessão que amarra o pagamento ao usuário
-  // e permite ao webhook liberar o acesso depois.
   const sessao = await obterSessaoSupabase();
   if (!sessao) {
     mostrarErroCheckout(
-      'Entre com e-mail e senha antes de assinar — é assim que seu acesso ' +
-      'fica vinculado ao pagamento.'
+      'Entre com seu e-mail antes de pagar para vincular seu acesso.'
     );
     setTimeout(() => {
       fecharModalUpgrade();
-      if (typeof abrirModalAuth === 'function') abrirModalAuth();
-    }, 2200);
+      if (typeof abrirModalAuthOuPerfil === 'function') {
+        abrirModalAuthOuPerfil();
+      } else if (typeof abrirModalAuth === 'function') {
+        abrirModalAuth();
+      }
+    }, 2000);
     return;
   }
 
@@ -191,7 +191,7 @@ async function iniciarPagamento(planId) {
     mostrarErroCheckout(`Não foi possível continuar: ${err.message}`);
     if (botao) {
       botao.disabled = false;
-      botao.textContent = 'Ir para o pagamento';
+      botao.textContent = 'Ir para Pagamento ➔';
     }
   }
 }
@@ -202,29 +202,37 @@ function mostrarAguardandoPagamento(cobranca) {
   if (!content) return;
 
   content.innerHTML = `
-    <button id="btn-close-upgrade-modal" class="modal-upgrade-close" title="Fechar">✕</button>
+    <!-- Top Bar -->
+    <div class="modal-upgrade-topbar">
+      <div class="modal-upgrade-badge">
+        <span>⏳</span>
+        <span>AGUARDANDO CONFIRMAÇÃO</span>
+      </div>
+      <button id="btn-close-upgrade-modal" class="modal-upgrade-close" title="Fechar" type="button" onclick="fecharModalUpgrade(); tocarBeep('click');">
+        ✕
+      </button>
+    </div>
 
     <div class="modal-upgrade-checkout" style="text-align:center;">
-      <div style="font-size:3rem; margin:1rem 0;">⏳</div>
-      <h3 style="color:white; margin:0 0 .5rem;">Aguardando o pagamento</h3>
-      <p style="color:#cbd5e1; font-size:.9rem; margin:0 0 1.5rem;">
-        Abrimos a página do Asaas em outra aba. Assim que o pagamento for
-        confirmado, seu acesso é liberado automaticamente aqui.
+      <div style="font-size:2.5rem; margin:0.75rem 0;">⚡</div>
+      <h3 style="color:white; margin:0 0 0.35rem; font-size:1.15rem;">Aguardando o Pagamento</h3>
+      <p style="color:#cbd5e1; font-size:0.78rem; margin:0 0 1rem; line-height:1.4;">
+        Abrimos a página segura do Asaas em outra aba. Assim que o pagamento for confirmado, seu acesso é liberado automaticamente.
       </p>
 
-      <div style="background:rgba(51,65,85,.5); border:1px solid rgb(71,85,105); border-radius:.75rem; padding:1rem; text-align:left; font-size:.85rem; color:#cbd5e1;">
-        <p style="margin:0 0 .5rem;"><strong>PIX:</strong> confirma em segundos.</p>
-        <p style="margin:0;"><strong>Cartão:</strong> pode levar alguns minutos se passar por análise.</p>
+      <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(51,65,85,0.7); border-radius:0.85rem; padding:0.75rem; text-align:left; font-size:0.74rem; color:#cbd5e1; line-height:1.4;">
+        <p style="margin:0 0 0.35rem;"><strong>PIX:</strong> confirma em segundos após o pagamento.</p>
+        <p style="margin:0;"><strong>Cartão:</strong> liberação em poucos minutos após análise antifraude.</p>
       </div>
 
       <a href="${cobranca.urlPagamento}" target="_blank" rel="noopener"
-         style="display:block; margin-top:1.25rem; color:#22d3ee; font-size:.85rem;">
-        A aba não abriu? Clique aqui
+         style="display:inline-block; margin-top:1rem; color:#22d3ee; font-size:0.78rem; text-decoration:underline;">
+        A aba não abriu? Clique aqui para abrir a cobrança
       </a>
 
       <button type="button" onclick="fecharModalUpgrade()"
-              style="width:100%; margin-top:1.5rem; padding:.85rem; background:rgb(71,85,105); color:white; border:none; border-radius:.75rem; cursor:pointer;">
-        Fechar
+              style="width:100%; margin-top:1.25rem; padding:0.65rem; background:rgba(51,65,85,0.9); color:white; border:none; border-radius:0.75rem; cursor:pointer; font-size:0.8rem; font-weight:700;">
+        Concluir
       </button>
     </div>
   `;
@@ -238,4 +246,4 @@ function mostrarAguardandoPagamento(cobranca) {
   }
 }
 
-console.log('💳 Checkout Asaas carregado');
+console.log('💳 Checkout Asaas carregado (Mobile-First Polish)');

@@ -2519,7 +2519,7 @@
         score_telemetria: 'O Score de Eficiência é calculado a partir dos 6 Testes Orbitais completos — disponível apenas no Plano PRO.'
       };
 
-      toast(motivos[origem] || 'Recurso exclusivo do Plano PRO.', '🔒');
+      if (origem !== 'header' && origem !== 'home' && origem !== 'drawer' && origem !== 'banner_volante' && motivos[origem]) { toast(motivos[origem], '🔒'); }
       tocarBeep('alert');
 
       if (typeof abrirModalUpgrade === 'function') {

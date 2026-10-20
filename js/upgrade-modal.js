@@ -1,71 +1,55 @@
 // ===================================================================
-// UPGRADE MODAL - Elegant Gradual Conversion (Free → Avulso → PRO)
+// UPGRADE MODAL - Mobile-First High-Converting Paywall & Plans
 // ===================================================================
 
 const UPGRADE_CONFIG = {
   plans: [
     {
-      id: 'free',
-      name: 'Plano Gratuito',
-      price: 'R$ 0',
-      period: 'eternamente',
-      features: [
-        '✓ 3 análises completas grátis ao cadastrar',
-        '✓ 2 de 6 Testes Orbitais depois',
-        '✓ Gestão de 2 bilhetes',
-        '✓ Diagnóstico básico'
-      ],
-      cta: 'Seu plano atual',
-      color: 'slate',
-      badge: 'ATIVO'
-    },
-    {
       id: 'avulso',
-      name: 'Quero Apenas 1 Jogo',
+      name: 'Passe Avulso 1 Jogo',
       price: 'R$ 5,90',
-      period: 'único',
-      features: [
-        '✓ 3 apostas calibradas',
-        '✓ Bateria completa dos 6 testes',
-        '✓ Diagnóstico científico completo',
-        '✓ Exportar WhatsApp'
-      ],
-      cta: 'Comprar Agora',
+      period: 'pagamento único',
+      badge: 'EXPERIMENTAR',
+      icon: '🎯',
       color: 'emerald',
-      badge: 'POPULAR',
-      icon: '🎯'
+      cta: 'Liberar 1 Jogo',
+      features: [
+        '3 apostas calibradas com verificação cruzada',
+        'Bateria orbital completa (6 de 6 testes)',
+        'Score de eficiência e raio-x detalhado'
+      ]
     },
     {
       id: 'mensal',
-      name: 'Astronauta NASA',
+      name: 'Astronauta PRO',
       price: 'R$ 29,90',
-      period: '/mês',
-      features: [
-        '✓ Gestão de apostas ilimitada',
-        '✓ Bateria completa dos 6 testes',
-        '✓ Matriz 4x4 e fechamentos C(n,k)',
-        '✓ Carteira em nuvem'
-      ],
-      cta: 'Assinar Mensal',
+      period: '/mês · recorrente',
+      badge: 'MAIS ESCOLHIDO',
+      icon: '🚀',
       color: 'cyan',
-      badge: 'RECOMENDADO',
-      icon: '🚀'
+      featured: true,
+      cta: 'Assinar Plano PRO',
+      features: [
+        'Geração ilimitada de apostas e matrizes 4x4',
+        'Bateria completa dos 6 testes em tempo real',
+        'Fechamentos matemáticos C(n,k) ilimitados',
+        'Conferência instantânea e carteira em nuvem'
+      ]
     },
     {
       id: 'anual',
-      name: 'Apollo VIP',
+      name: 'Apollo VIP Anual',
       price: 'R$ 197',
-      period: '/ano (R$ 16,41/mês)',
-      features: [
-        '✓ Tudo do mensal',
-        '✓ -45% de desconto',
-        '✓ Suporte VIP',
-        '✓ Acesso antecipado'
-      ],
-      cta: 'Assinar Anual',
+      period: '/ano · R$ 16,41/mês',
+      badge: 'ECONOMIZE 45%',
+      icon: '👑',
       color: 'amber',
-      badge: 'MELHOR VALOR',
-      icon: '👑'
+      cta: 'Garantir Anual VIP',
+      features: [
+        'Todos os recursos do plano PRO liberados',
+        'Economia direta de 45% (R$ 16,41/mês)',
+        'Canal VIP prioritário e atualizações antecipadas'
+      ]
     }
   ]
 };
@@ -73,7 +57,7 @@ const UPGRADE_CONFIG = {
 // Initialize upgrade modal on load
 document.addEventListener('DOMContentLoaded', function() {
   createUpgradeModal();
-  console.log('✅ Upgrade modal initialized');
+  console.log('✅ Upgrade modal initialized (Mobile-First)');
 });
 
 /**
@@ -102,60 +86,75 @@ function createUpgradeModal() {
 function generateUpgradeModalHTML() {
   return `
     <div class="modal-upgrade-content">
-      <!-- Close Button -->
-      <button id="btn-close-upgrade-modal" class="modal-upgrade-close" title="Fechar">✕</button>
+      <!-- Top Bar: Non-overlapping Badge + Clean Close Button -->
+      <div class="modal-upgrade-topbar">
+        <div class="modal-upgrade-badge">
+          <span>🔬</span>
+          <span>PLANOS NASA PRO</span>
+        </div>
+        <button id="btn-close-upgrade-modal" class="modal-upgrade-close" title="Fechar" type="button" onclick="fecharModalUpgrade(); tocarBeep('click');">
+          ✕
+        </button>
+      </div>
 
       <!-- Header -->
       <div class="modal-upgrade-header">
-        <div class="modal-upgrade-badge">🔬 Gestão com Ciência</div>
-        <h2 class="modal-upgrade-title">Veja o Diagnóstico Completo</h2>
+        <h2 class="modal-upgrade-title">Diagnóstico Completo & Gestão Orbital</h2>
         <p class="modal-upgrade-subtitle">
-          Desbloqueie a bateria completa dos 6 Testes Orbitais e gerencie suas apostas com todo o rigor estatístico da NASA
+          Desbloqueie os 6 Testes Orbitais, Matriz 4x4 e Fechamentos Matemáticos
         </p>
       </div>
 
-      <!-- Plans Grid -->
+      <!-- Paid Plans -->
       <div class="modal-upgrade-plans">
-        ${UPGRADE_CONFIG.plans.map((plan, idx) => `
-          <div class="modal-upgrade-plan-card modal-upgrade-plan-${plan.color} ${idx === 2 ? 'modal-upgrade-plan-featured' : ''}">
-            ${plan.badge ? `<div class="modal-upgrade-plan-badge">${plan.badge}</div>` : ''}
-
-            <div class="modal-upgrade-plan-header">
-              ${plan.icon ? `<span class="modal-upgrade-plan-icon">${plan.icon}</span>` : ''}
-              <h3 class="modal-upgrade-plan-name">${plan.name}</h3>
+        ${UPGRADE_CONFIG.plans.map(plan => `
+          <div class="modal-upgrade-plan-card modal-upgrade-plan-${plan.color} ${plan.featured ? 'modal-upgrade-plan-featured' : ''}">
+            <div class="modal-upgrade-plan-top">
+              <div class="modal-upgrade-plan-info">
+                <span class="modal-upgrade-plan-icon">${plan.icon}</span>
+                <div>
+                  <h3 class="modal-upgrade-plan-name">${plan.name}</h3>
+                  <div class="modal-upgrade-plan-price-row">
+                    <span class="modal-upgrade-price-value">${plan.price}</span>
+                    <span class="modal-upgrade-price-period">${plan.period}</span>
+                  </div>
+                </div>
+              </div>
+              ${plan.badge ? `<span class="modal-upgrade-plan-badge modal-badge-${plan.color}">${plan.badge}</span>` : ''}
             </div>
 
-            <div class="modal-upgrade-plan-price">
-              <span class="modal-upgrade-price-value">${plan.price}</span>
-              <span class="modal-upgrade-price-period">${plan.period}</span>
-            </div>
+            <ul class="modal-upgrade-plan-features">
+              ${plan.features.map(f => `<li><span class="check-icon">✓</span> <span>${f}</span></li>`).join('')}
+            </ul>
 
-            <div class="modal-upgrade-plan-features">
-              ${plan.features.map(f => `<div class="modal-upgrade-feature">${f}</div>`).join('')}
-            </div>
-
-            <button class="modal-upgrade-plan-cta modal-upgrade-cta-${plan.color}"
+            <button type="button" class="modal-upgrade-plan-cta modal-upgrade-cta-${plan.color}"
                     onclick="processarUpgrade('${plan.id}'); tocarBeep('click');">
               ${plan.cta}
             </button>
-
-            ${plan.id === 'free' ? `
-              <div class="modal-upgrade-trial-info">
-                <span>🎁</span> Cadastre-se e ganhe 3 análises completas grátis.
-              </div>
-            ` : ''}
           </div>
         `).join('')}
       </div>
 
-      <!-- Footer -->
+      <!-- Free Tier Compact Box -->
+      <div class="modal-upgrade-free-box">
+        <div class="modal-upgrade-free-info">
+          <span class="free-gift-icon">🎁</span>
+          <div>
+            <strong>Plano Gratuito Ativo</strong>
+            <p>Cadastre-se para ganhar 3 diagnósticos orbitais completos de cortesia.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Trust Signals -->
       <div class="modal-upgrade-footer">
-        <p class="modal-upgrade-terms">
-          💳 Pagamentos seguros via PIX • Cancelar a qualquer momento
-        </p>
-        <button onclick="fecharModalUpgrade(); tocarBeep('click');" class="modal-upgrade-footer-close">
-          Voltar
-        </button>
+        <div class="modal-upgrade-trust">
+          <span>⚡ PIX instantâneo</span>
+          <span>•</span>
+          <span>🔒 Checkout Seguro Asaas</span>
+          <span>•</span>
+          <span>🛡️ Cancele a qualquer momento</span>
+        </div>
       </div>
     </div>
   `;
@@ -165,8 +164,20 @@ function generateUpgradeModalHTML() {
  * Open upgrade modal
  */
 function abrirModalUpgrade(origin = 'home') {
-  const modal = document.getElementById('modal-upgrade-nasa');
+  let modal = document.getElementById('modal-upgrade-nasa');
+  if (!modal) {
+    createUpgradeModal();
+    modal = document.getElementById('modal-upgrade-nasa');
+  }
+
   if (modal) {
+    // Reset to plan selection if it was displaying checkout
+    const content = modal.querySelector('.modal-upgrade-content');
+    if (content && !content.querySelector('.modal-upgrade-plans')) {
+      modal.innerHTML = generateUpgradeModalHTML();
+      document.getElementById('btn-close-upgrade-modal')?.addEventListener('click', fecharModalUpgrade);
+    }
+
     modal.classList.add('modal-upgrade-active');
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -192,44 +203,27 @@ function fecharModalUpgrade() {
  * Process upgrade selection
  */
 function processarUpgrade(planId) {
-  const plan = UPGRADE_CONFIG.plans.find(p => p.id === planId);
-  if (!plan) return;
-
   console.log(`🎯 Upgrade selected: ${planId}`);
 
   if (planId === 'free') {
     fecharModalUpgrade();
-    toast('✅ Você já tem o plano gratuito', '🏠');
+    toast('Você já tem o plano gratuito ativo', '🏠');
     return;
   }
 
-  if (planId === 'avulso') {
-    mostrarCheckoutAvulso();
-  } else if (planId === 'mensal') {
-    mostrarCheckoutReal('mensal');
-  } else if (planId === 'anual') {
-    mostrarCheckoutAnual();
+  if (typeof mostrarCheckoutReal === 'function') {
+    mostrarCheckoutReal(planId);
+  } else {
+    toast('Carregando gateway de pagamento...', '⏳');
   }
 }
 
-// Os checkouts abaixo mostravam "[QR Code PIX] Simulado para teste" com um
-// código copia-e-cola inventado e um botão "Confirmei o Pagamento" que não
-// verificava nada. Agora quem atende avulso e anual é mostrarCheckoutReal(),
-// em js/checkout-asaas.js, que gera cobrança de verdade.
 function mostrarCheckoutAvulso() {
-  return mostrarCheckoutReal('avulso');
+  return processarUpgrade('avulso');
 }
 
 function mostrarCheckoutAnual() {
-  return mostrarCheckoutReal('anual');
+  return processarUpgrade('anual');
 }
-
-
-// mostrarCheckoutComTrial(), confirmarPagamentoSimulado() e ativarTrialReal()
-// concediam um trial de 3 dias, mecanismo próprio do plano Mensal. Removidas:
-// o único "grátis" do app agora são as 3 análises por cadastro, sem prazo
-// (js/creditos-gratis.js), a mesma oferta para qualquer caminho de entrada.
-// processarUpgrade('mensal') vai direto para mostrarCheckoutReal('mensal')
-// (js/checkout-asaas.js), como Avulso e Anual já faziam.
 
 console.log('🎨 Upgrade modal module loaded');

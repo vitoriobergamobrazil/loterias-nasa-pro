@@ -74,63 +74,87 @@ function tocarBeep(type = 'click') {
 }
 
 /**
- * Toast notification with animation
+ * Toast notification with sleek top HUD glassmorphism pill (Mobile-First)
  */
 function toast(message, icon = '✓') {
-  // Create toast container if not exists
+  // If inside an already open modal, don't spam duplicate generic locks
+  if (message && message.includes('Recurso exclusivo do Plano PRO')) {
+    const upgradeModal = document.getElementById('modal-upgrade-nasa');
+    if (upgradeModal && (upgradeModal.classList.contains('modal-upgrade-active') || upgradeModal.style.display === 'flex')) {
+      return;
+    }
+  }
+
+  // Use top HUD toast container
   let toastContainer = document.getElementById('toast-container');
   if (!toastContainer) {
     toastContainer = document.createElement('div');
     toastContainer.id = 'toast-container';
     toastContainer.style.cssText = `
       position: fixed;
-      bottom: 2rem;
+      top: 14px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 1000;
+      z-index: 99999;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
       align-items: center;
       pointer-events: none;
+      width: calc(100% - 32px);
+      max-width: 420px;
     `;
     document.body.appendChild(toastContainer);
   }
 
-  // Create toast element
-  const toast = document.createElement('div');
-  toast.className = 'toast-notification';
-  toast.style.cssText = `
-    background: linear-gradient(135deg, rgb(34, 197, 94), rgb(6, 182, 212));
-    color: rgb(15, 23, 42);
-    padding: 1rem 1.5rem;
-    border-radius: 0.75rem;
+  // Remove existing toasts to prevent blocking the screen
+  while (toastContainer.firstChild) {
+    toastContainer.removeChild(toastContainer.firstChild);
+  }
+
+  // Create toast pill element
+  const toastEl = document.createElement('div');
+  toastEl.className = 'toast-notification';
+  toastEl.style.cssText = `
+    background: rgba(15, 23, 42, 0.94);
+    border: 1px solid rgba(34, 211, 238, 0.5);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7), 0 0 15px rgba(6, 182, 212, 0.25);
+    color: #f8fafc;
+    padding: 0.55rem 1rem;
+    border-radius: 9999px;
     font-weight: 700;
-    font-size: 0.875rem;
-    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
-    animation: slideUp 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-    max-width: 300px;
-    word-wrap: break-word;
+    font-size: 0.78rem;
+    line-height: 1.25;
+    animation: toastSlideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 100%;
+    word-break: break-word;
     pointer-events: auto;
     cursor: pointer;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: left;
   `;
-  toast.innerHTML = `${icon} ${message}`;
-  toast.onclick = () => removeToast(toast);
+  toastEl.innerHTML = `<span style="font-size:1.05rem; line-height:1; flex-shrink:0;">${icon}</span><span style="flex:1;">${message}</span>`;
+  toastEl.onclick = () => removeToast(toastEl);
 
-  toastContainer.appendChild(toast);
+  toastContainer.appendChild(toastEl);
 
-  // Auto-remove after 3 seconds
-  setTimeout(() => removeToast(toast), 3000);
-
-  console.log(`📢 Toast: ${message}`);
+  // Auto-remove after 2.8 seconds
+  setTimeout(() => removeToast(toastEl), 2800);
 }
 
 /**
- * Remove toast notification
+ * Remove toast notification with clean fade
  */
 function removeToast(toastEl) {
-  toastEl.style.animation = 'slideDown 0.3s cubic-bezier(0.23, 1, 0.32, 1) forwards';
-  setTimeout(() => toastEl.remove(), 300);
+  if (!toastEl) return;
+  toastEl.style.transition = 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
+  toastEl.style.opacity = '0';
+  toastEl.style.transform = 'translateY(-10px) scale(0.96)';
+  setTimeout(() => toastEl.remove(), 260);
 }
 
 /**
