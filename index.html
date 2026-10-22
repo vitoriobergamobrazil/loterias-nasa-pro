@@ -1744,16 +1744,16 @@
         <div class="bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 rounded-2xl p-4 transition shadow-lg relative overflow-hidden">
           <div class="flex items-center justify-between text-slate-400 text-[11px] font-bold uppercase mb-1">
             <span>Receita recorrente</span>
-            <span class="text-emerald-400 text-[10px]">▲ +18.4%</span>
+            <span id="kpi-admin-mrr-variacao" class="text-emerald-400 text-[10px]">● Ativo</span>
           </div>
           <div class="text-xl sm:text-2xl font-black text-white font-sans" id="kpi-admin-mrr">
-            R$ 14.850,00
+            R$ 0,00
           </div>
           <div class="text-[10px] text-slate-400 mt-1">
             Valor informado pelas assinaturas
           </div>
           <div class="h-1 w-full bg-slate-800 rounded-full mt-2 overflow-hidden">
-            <div class="h-full bg-amber-500 w-3/4 rounded-full"></div>
+            <div id="kpi-admin-mrr-bar" class="h-full bg-amber-500 w-0 rounded-full"></div>
           </div>
         </div>
 
@@ -1764,15 +1764,15 @@
             <span class="text-emerald-400 text-[10px]">● Ativos</span>
           </div>
           <div class="text-xl sm:text-2xl font-black text-emerald-400 font-sans" id="kpi-admin-total-vip">
-            342 Clientes
+            0 Assinantes
           </div>
           <div class="text-[10px] text-slate-400 mt-1 flex justify-between">
-            <span>Mensal: <b class="text-slate-200">234</b></span>
-            <span>Anual: <b class="text-slate-200">88</b></span>
-            <span>Bolão: <b class="text-slate-200">20</b></span>
+            <span>Mensal: <b id="kpi-count-mensal" class="text-slate-200">0</b></span>
+            <span>Anual: <b id="kpi-count-anual" class="text-slate-200">0</b></span>
+            <span>Bolão: <b id="kpi-count-bolao" class="text-slate-200">0</b></span>
           </div>
           <div class="h-1 w-full bg-slate-800 rounded-full mt-2 overflow-hidden">
-            <div class="h-full bg-emerald-500 w-4/5 rounded-full"></div>
+            <div id="kpi-admin-vip-bar" class="h-full bg-emerald-500 w-0 rounded-full"></div>
           </div>
         </div>
 
@@ -1783,13 +1783,13 @@
             <span class="text-cyan-400 text-[10px]">Free ➔ VIP</span>
           </div>
           <div class="text-xl sm:text-2xl font-black text-cyan-400 font-sans" id="kpi-admin-conversao">
-            4.2%
+            0,0%
           </div>
           <div class="text-[10px] text-slate-400 mt-1">
             Contas Free que se tornaram pagantes
           </div>
           <div class="h-1 w-full bg-slate-800 rounded-full mt-2 overflow-hidden">
-            <div class="h-full bg-cyan-500 w-1/2 rounded-full"></div>
+            <div id="kpi-admin-conv-bar" class="h-full bg-cyan-500 w-0 rounded-full"></div>
           </div>
         </div>
 
@@ -1800,13 +1800,13 @@
             <span class="text-purple-400 text-[10px]">Total YTD</span>
           </div>
           <div class="text-xl sm:text-2xl font-black text-purple-400 font-sans" id="kpi-admin-faturamento-total">
-            R$ 84.320,00
+            R$ 0,00
           </div>
-          <div class="text-[10px] text-slate-400 mt-1">
-            PIX: 72% | Cartão: 28%
+          <div class="text-[10px] text-slate-400 mt-1" id="kpi-admin-fat-sub">
+            Nenhum pagamento registrado ainda
           </div>
           <div class="h-1 w-full bg-slate-800 rounded-full mt-2 overflow-hidden">
-            <div class="h-full bg-purple-500 w-5/6 rounded-full"></div>
+            <div id="kpi-admin-fat-bar" class="h-full bg-purple-500 w-0 rounded-full"></div>
           </div>
         </div>
       </div>
@@ -6477,9 +6477,10 @@ function abrirModalDialog(msg, callback) {
       const tbody = document.getElementById('tabela-usuarios-admin-body');
       if (!tbody) return;
 
-      // Calcular Métricas em Tempo Real
+      // Calcular Métricas em Tempo Real 100% REAIS
       let mrrTotal = 0;
       let totalVip = 0;
+      let totalPagamentos = 0;
       let contMensal = 0;
       let contAnual = 0;
       let contBolao = 0;
@@ -6490,23 +6491,48 @@ function abrirModalDialog(msg, callback) {
             mrrTotal += 29.90;
             totalVip++;
             contMensal++;
+            totalPagamentos += (Number(u.valorPago) || 29.90);
           } else if (u.plano === 'anual') {
             mrrTotal += (197.00 / 12);
             totalVip++;
             contAnual++;
+            totalPagamentos += (Number(u.valorPago) || 197.00);
           } else if (u.plano === 'bolao') {
             mrrTotal += 59.90;
             totalVip++;
             contBolao++;
+            totalPagamentos += (Number(u.valorPago) || 59.90);
           }
         }
       });
 
+      const totalUsuarios = base.length;
+      const taxaConversao = totalUsuarios > 0 ? ((totalVip / totalUsuarios) * 100).toFixed(1) + '%' : '0,0%';
+
       // Atualizar KPIs no DOM
       const elMrr = document.getElementById('kpi-admin-mrr');
-      if (elMrr) elMrr.innerText = formatarReais(mrrTotal); // Receita Real Recorrente
+      if (elMrr) elMrr.innerText = formatarReais(mrrTotal);
+
       const elVip = document.getElementById('kpi-admin-total-vip');
       if (elVip) elVip.innerText = `${totalVip} Assinantes`;
+
+      const elC1 = document.getElementById('kpi-count-mensal');
+      if (elC1) elC1.innerText = String(contMensal);
+      const elC2 = document.getElementById('kpi-count-anual');
+      if (elC2) elC2.innerText = String(contAnual);
+      const elC3 = document.getElementById('kpi-count-bolao');
+      if (elC3) elC3.innerText = String(contBolao);
+
+      const elConv = document.getElementById('kpi-admin-conversao');
+      if (elConv) elConv.innerText = taxaConversao;
+
+      const elFat = document.getElementById('kpi-admin-faturamento-total');
+      if (elFat) elFat.innerText = formatarReais(totalPagamentos);
+
+      const elFatSub = document.getElementById('kpi-admin-fat-sub');
+      if (elFatSub) {
+        elFatSub.innerText = totalPagamentos > 0 ? 'Conforme histórico de pagamentos' : 'Nenhum pagamento registrado ainda';
+      }
 
       // Atualizar Select do Modal de Webhook
       const selectWebhook = document.getElementById('webhook-user-select');

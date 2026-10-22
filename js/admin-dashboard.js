@@ -5,10 +5,10 @@
 // Admin dashboard configuration
 const ADMIN_CONFIG = {
   metrics: {
-    mrr: { value: '12.450', label: 'MRR Mensal', change: '+18%', status: 'up' },
-    ltv: { value: '185', label: 'LTV Médio', change: '+12%', status: 'up' },
-    users: { value: '342', label: 'Usuários Ativos', change: '+45', status: 'up' },
-    churn: { value: '8%', label: 'Churn Rate', change: '-2%', status: 'down' }
+    mrr: { value: '0,00', label: 'MRR Mensal', change: '0%', status: 'neutral' },
+    ltv: { value: '0,00', label: 'LTV Médio', change: '0%', status: 'neutral' },
+    users: { value: '0', label: 'Usuários Ativos', change: '0', status: 'neutral' },
+    churn: { value: '0%', label: 'Churn Rate', change: '0%', status: 'neutral' }
   },
   users: [
     { id: 1, name: 'João Silva', email: 'joao@example.com', plan: 'PRO', activated: '2024-01-15', status: 'active', value: 197 },
@@ -111,7 +111,7 @@ function generateAdminDashboardHTML() {
         <div class="admin-kpi-grid">
           <div class="admin-kpi-card">
             <div class="admin-kpi-label">MRR Mensal</div>
-            <div class="admin-kpi-value">R$ 12.450</div>
+            <div class="admin-kpi-value">R$ 0,00</div>
             <div class="admin-kpi-change admin-kpi-up">+18% vs mês anterior</div>
           </div>
           <div class="admin-kpi-card">
@@ -121,7 +121,7 @@ function generateAdminDashboardHTML() {
           </div>
           <div class="admin-kpi-card">
             <div class="admin-kpi-label">Usuários</div>
-            <div class="admin-kpi-value">342</div>
+            <div class="admin-kpi-value">0</div>
             <div class="admin-kpi-change admin-kpi-up">+45 novos</div>
           </div>
           <div class="admin-kpi-card">

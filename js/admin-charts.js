@@ -13,7 +13,7 @@ const CHARTS_DATA = {
   },
   users: {
     labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4', 'Semana 5'],
-    data: [120, 180, 250, 310, 342],
+    data: [0, 0, 0, 0, 0],
     color: 'rgb(6, 182, 212)'
   }
 };
