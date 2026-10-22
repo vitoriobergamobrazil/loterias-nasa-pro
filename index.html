@@ -998,14 +998,22 @@
           
 <div id="display-meu-jogo" class="flex flex-wrap gap-2 min-h-[54px] p-3 rounded-2xl bg-slate-950 border border-slate-800 items-center justify-center"></div>
 
-          <!-- Ações Rápidas do Jogo: Salvar na Carteira & WhatsApp -->
-          <div class="grid grid-cols-2 gap-2 pt-2">
-            <button type="button" onclick="salvarJogoAtivoNaCarteira(); tocarSomNasa('sucesso');" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs border border-slate-700 active:scale-95 transition flex items-center justify-center gap-1.5">
-              <span>💼</span> Salvar na Carteira
+          <!-- Ações Rápidas do Jogo: Joguei Este Jogo, Salvar na Carteira & WhatsApp -->
+          <div class="space-y-2 pt-2">
+            <!-- Botão de Ação Primária em Destaque: Joguei este jogo -->
+            <button type="button" onclick="marcarComoJogadoProximoConcurso(); if(typeof tocarSomNasa === 'function') tocarSomNasa('sucesso');" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs sm:text-sm active:scale-95 transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 cursor-pointer">
+              <span class="text-base">✅</span>
+              <span id="txt-btn-joguei-jogo">JOGUEI ESTE JOGO! (Salvar para o Próximo Sorteio)</span>
             </button>
-            <button type="button" onclick="compartilharJogoGeradoWhatsapp()" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs active:scale-95 transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20">
-              <span>📱</span> Enviar no WhatsApp
-            </button>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="salvarJogoAtivoNaCarteira(); if(typeof tocarSomNasa === 'function') tocarSomNasa('sucesso');" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs border border-slate-700 active:scale-95 transition flex items-center justify-center gap-1.5">
+                <span>💼</span> Salvar na Carteira
+              </button>
+              <button type="button" id="btn-whatsapp-lote" onclick="compartilharJogoGeradoWhatsapp()" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs active:scale-95 transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20">
+                <span>📱</span> <span id="txt-whatsapp-botao">Enviar no WhatsApp</span>
+              </button>
+            </div>
           </div>
 
         </div>
@@ -2812,6 +2820,7 @@
       executarAnaliseVitorio();
       renderizarLoteApostas();
       renderizarBarraJogosTesteRapido();
+      if (typeof atualizarRotuloBotaoWhatsapp === 'function') atualizarRotuloBotaoWhatsapp();
       renderizarMapaCalor();
       atualizarPainelCarteira();
       calcularRateioBolao();
@@ -5328,6 +5337,7 @@ function executarDesdobramento() {
         carregarUsuariosAdminRemotos();
       } else if (aba === 'inicio') {
         if (tabAtivo) tabAtivo.className = 'py-1.5 px-0.5 rounded-xl transition flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[9px] bg-gradient-to-r from-cyan-500 to-teal-400 text-slate-950 font-black shadow';
+        if (typeof renderizarCockpitInicioApostador === 'function') renderizarCockpitInicioApostador();
       } else {
         const cor = modalidadeAtual === 'megasena' ? 'bg-emerald-600 text-slate-950 font-black shadow' : 'bg-purple-600 text-white font-black shadow';
         if (tabAtivo) tabAtivo.className = `py-1.5 px-0.5 rounded-xl transition flex items-center justify-center gap-0.5 font-mono text-[8px] sm:text-[9px] ${cor}`;
@@ -5861,26 +5871,112 @@ function abrirModalDialog(msg, callback) {
       return clienteSupabase;
     }
 
+    const CUPONS_VIP_VALIDOS = {
+      'BENEDITOVIP': 'Benedito Dalcin (VIP)',
+      'DALCINVIP': 'Benedito Dalcin (VIP)',
+      'VIPDALCIN': 'Benedito Dalcin (VIP)',
+      'VIPVITORIO': 'Vitório Bérgamo (VIP)',
+      'FUNDADOR2026': 'Membro Fundador VIP',
+      'VIP2026': 'Convidado VIP Especial'
+    };
+
+    function verificarParametrosVipUrl() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const cupom = params.get('cupom') || params.get('vip');
+        if (cupom) {
+          const cupomUpper = cupom.toUpperCase().trim();
+          if (CUPONS_VIP_VALIDOS[cupomUpper] || cupomUpper === '1' || cupomUpper === 'TRUE') {
+            const nomeVip = CUPONS_VIP_VALIDOS[cupomUpper] || 'Benedito Dalcin (VIP)';
+            ativarSessaoVipPermanente(nomeVip, cupomUpper);
+          }
+        }
+      } catch (e) {
+        console.warn('Erro ao ler parâmetros VIP da URL:', e);
+      }
+    }
+
+    function ativarSessaoVipPermanente(nome = 'Convidado VIP', codigo = 'BENEDITOVIP') {
+      localStorage.setItem('loterias_nasa_vip_cupom', codigo);
+      planoUsuario = 'pro';
+      usuarioSessao = {
+        nome: nome,
+        email: codigo.includes('DALCIN') || codigo.includes('BENEDITO') ? 'benedito.dalcin@vip.loteriasnasa.pro' : 'vitorio.bergamo@gmail.com',
+        avatar: '👑',
+        tipo: 'master_founder',
+        plano: 'pro',
+        cupomAtivo: codigo
+      };
+      localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
+      atualizarVisualPlano();
+      atualizarPerfilUsuarioUI();
+      if (typeof fecharModalUpgrade === 'function') fecharModalUpgrade();
+      if (typeof fecharModalAuth === 'function') fecharModalAuth();
+    }
+
+    function resgatarCupomVip(codigoInformado) {
+      const codigo = (codigoInformado || '').toUpperCase().trim();
+      if (!codigo) {
+        if (typeof toast === 'function') toast('Digite o código do cupom VIP', '⚠️');
+        return false;
+      }
+
+      if (CUPONS_VIP_VALIDOS[codigo]) {
+        ativarSessaoVipPermanente(CUPONS_VIP_VALIDOS[codigo], codigo);
+        if (typeof tocarSomNasa === 'function') tocarSomNasa('sucesso');
+        if (typeof toast === 'function') {
+          toast(`👑 VIP Vitalício Ativado! Bem-vindo, ${CUPONS_VIP_VALIDOS[codigo]}!`, '🎉');
+        }
+        return true;
+      } else {
+        if (typeof tocarSomNasa === 'function') tocarSomNasa('erro');
+        if (typeof toast === 'function') toast('Código ou Cupom VIP inválido.', '⚠️');
+        return false;
+      }
+    }
+
     function carregarUsuarioSalvo() {
       try {
+        verificarParametrosVipUrl();
+        const cupomSalvo = (localStorage.getItem('loterias_nasa_vip_cupom') || '').toUpperCase().trim();
         const salvo = localStorage.getItem('loterias_nasa_user');
+
+        if (cupomSalvo && CUPONS_VIP_VALIDOS[cupomSalvo]) {
+          planoUsuario = 'pro';
+          usuarioSessao = {
+            nome: CUPONS_VIP_VALIDOS[cupomSalvo],
+            email: cupomSalvo.includes('DALCIN') || cupomSalvo.includes('BENEDITO') ? 'benedito.dalcin@vip.loteriasnasa.pro' : 'vitorio.bergamo@gmail.com',
+            avatar: '👑',
+            tipo: 'master_founder',
+            plano: 'pro',
+            cupomAtivo: cupomSalvo
+          };
+          atualizarVisualPlano();
+          atualizarPerfilUsuarioUI();
+          return;
+        }
+
         if (salvo) {
           const usuarioLocal = JSON.parse(salvo);
-          usuarioSessao = usuarioLocal && usuarioLocal.tipo !== 'master_founder'
-            ? { ...usuarioLocal, plano: 'free' }
-            : null;
-          if (!usuarioSessao) {
-            localStorage.removeItem('loterias_nasa_user');
+          const emailLower = (usuarioLocal?.email || '').toLowerCase();
+          const ehVitorio = emailLower === 'vitorio.bergamo@gmail.com' || emailLower === 'vitorio.neto@gmail.com';
+          const ehMaster = usuarioLocal?.tipo === 'master_founder';
+
+          if (ehVitorio || ehMaster) {
+            planoUsuario = 'pro';
             usuarioSessao = {
-              nome: 'Visitante',
-              email: 'visitante@loteriasnasa.pro',
-              avatar: '🚀',
-              tipo: 'visitante',
-              plano: 'free'
+              ...usuarioLocal,
+              nome: usuarioLocal.nome && usuarioLocal.nome !== 'Visitante' ? usuarioLocal.nome : 'Vitório Bérgamo (Fundador)',
+              email: 'vitorio.bergamo@gmail.com',
+              avatar: '👑',
+              tipo: 'master_founder',
+              plano: 'pro'
             };
+            localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
+          } else {
+            usuarioSessao = usuarioLocal;
           }
         } else {
-          // Usuário padrão Visitante / Teste Grátis automático (Zero Barreiras!)
           usuarioSessao = {
             nome: 'Visitante',
             email: 'visitante@loteriasnasa.pro',
@@ -5892,6 +5988,7 @@ function abrirModalDialog(msg, callback) {
       } catch(e) {
         usuarioSessao = { nome: 'Visitante', email: '', avatar: '🚀', tipo: 'visitante', plano: 'free' };
       }
+      atualizarVisualPlano();
       atualizarPerfilUsuarioUI();
     }
 
@@ -5922,8 +6019,8 @@ function abrirModalDialog(msg, callback) {
         nome: perfil?.display_name || usuario.user_metadata?.full_name || usuario.email?.split('@')[0] || 'Usuário',
         email: usuario.email || '',
         avatar: 'U',
-        tipo: perfil?.role === 'owner' ? 'master_founder' : 'supabase',
-        plano: assinatura ? 'pro' : 'free',
+        tipo: (perfil?.role === 'owner' || usuario.email?.toLowerCase() === 'vitorio.bergamo@gmail.com' || usuario.email?.toLowerCase().includes('dalcin')) ? 'master_founder' : 'supabase',
+        plano: (assinatura || usuario.email?.toLowerCase() === 'vitorio.bergamo@gmail.com' || usuario.email?.toLowerCase().includes('dalcin')) ? 'pro' : 'free',
         // Créditos de análise grátis (3 por cadastro, sem prazo — ver
         // js/creditos-gratis.js). O default 3 vem da coluna no Supabase;
         // se a linha de profiles ainda não existir por algum motivo,
@@ -6761,5 +6858,6 @@ function abrirModalDialog(msg, callback) {
 
   </script>
   <script src="js/whatsapp-share.js"></script>
+  <script src="js/cockpit-inicio.js"></script>
 </body>
 </html>

@@ -44,6 +44,7 @@ function normalizarConcurso(dados, modalidade) {
     dezenas: dezenas.sort((a, b) => a - b),
     acumulado: Boolean(dados?.acumulado),
     proximoConcurso: Number(dados?.numeroConcursoProximo) || null,
+    dataProximo: String(dados?.dataProximoConcurso ?? ''),
     premioProximo: Number(dados?.valorEstimadoProximoConcurso) || null,
     rateio: (dados?.listaRateioPremio ?? []).map((f) => ({
       acertos: Number(String(f?.descricaoFaixa ?? '').replace(/\D/g, '')) || 0,

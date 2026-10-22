@@ -36,7 +36,11 @@ function converterConcurso(linha) {
     concurso: Number(linha.concurso),
     data: dataISOParaBR(linha.data_apuracao || linha.data),
     dezenas: (linha.dezenas || []).map(Number),
-    acumulado: Boolean(linha.acumulado)
+    acumulado: Boolean(linha.acumulado),
+    proximoConcurso: Number(linha.proximoConcurso || linha.numeroConcursoProximo) || null,
+    dataProximo: dataISOParaBR(linha.dataProximo || linha.dataProximoConcurso || ''),
+    premioProximo: Number(linha.premioProximo || linha.valorEstimadoProximoConcurso) || null,
+    rateio: linha.rateio || []
   };
 
   if (linha.modalidade === 'megasena') {
