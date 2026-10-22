@@ -44,6 +44,18 @@ function marcarComoJogadoProximoConcurso() {
 
   if (!Array.isArray(carteiraJogos)) carteiraJogos = [];
 
+  const ehPro = (typeof planoUsuario !== 'undefined' && planoUsuario === 'pro') ||
+                (typeof usuarioSessao !== 'undefined' && (usuarioSessao?.tipo === 'master_founder' || usuarioSessao?.tipo === 'vip_convidado' || usuarioSessao?.plano === 'pro'));
+
+  if (!ehPro && carteiraJogos.length >= 2) {
+    if (typeof abrirModalPaywall === 'function') {
+      abrirModalPaywall('carteira_limite');
+    } else if (typeof toast === 'function') {
+      toast('Limite de 2 bilhetes do Plano Grátis atingido. Faça upgrade para salvar bilhetes ilimitados.', '⚠️');
+    }
+    return;
+  }
+
   // Cenário 1: Há múltiplos jogos gerados (Lote de 2, 3 ou 5)
   if (typeof loteApostasGeradas !== 'undefined' && Array.isArray(loteApostasGeradas) && loteApostasGeradas.length > 1) {
     const totalJogos = loteApostasGeradas.length;
@@ -110,6 +122,18 @@ function salvarJogoAtivoNaCarteira() {
   const infoSorteio = obterInfoProximoSorteio(mod);
 
   if (!Array.isArray(carteiraJogos)) carteiraJogos = [];
+
+  const ehPro = (typeof planoUsuario !== 'undefined' && planoUsuario === 'pro') ||
+                (typeof usuarioSessao !== 'undefined' && (usuarioSessao?.tipo === 'master_founder' || usuarioSessao?.tipo === 'vip_convidado' || usuarioSessao?.plano === 'pro'));
+
+  if (!ehPro && carteiraJogos.length >= 2) {
+    if (typeof abrirModalPaywall === 'function') {
+      abrirModalPaywall('carteira_limite');
+    } else if (typeof toast === 'function') {
+      toast('Limite de 2 bilhetes do Plano Grátis atingido. Faça upgrade para salvar bilhetes ilimitados.', '⚠️');
+    }
+    return;
+  }
 
   // Se houver lote com múltiplos jogos gerados, salva todos
   if (typeof loteApostasGeradas !== 'undefined' && Array.isArray(loteApostasGeradas) && loteApostasGeradas.length > 1) {
@@ -229,11 +253,18 @@ Gerado no *Loterias NASA Pro*`;
  */
 function atualizarRotuloBotaoWhatsapp() {
   const elBtnTxt = document.getElementById('txt-whatsapp-botao');
-  if (!elBtnTxt) return;
+  const btn = document.getElementById('btn-whatsapp-lote');
+  const qtdLote = (typeof loteApostasGeradas !== 'undefined' && Array.isArray(loteApostasGeradas)) ? loteApostasGeradas.length : 0;
+  const qtdDesejada = typeof qtdApostasDesejada !== 'undefined' ? qtdApostasDesejada : 1;
+  const qtd = qtdLote > 1 ? qtdLote : (qtdDesejada > 1 ? qtdDesejada : 1);
 
-  if (typeof loteApostasGeradas !== 'undefined' && Array.isArray(loteApostasGeradas) && loteApostasGeradas.length > 1) {
-    elBtnTxt.innerText = `Enviar ${loteApostasGeradas.length} Jogos no WhatsApp`;
-  } else {
-    elBtnTxt.innerText = 'Enviar no WhatsApp';
+  const texto = qtd > 1 ? `Enviar ${qtd} Jogos no WhatsApp` : 'Enviar no WhatsApp';
+
+  if (elBtnTxt) {
+    elBtnTxt.innerText = texto;
+  }
+  if (btn && btn.childNodes.length > 0) {
+    const span = btn.querySelector('#txt-whatsapp-botao');
+    if (span) span.innerText = texto;
   }
 }
