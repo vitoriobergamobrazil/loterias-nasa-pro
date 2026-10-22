@@ -1734,9 +1734,7 @@
           <button onclick="exportarBaseClientesCSV()" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold text-xs rounded-xl transition flex items-center gap-1.5">
             <span>📥</span> Exportar usuários (.CSV)
           </button>
-          <button onclick="resetarDadosDemonstracaoAdmin()" class="px-3 py-2 bg-slate-900/80 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 font-bold text-xs rounded-xl transition flex items-center gap-1.5" title="Restaura a base de demonstração para testes">
-            <span>🔄</span> Restaurar dados de teste
-          </button>
+          
         </div>
       </div>
 
@@ -2576,6 +2574,15 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+
+      // Limpeza imediata de cache de dados fakes em celulares que abriram o app anteriormente
+      try {
+        const cacheAdmin = localStorage.getItem('loterias_nasa_admin_users');
+        if (cacheAdmin && (cacheAdmin.includes('admin@example.invalid') || cacheAdmin.includes('carlos.ed@gmail.com'))) {
+          localStorage.removeItem('loterias_nasa_admin_users');
+        }
+      } catch (_) {}
+
       carregarTemaSalvo();
       carregarUsuarioSalvo();
       restaurarSessaoSupabase();
@@ -6404,110 +6411,30 @@ function abrirModalDialog(msg, callback) {
       }
     }
 
-    // Base de Clientes Inicial Realista para Demonstração do CEO
-    const BASE_USUARIOS_PADRAO = [
-      {
-        id: 'usr-1',
-        nome: 'Administrador do Sistema',
-        email: 'admin@example.invalid',
-        telefone: '(11) 99999-9999',
-        avatar: '👑',
-        plano: 'master',
-        planoNome: 'Master Founder Vitalício',
-        dataCadastro: '2026-08-01',
-        dataExpiracao: '2099-12-31',
-        status: 'ativo',
-        valorPago: 0,
-        obs: 'Conta administrativa demonstrativa'
-      },
-      {
-        id: 'usr-2',
-        nome: 'Carlos Eduardo Mendes',
-        email: 'carlos.ed@gmail.com',
-        telefone: '(19) 98765-4321',
-        avatar: '💎',
-        plano: 'anual',
-        planoNome: 'VIP Anual Apollo Elite',
-        dataCadastro: '2026-08-15',
-        dataExpiracao: '2027-08-15',
-        status: 'ativo',
-        valorPago: 197.00,
-        obs: 'Cliente entusiasta, gerou 34 fechamentos'
-      },
-      {
-        id: 'usr-3',
-        nome: 'Mariana Santos Rocha',
-        email: 'mariana.santos@hotmail.com',
-        telefone: '(21) 99123-8877',
-        avatar: '🚀',
-        plano: 'pro',
-        planoNome: 'VIP Mensal',
-        dataCadastro: '2026-08-28',
-        dataExpiracao: '2026-09-28',
-        status: 'ativo',
-        valorPago: 29.90,
-        obs: 'Renovação automática via Cartão'
-      },
-      {
-        id: 'usr-4',
-        nome: 'Roberto Silva (Bolão Loterias)',
-        email: 'roberto.bolao@outlook.com',
-        telefone: '(31) 98844-3322',
-        avatar: '👥',
-        plano: 'bolao',
-        planoNome: 'Bolão Pro Sindicato',
-        dataCadastro: '2026-08-10',
-        dataExpiracao: '2026-09-10',
-        status: 'ativo',
-        valorPago: 59.90,
-        obs: 'Organizador de bolões com 15 cotistas'
-      },
-      {
-        id: 'usr-5',
-        nome: 'Luciana Ferreira Costa',
-        email: 'luciana.f@gmail.com',
-        telefone: '(41) 99655-1122',
-        avatar: '🆓',
-        plano: 'free',
-        planoNome: 'Visitante Grátis',
-        dataCadastro: '2026-09-02',
-        dataExpiracao: '2026-09-09',
-        status: 'ativo',
-        valorPago: 0.00,
-        obs: 'Degustando a Matriz 4x4'
-      },
-      {
-        id: 'usr-6',
-        nome: 'Marcos Vinicius Dias',
-        email: 'marcos.vini@gmail.com',
-        telefone: '(71) 98111-2233',
-        avatar: '⚠️',
-        plano: 'pro',
-        planoNome: 'VIP Mensal',
-        dataCadastro: '2026-07-20',
-        dataExpiracao: '2026-08-20',
-        status: 'expirado',
-        valorPago: 29.90,
-        obs: 'Cartão não renovou - pendente de aviso'
-      }
-    ];
-
+    // Base de Clientes Oficial - Dados 100% Reais
     function carregarBaseUsuariosAdmin() {
-      if (usuariosAdminRemotos) return usuariosAdminRemotos;
-      const salvo = localStorage.getItem('loterias_nasa_admin_users');
-      if (salvo) {
-        try {
-          return JSON.parse(salvo);
-        } catch (e) {
-          return BASE_USUARIOS_PADRAO;
-        }
+      if (usuariosAdminRemotos && Array.isArray(usuariosAdminRemotos)) {
+        return usuariosAdminRemotos;
       }
-      localStorage.setItem('loterias_nasa_admin_users', JSON.stringify(BASE_USUARIOS_PADRAO));
-      return BASE_USUARIOS_PADRAO;
+      try {
+        const salvo = localStorage.getItem('loterias_nasa_admin_users');
+        if (salvo) {
+          const lista = JSON.parse(salvo);
+          // Purga imediata se contiver registros de teste legados
+          if (Array.isArray(lista) && lista.some(u => u.email === 'admin@example.invalid' || u.email === 'carlos.ed@gmail.com')) {
+            localStorage.removeItem('loterias_nasa_admin_users');
+            return [];
+          }
+          return Array.isArray(lista) ? lista : [];
+        }
+      } catch (e) {
+        return [];
+      }
+      return [];
     }
 
     function salvarBaseUsuariosAdmin(base) {
-      localStorage.setItem('loterias_nasa_admin_users', JSON.stringify(base));
+      localStorage.setItem('loterias_nasa_admin_users', JSON.stringify(base || []));
       renderizarPainelAdmin();
     }
 
@@ -6525,13 +6452,6 @@ function abrirModalDialog(msg, callback) {
       const texto = String(valor ?? '').replace(/"/g, '""');
       const protegido = /^[=+\-@]/.test(texto) ? `'${texto}` : texto;
       return `"${protegido}"`;
-    }
-
-    function resetarDadosDemonstracaoAdmin() {
-      if (confirm('Restaurar a base de clientes demonstrativa com 6 usuários padrão?')) {
-        salvarBaseUsuariosAdmin(BASE_USUARIOS_PADRAO);
-        toast('Base restaurada com sucesso!', '🔄');
-      }
     }
 
     function alternarSubAbaAdmin(subaba) {
@@ -6584,9 +6504,9 @@ function abrirModalDialog(msg, callback) {
 
       // Atualizar KPIs no DOM
       const elMrr = document.getElementById('kpi-admin-mrr');
-      if (elMrr) elMrr.innerText = formatarReais(mrrTotal + 14500); // Base consolidada
+      if (elMrr) elMrr.innerText = formatarReais(mrrTotal); // Receita Real Recorrente
       const elVip = document.getElementById('kpi-admin-total-vip');
-      if (elVip) elVip.innerText = `${totalVip + 338} Clientes`;
+      if (elVip) elVip.innerText = `${totalVip} Assinantes`;
 
       // Atualizar Select do Modal de Webhook
       const selectWebhook = document.getElementById('webhook-user-select');
