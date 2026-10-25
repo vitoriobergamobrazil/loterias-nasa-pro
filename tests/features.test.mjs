@@ -124,4 +124,22 @@ Total de Jogos: 2
   assert.equal(res2.data, '24/10/2026');
   assert.equal(res2.jogos.length, 1);
   assert.deepEqual(res2.jogos[0], [2, 3, 20, 25, 39, 57]);
+
+  // Teste 3: Aposta incompleta Mega-Sena (5 dezenas)
+  const textoIncompletoMega = 'Palpite Mega: 04 15 23 38 54';
+  const res3 = parsearJogosTexto(textoIncompletoMega);
+  assert.equal(res3.modalidadeDetectada, 'megasena');
+  assert.equal(res3.incompletos.length, 1);
+  assert.equal(res3.incompletos[0].faltam, 1);
+  assert.equal(res3.incompletos[0].sugestao.jogoCompleto.length, 6);
+  assert.ok(res3.incompletos[0].sugestao.dezenasSugeridas[0] >= 1 && res3.incompletos[0].sugestao.dezenasSugeridas[0] <= 60);
+
+  // Teste 4: Aposta incompleta Lotofácil (14 dezenas)
+  const textoIncompletoLoto = 'Lotofácil conc 3200: 01 02 03 04 05 06 07 08 09 10 11 12 13 14';
+  const res4 = parsearJogosTexto(textoIncompletoLoto);
+  assert.equal(res4.modalidadeDetectada, 'lotofacil');
+  assert.equal(res4.incompletos.length, 1);
+  assert.equal(res4.incompletos[0].faltam, 1);
+  assert.equal(res4.incompletos[0].sugestao.jogoCompleto.length, 15);
+  assert.ok(res4.incompletos[0].sugestao.dezenasSugeridas[0] >= 1 && res4.incompletos[0].sugestao.dezenasSugeridas[0] <= 25);
 });

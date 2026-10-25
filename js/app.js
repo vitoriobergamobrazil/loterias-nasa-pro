@@ -139,7 +139,11 @@
     }
 
     function salvarCarteiraStorage() {
-      window.carteiraJogos = carteiraJogos;
+      if (window.carteiraJogos && Array.isArray(window.carteiraJogos)) {
+        carteiraJogos = window.carteiraJogos;
+      } else {
+        window.carteiraJogos = carteiraJogos;
+      }
       localStorage.setItem('loterias_carteira_db', JSON.stringify(carteiraJogos));
     }
 
@@ -2099,6 +2103,66 @@ function gerarPalpiteInteligente() {
       toast("Próximo jogo calibrado e compensado gerado com sucesso!", "🎯");
     }
 
+    function sugerirDezenasFaltantes(dezenasAtuais, modalidade = 'megasena', qtdFaltam = 1, freqHistorica = null) {
+      const max = modalidade === 'lotofacil' ? 25 : 60;
+      const atuaisSet = new Set(dezenasAtuais.map(Number));
+      const metadeCorte = modalidade === 'lotofacil' ? 13 : 30;
+
+      const paresAtuais = dezenasAtuais.filter(n => n % 2 === 0).length;
+      const imparesAtuais = dezenasAtuais.length - paresAtuais;
+      const baixosAtuais = dezenasAtuais.filter(n => n <= metadeCorte).length;
+      const altosAtuais = dezenasAtuais.length - baixosAtuais;
+
+      const freq = freqHistorica || (typeof calcularFrequenciaHistorica === 'function' ? calcularFrequenciaHistorica() : {});
+
+      const candidatos = [];
+      for (let num = 1; num <= max; num++) {
+        if (atuaisSet.has(num)) continue;
+        let score = 50;
+        const motivos = [];
+
+        // 1. Balanceamento Par/Ímpar (Equilíbrio Estatístico Oficial da Caixa)
+        const ehPar = num % 2 === 0;
+        if (paresAtuais < imparesAtuais && ehPar) {
+          score += 25;
+          motivos.push('Equilíbrio Par/Ímpar (3/3)');
+        } else if (imparesAtuais < paresAtuais && !ehPar) {
+          score += 25;
+          motivos.push('Equilíbrio Par/Ímpar (3/3)');
+        }
+
+        // 2. Metade Baixa / Alta (Distribuição de Quadrantes)
+        if (baixosAtuais < altosAtuais && num <= metadeCorte) {
+          score += 15;
+          motivos.push('Compensação Baixa/Alta');
+        } else if (altosAtuais < baixosAtuais && num > metadeCorte) {
+          score += 15;
+          motivos.push('Compensação Baixa/Alta');
+        }
+
+        // 3. Frequência Histórica
+        const f = freq[num] || 0;
+        score += Math.min(f * 2, 20);
+
+        candidatos.push({
+          dezena: num,
+          score,
+          motivo: motivos.join(' + ') || 'Convergência Estatística'
+        });
+      }
+
+      candidatos.sort((a,b) => b.score - a.score || a.dezena - b.dezena);
+      const escolhidos = candidatos.slice(0, qtdFaltam);
+      const dezenasSugeridas = escolhidos.map(c => c.dezena);
+      const jogoCompleto = [...dezenasAtuais, ...dezenasSugeridas].sort((a,b) => a-b);
+
+      return {
+        dezenasSugeridas,
+        justificativa: escolhidos[0]?.motivo || 'Otimização Estatística NASA',
+        jogoCompleto
+      };
+    }
+
     function parsearJogosTextoCompleto(textoBruto, dataManual = null) {
       const texto = String(textoBruto || '').trim();
       if (!texto) return { erro: 'Texto vazio' };
@@ -2126,12 +2190,37 @@ function gerarPalpiteInteligente() {
 
       // 3. Detecta Modalidade do texto
       let modalidadeDetectada = null;
-      if (/lotof[aá]cil/i.test(texto)) modalidadeDetectada = 'lotofacil';
-      if (/mega[- ]?sena/i.test(texto)) modalidadeDetectada = 'megasena';
+      if (/lotof[aá]cil|loto\s*f[aá]cil/i.test(texto)) modalidadeDetectada = 'lotofacil';
+      else if (/mega[- ]?sena|\bmega\b/i.test(texto)) modalidadeDetectada = 'megasena';
 
       // 4. Divide em linhas para detectar múltiplos jogos
       const linhas = texto.split(/\r?\n/);
       const jogosEncontrados = [];
+      const jogosIncompletos = [];
+
+      const processarLinhaDezenas = (dezenasValidas) => {
+        const maxNum = Math.max(...dezenasValidas);
+        const mod = modalidadeDetectada || (maxNum <= 25 && dezenasValidas.length >= 13 ? 'lotofacil' : (typeof modalidadeAtual !== 'undefined' ? modalidadeAtual : 'megasena'));
+
+        if (mod === 'lotofacil') {
+          if (dezenasValidas.length >= 15 && dezenasValidas.length <= 20) {
+            jogosEncontrados.push(dezenasValidas);
+          } else if (dezenasValidas.length >= 13 && dezenasValidas.length < 15) {
+            const faltam = 15 - dezenasValidas.length;
+            const sugestao = sugerirDezenasFaltantes(dezenasValidas, 'lotofacil', faltam);
+            jogosIncompletos.push({ dezenas: dezenasValidas, modalidade: 'lotofacil', faltam, sugestao });
+          }
+        } else {
+          // Mega-Sena
+          if (dezenasValidas.length >= 6 && dezenasValidas.length <= 20) {
+            jogosEncontrados.push(dezenasValidas);
+          } else if (dezenasValidas.length >= 4 && dezenasValidas.length < 6) {
+            const faltam = 6 - dezenasValidas.length;
+            const sugestao = sugerirDezenasFaltantes(dezenasValidas, 'megasena', faltam);
+            jogosIncompletos.push({ dezenas: dezenasValidas, modalidade: 'megasena', faltam, sugestao });
+          }
+        }
+      };
 
       for (let linha of linhas) {
         linha = linha.trim();
@@ -2145,6 +2234,7 @@ function gerarPalpiteInteligente() {
                               .replace(/#\d{3,5}/g, ' ')
                               .replace(/\b\d{1,2}h\b/gi, ' ')
                               .replace(/\b\d{2}:\d{2}\b/g, ' ')
+                              .replace(/r\$\s*[\d\,\.]+/gi, ' ')
                               .replace(/^.*jogo\s*#?\d+\s*[:\-]?\s*/i, ' ')
                               .replace(/^.*aposta\s*#?\d+\s*[:\-]?\s*/i, ' ')
                               .replace(/^.*bilhete\s*#?\d+\s*[:\-]?\s*/i, ' ')
@@ -2153,31 +2243,157 @@ function gerarPalpiteInteligente() {
         const nums = (linhaLimpa.match(/\b\d{1,2}\b/g) || []).map(Number);
         const dezenasValidas = Array.from(new Set(nums.filter(n => n >= 1 && n <= 60))).sort((a,b)=>a-b);
 
-        if (dezenasValidas.length >= 6 && dezenasValidas.length <= 20) {
-          jogosEncontrados.push(dezenasValidas);
+        if (dezenasValidas.length >= 4) {
+          processarLinhaDezenas(dezenasValidas);
         }
       }
 
-      if (jogosEncontrados.length === 0) {
+      if (jogosEncontrados.length === 0 && jogosIncompletos.length === 0) {
         let textoGlobalLimpo = texto.replace(/\d{2}[\/\.-]\d{2}[\/\.-]\d{4}/g, ' ')
                                     .replace(/#\d{3,5}/g, ' ')
                                     .replace(/\b\d{1,2}h\b/gi, ' ')
                                     .replace(/\b\d{2}:\d{2}\b/g, ' ')
+                                    .replace(/r\$\s*[\d\,\.]+/gi, ' ')
                                     .replace(/[\*\_]/g, ' ');
 
         const nums = (textoGlobalLimpo.match(/\b\d{1,2}\b/g) || []).map(Number);
         const dezenasValidas = Array.from(new Set(nums.filter(n => n >= 1 && n <= 60))).sort((a,b)=>a-b);
-        if (dezenasValidas.length >= 6 && dezenasValidas.length <= 20) {
-          jogosEncontrados.push(dezenasValidas);
+        if (dezenasValidas.length >= 4) {
+          processarLinhaDezenas(dezenasValidas);
         }
       }
 
-      return { concurso, data, modalidadeDetectada, jogos: jogosEncontrados };
+      return { concurso, data, modalidadeDetectada, jogos: jogosEncontrados, incompletos: jogosIncompletos };
+    }
+
+    let ultimoIncompletoDetectado = null;
+
+    function renderizarSugestaoIncompleta(incompleto, mod, concFinal, dataFinal) {
+      const container = document.getElementById('container-sugestao-inteligente');
+      if (!container) return;
+
+      ultimoIncompletoDetectado = { ...incompleto, modalidade: mod, concursoAlvo: concFinal, data: dataFinal };
+      window.ultimoIncompletoDetectado = ultimoIncompletoDetectado;
+
+      const modNome = mod === 'lotofacil' ? 'Lotofácil' : 'Mega-Sena';
+      const meta = mod === 'lotofacil' ? 15 : 6;
+      const sugeridasFormatadas = incompleto.sugestao.dezenasSugeridas.map(d => String(d).padStart(2, '0')).join(', ');
+
+      container.innerHTML = `
+        <div class="p-3.5 bg-gradient-to-br from-amber-950/40 via-slate-900 to-slate-950 border border-amber-500/50 rounded-xl space-y-2.5 animate-fadeIn font-mono">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5 text-amber-400 font-bold text-xs">
+              <span>🧩</span> Aposta Incompleta Identificada!
+            </div>
+            <span class="text-[10px] text-amber-300 bg-amber-950 px-2 py-0.5 rounded border border-amber-800 font-mono font-bold">
+              Falta ${incompleto.faltam} dezena(s) para aposta mínima (${meta})
+            </span>
+          </div>
+
+          <div class="text-xs text-slate-300">
+            Você colou <strong>${incompleto.dezenas.length} dezenas</strong> para ${modNome}:
+            <div class="flex flex-wrap gap-1 mt-1 font-bold text-amber-300">
+              ${incompleto.dezenas.map(d => `<span class="px-2 py-0.5 bg-slate-800 rounded border border-slate-700">${String(d).padStart(2, '0')}</span>`).join('')}
+            </div>
+          </div>
+
+          <div class="p-2.5 bg-slate-950/90 rounded-lg border border-cyan-800/60 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div class="text-[10px] text-cyan-400 font-sans font-bold flex items-center gap-1">
+                <span>💡</span> Sugestão Estatística da IA NASA:
+              </div>
+              <div class="text-slate-300 text-xs mt-0.5 font-sans">${incompleto.sugestao.justificativa}</div>
+            </div>
+            <div class="sm:text-right">
+              <span class="text-[10px] text-slate-400 font-sans">Completar com dezena(s):</span>
+              <div class="text-base sm:text-lg font-black text-cyan-400 font-mono">
+                ${sugeridasFormatadas}
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 font-mono">
+            <button type="button" onclick="aceitarSugestaoEImportar()" class="py-2.5 px-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-lg transition active:scale-[0.98]">
+              ✨ Salvar Jogo Completo (${incompleto.sugestao.jogoCompleto.length} dezenas)
+            </button>
+            <button type="button" onclick="abrirApostaIncompletaNoVolante()" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-cyan-400 font-bold text-xs rounded-xl border border-slate-700 transition">
+              🎯 Abrir no Volante para Escolher
+            </button>
+          </div>
+        </div>
+      `;
+      container.classList.remove('hidden');
+    }
+
+    function aceitarSugestaoEImportar() {
+      if (!ultimoIncompletoDetectado) return;
+      const { sugestao, modalidade, concursoAlvo, data } = ultimoIncompletoDetectado;
+      const precoBase = modalidade === 'lotofacil' ? 3.0 : 5.0;
+
+      carteiraJogos.unshift({
+        id: Date.now(),
+        modalidade: modalidade,
+        nome: `${modalidade === 'lotofacil' ? 'Lotofácil' : 'Mega-Sena'} • Aposta Calibrada por IA (${sugestao.jogoCompleto.length} dez)`,
+        dezenas: sugestao.jogoCompleto,
+        data: data,
+        concursoAlvo: concursoAlvo,
+        custo: precoBase,
+        premioGanho: 0,
+        conferido: false,
+        status: 'Aguardando sorteio',
+        registradoComoJogado: true,
+        dataRegistro: new Date().toISOString()
+      });
+
+      salvarCarteiraStorage();
+      atualizarPainelCarteira();
+
+      const input = document.getElementById('input-scanner-texto');
+      if (input) input.value = '';
+      const container = document.getElementById('container-sugestao-inteligente');
+      if (container) {
+        container.innerHTML = '';
+        container.classList.add('hidden');
+      }
+
+      tocarBeep('success');
+      toast(`✅ Aposta completa salva na carteira com a sugestão da IA!`, "🎯");
+      ultimoIncompletoDetectado = null;
+      window.ultimoIncompletoDetectado = null;
+    }
+
+    function abrirApostaIncompletaNoVolante() {
+      if (!ultimoIncompletoDetectado) return;
+      const { dezenas, modalidade } = ultimoIncompletoDetectado;
+
+      if (typeof alternarModalidade === 'function' && modalidadeAtual !== modalidade) {
+        alternarModalidade(modalidade);
+      }
+
+      setJogoAtual([...dezenas]);
+      renderizarVolante();
+      atualizarDisplayJogo();
+      mudarAba('volante');
+
+      const container = document.getElementById('container-sugestao-inteligente');
+      if (container) {
+        container.innerHTML = '';
+        container.classList.add('hidden');
+      }
+
+      tocarBeep('click');
+      toast(`🎯 ${dezenas.length} dezenas carregadas no volante! Selecione para completar.`, "✏️");
     }
 
     function importarBilheteTexto() {
       const input = document.getElementById('input-scanner-texto');
       const inputData = document.getElementById('input-import-data')?.value;
+      const containerSugestao = document.getElementById('container-sugestao-inteligente');
+      if (containerSugestao) {
+        containerSugestao.innerHTML = '';
+        containerSugestao.classList.add('hidden');
+      }
+
       if (!input || !input.value.trim()) {
         toast("Cole os números ou a mensagem do jogo.", "⚠️");
         tocarBeep('alert');
@@ -2191,39 +2407,49 @@ function gerarPalpiteInteligente() {
       }
 
       const res = parsearJogosTextoCompleto(input.value, dataManual);
-      if (!res.jogos || res.jogos.length === 0) {
-        toast("Nenhuma aposta válida (6 a 20 dezenas) encontrada no texto.", "⚠️");
+
+      if ((!res.jogos || res.jogos.length === 0) && (!res.incompletos || res.incompletos.length === 0)) {
+        toast("Nenhuma aposta identificada. Digite ao menos 4 dezenas para a Mega-Sena ou 13 para a Lotofácil.", "⚠️");
         tocarBeep('alert');
         return;
       }
 
-      const mod = res.modalidadeDetectada || (res.jogos[0].length >= 15 ? 'lotofacil' : modalidadeAtual);
+      const mod = res.modalidadeDetectada || (res.jogos?.[0]?.length >= 15 || res.incompletos?.[0]?.modalidade === 'lotofacil' ? 'lotofacil' : modalidadeAtual);
       const precoBase = mod === 'lotofacil' ? 3.0 : 5.0;
       const dataFinal = res.data || (typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).data : new Date().toLocaleDateString('pt-BR'));
       const concFinal = res.concurso || (typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).concurso : 'Oficial');
 
-      res.jogos.forEach((dez, idx) => {
-        carteiraJogos.unshift({
-          id: Date.now() + idx,
-          modalidade: mod,
-          nome: `${mod === 'lotofacil' ? 'Lotofácil' : 'Mega-Sena'} • Jogo #${idx + 1} (${dez.length} dez)`,
-          dezenas: dez,
-          data: dataFinal,
-          concursoAlvo: concFinal,
-          custo: precoBase,
-          premioGanho: 0,
-          conferido: false,
-          status: 'Aguardando sorteio',
-          registradoComoJogado: true,
-          dataRegistro: new Date().toISOString()
+      // Se encontrou jogos completos, salva na carteira
+      if (res.jogos && res.jogos.length > 0) {
+        res.jogos.forEach((dez, idx) => {
+          carteiraJogos.unshift({
+            id: Date.now() + idx,
+            modalidade: mod,
+            nome: `${mod === 'lotofacil' ? 'Lotofácil' : 'Mega-Sena'} • Jogo #${idx + 1} (${dez.length} dez)`,
+            dezenas: dez,
+            data: dataFinal,
+            concursoAlvo: concFinal,
+            custo: precoBase,
+            premioGanho: 0,
+            conferido: false,
+            status: 'Aguardando sorteio',
+            registradoComoJogado: true,
+            dataRegistro: new Date().toISOString()
+          });
         });
-      });
 
-      salvarCarteiraStorage();
-      atualizarPainelCarteira();
-      input.value = '';
-      tocarBeep('success');
-      toast(`✅ ${res.jogos.length} aposta(s) importada(s) para ${concFinal} (${dataFinal})!`, "📥");
+        salvarCarteiraStorage();
+        atualizarPainelCarteira();
+        input.value = '';
+        tocarBeep('success');
+        toast(`✅ ${res.jogos.length} aposta(s) importada(s) para ${concFinal} (${dataFinal})!`, "📥");
+      }
+
+      // Se encontrou aposta incompleta, exibe a sugestão inteligente
+      if (res.incompletos && res.incompletos.length > 0) {
+        renderizarSugestaoIncompleta(res.incompletos[0], mod, concFinal, dataFinal);
+        tocarBeep('success');
+      }
     }
 
     function atualizarPainelCarteira() {
@@ -2317,22 +2543,31 @@ function gerarPalpiteInteligente() {
     }
 
     function removerBilheteCarteira(id) {
-      tocarBeep('click');
-      carteiraJogos = carteiraJogos.filter(b => String(b.id) !== String(id));
+      if (typeof tocarBeep === 'function') tocarBeep('click');
+      carteiraJogos = (window.carteiraJogos || carteiraJogos || []).filter(b => String(b.id) !== String(id));
+      window.carteiraJogos = carteiraJogos;
       salvarCarteiraStorage();
       atualizarPainelCarteira();
-      renderizarBarraJogosTesteRapido();
-      toast("Bilhete removido!", "🗑️");
+      if (typeof renderizarBarraJogosTesteRapido === 'function') renderizarBarraJogosTesteRapido();
+      if (typeof toast === 'function') toast("Bilhete removido!", "🗑️");
     }
 
     function solicitarLimparCarteira() {
-      tocarBeep('alert');
-      abrirModalDialog("Deseja realmente apagar todos os bilhetes registrados na carteira?", () => {
+      if (typeof tocarBeep === 'function') tocarBeep('alert');
+      const acaoLimpar = () => {
         carteiraJogos = [];
+        window.carteiraJogos = [];
         salvarCarteiraStorage();
         atualizarPainelCarteira();
-        toast("Carteira limpa com sucesso!", "🧹");
-      });
+        if (typeof renderizarBarraJogosTesteRapido === 'function') renderizarBarraJogosTesteRapido();
+        if (typeof toast === 'function') toast("Carteira limpa com sucesso!", "🧹");
+      };
+
+      if (typeof abrirModalDialog === 'function') {
+        abrirModalDialog("Deseja realmente apagar todos os bilhetes registrados na carteira?", acaoLimpar);
+      } else if (confirm("Deseja realmente apagar todos os bilhetes registrados na carteira?")) {
+        acaoLimpar();
+      }
     }
 
     // conferirTodosBilhetesSalvos() vive em js/conferencia-real.js:
@@ -4603,5 +4838,26 @@ function abrirModalDialog(msg, callback) {
       document.body.removeChild(link);
       toast('📥 Base de clientes exportada em CSV com sucesso!', '📊');
     }
+
+    // ===================================================================
+    // EXPOSIÇÃO GLOBAL CONTROLADA PARA MÓDULOS E UI (NASA PRO WINDOW BRIDGE)
+    // ===================================================================
+    window.carteiraJogos = carteiraJogos;
+    window.salvarCarteiraStorage = salvarCarteiraStorage;
+    window.removerBilheteCarteira = removerBilheteCarteira;
+    window.solicitarLimparCarteira = solicitarLimparCarteira;
+    window.atualizarPainelCarteira = atualizarPainelCarteira;
+    window.parsearJogosTextoCompleto = parsearJogosTextoCompleto;
+    window.sugerirDezenasFaltantes = sugerirDezenasFaltantes;
+    window.aceitarSugestaoEImportar = aceitarSugestaoEImportar;
+    window.abrirApostaIncompletaNoVolante = abrirApostaIncompletaNoVolante;
+    window.mudarAba = mudarAba;
+    window.renderizarVolante = renderizarVolante;
+    window.atualizarDisplayJogo = atualizarDisplayJogo;
+    window.setJogoAtual = setJogoAtual;
+    window.getJogoAtual = getJogoAtual;
+    window.tocarBeep = tocarBeep;
+    window.toast = toast;
+
 
 
