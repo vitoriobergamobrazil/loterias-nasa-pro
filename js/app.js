@@ -133,13 +133,13 @@
       if (storageCarteira) {
         try { carteiraJogos = JSON.parse(storageCarteira); } catch (e) { carteiraJogos = []; }
       } else {
-        // Carteira nasce vazia: bilhete de exemplo viraria "aposta" na
-        // conferência e poluiria o total investido do usuário.
         carteiraJogos = [];
       }
+      window.carteiraJogos = carteiraJogos;
     }
 
     function salvarCarteiraStorage() {
+      window.carteiraJogos = carteiraJogos;
       localStorage.setItem('loterias_carteira_db', JSON.stringify(carteiraJogos));
     }
 
@@ -2099,35 +2099,131 @@ function gerarPalpiteInteligente() {
       toast("Próximo jogo calibrado e compensado gerado com sucesso!", "🎯");
     }
 
+    function parsearJogosTextoCompleto(textoBruto, dataManual = null) {
+      const texto = String(textoBruto || '').trim();
+      if (!texto) return { erro: 'Texto vazio' };
+
+      // 1. Detecta Concurso do texto
+      let concurso = null;
+      const matchConc = texto.match(/concurso\s*[:#]?\s*(\d{3,5})/i) || texto.match(/#(\d{3,5})/i) || texto.match(/conc\.?\s*[:#]?\s*(\d{3,5})/i);
+      if (matchConc) concurso = '#' + matchConc[1];
+
+      // 2. Detecta Data do texto ou manual
+      let data = dataManual;
+      if (!data) {
+        const matchData = texto.match(/(\d{2})[\/\.-](\d{2})[\/\.-](\d{4})/);
+        if (matchData) data = `${matchData[1]}/${matchData[2]}/${matchData[3]}`;
+      }
+
+      // Se concurso é de um sorteio passado conhecido, busca a data oficial histórica
+      if (concurso && !data) {
+        const numConc = Number(concurso.replace(/\D/g, ''));
+        const achouMega = (baseConcursosMega || []).find(c => Number(c.concurso) === numConc);
+        const achouLoto = (baseConcursosLoto || []).find(c => Number(c.concurso) === numConc);
+        if (achouMega?.data) data = achouMega.data;
+        else if (achouLoto?.data) data = achouLoto.data;
+      }
+
+      // 3. Detecta Modalidade do texto
+      let modalidadeDetectada = null;
+      if (/lotof[aá]cil/i.test(texto)) modalidadeDetectada = 'lotofacil';
+      if (/mega[- ]?sena/i.test(texto)) modalidadeDetectada = 'megasena';
+
+      // 4. Divide em linhas para detectar múltiplos jogos
+      const linhas = texto.split(/\r?\n/);
+      const jogosEncontrados = [];
+
+      for (let linha of linhas) {
+        linha = linha.trim();
+        if (!linha) continue;
+
+        if (/^(loterias|modalidade|concurso|total de jogos|gerado|resultado|parab[eé]ns)/i.test(linha)) {
+          continue;
+        }
+
+        let linhaLimpa = linha.replace(/\d{2}[\/\.-]\d{2}[\/\.-]\d{4}/g, ' ')
+                              .replace(/#\d{3,5}/g, ' ')
+                              .replace(/\b\d{1,2}h\b/gi, ' ')
+                              .replace(/\b\d{2}:\d{2}\b/g, ' ')
+                              .replace(/^.*jogo\s*#?\d+\s*[:\-]?\s*/i, ' ')
+                              .replace(/^.*aposta\s*#?\d+\s*[:\-]?\s*/i, ' ')
+                              .replace(/^.*bilhete\s*#?\d+\s*[:\-]?\s*/i, ' ')
+                              .replace(/[\*\_]/g, ' ');
+
+        const nums = (linhaLimpa.match(/\b\d{1,2}\b/g) || []).map(Number);
+        const dezenasValidas = Array.from(new Set(nums.filter(n => n >= 1 && n <= 60))).sort((a,b)=>a-b);
+
+        if (dezenasValidas.length >= 6 && dezenasValidas.length <= 20) {
+          jogosEncontrados.push(dezenasValidas);
+        }
+      }
+
+      if (jogosEncontrados.length === 0) {
+        let textoGlobalLimpo = texto.replace(/\d{2}[\/\.-]\d{2}[\/\.-]\d{4}/g, ' ')
+                                    .replace(/#\d{3,5}/g, ' ')
+                                    .replace(/\b\d{1,2}h\b/gi, ' ')
+                                    .replace(/\b\d{2}:\d{2}\b/g, ' ')
+                                    .replace(/[\*\_]/g, ' ');
+
+        const nums = (textoGlobalLimpo.match(/\b\d{1,2}\b/g) || []).map(Number);
+        const dezenasValidas = Array.from(new Set(nums.filter(n => n >= 1 && n <= 60))).sort((a,b)=>a-b);
+        if (dezenasValidas.length >= 6 && dezenasValidas.length <= 20) {
+          jogosEncontrados.push(dezenasValidas);
+        }
+      }
+
+      return { concurso, data, modalidadeDetectada, jogos: jogosEncontrados };
+    }
+
     function importarBilheteTexto() {
       const input = document.getElementById('input-scanner-texto');
       const inputData = document.getElementById('input-import-data')?.value;
-      const nums = input.value.match(/\d+/g);
-      if (!nums || nums.length < 6) { toast("Digite ao menos 6 dezenas válidas.", "⚠️"); tocarBeep('alert'); return; }
+      if (!input || !input.value.trim()) {
+        toast("Cole os números ou a mensagem do jogo.", "⚠️");
+        tocarBeep('alert');
+        return;
+      }
 
-      let dataFormatada = new Date().toLocaleDateString('pt-BR');
+      let dataManual = null;
       if (inputData) {
         const [ano, mes, dia] = inputData.split('-');
-        dataFormatada = `${dia}/${mes}/${ano}`;
+        dataManual = `${dia}/${mes}/${ano}`;
       }
-      
-      const dezenas = Array.from(new Set(nums.map(Number))).filter(n => n >= 1 && n <= 60).sort((a,b)=>a-b);
-      carteiraJogos.unshift({
-        id: Date.now(),
-        modalidade: dezenas.length > 15 ? 'lotofacil' : modalidadeAtual,
-        dezenas: dezenas,
-        data: dataFormatada,
-        custo: getConfigAtual().precoBase,
-        premioGanho: 0,
-        conferido: false,
-        status: 'Pendente'
+
+      const res = parsearJogosTextoCompleto(input.value, dataManual);
+      if (!res.jogos || res.jogos.length === 0) {
+        toast("Nenhuma aposta válida (6 a 20 dezenas) encontrada no texto.", "⚠️");
+        tocarBeep('alert');
+        return;
+      }
+
+      const mod = res.modalidadeDetectada || (res.jogos[0].length >= 15 ? 'lotofacil' : modalidadeAtual);
+      const precoBase = mod === 'lotofacil' ? 3.0 : 5.0;
+      const dataFinal = res.data || (typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).data : new Date().toLocaleDateString('pt-BR'));
+      const concFinal = res.concurso || (typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).concurso : 'Oficial');
+
+      res.jogos.forEach((dez, idx) => {
+        carteiraJogos.unshift({
+          id: Date.now() + idx,
+          modalidade: mod,
+          nome: `${mod === 'lotofacil' ? 'Lotofácil' : 'Mega-Sena'} • Jogo #${idx + 1} (${dez.length} dez)`,
+          dezenas: dez,
+          data: dataFinal,
+          concursoAlvo: concFinal,
+          custo: precoBase,
+          premioGanho: 0,
+          conferido: false,
+          status: 'Aguardando sorteio',
+          registradoComoJogado: true,
+          dataRegistro: new Date().toISOString()
+        });
       });
 
       salvarCarteiraStorage();
       atualizarPainelCarteira();
       input.value = '';
       tocarBeep('success');
-      toast(`Aposta importada para o concurso de ${dataFormatada}!`, "📥");
+      toast(`✅ ${res.jogos.length} aposta(s) importada(s) para ${concFinal} (${dataFinal})!`, "📥");
     }
 
     function atualizarPainelCarteira() {

@@ -98,3 +98,30 @@ test('Testadores VIP: Validação de estrutura do CSV do Google Play', () => {
   assert.equal(linhas.length, 3);
   assert.ok(linhas[0].endsWith('@gmail.com'));
 });
+
+test('Parser Inteligente: Extração de apostas a partir de texto do WhatsApp e concursos passados', async () => {
+  const { parsearJogosTexto } = await import('../scripts/test-parser.mjs');
+
+  const textoWhatsApp = `🛰️ Loterias NASA Pro — Lote de Apostas
+Modalidade: Mega-Sena
+Concurso: #2788 (27/10/2026)
+Total de Jogos: 2
+
+*Jogo #1:* 04 - 13 - 23 - 28 - 41 - 58
+*Jogo #2:* 02 - 15 - 22 - 35 - 44 - 59`;
+
+  const res1 = parsearJogosTexto(textoWhatsApp);
+  assert.equal(res1.concurso, '#2788');
+  assert.equal(res1.data, '27/10/2026');
+  assert.equal(res1.modalidadeDetectada, 'megasena');
+  assert.equal(res1.jogos.length, 2);
+  assert.deepEqual(res1.jogos[0], [4, 13, 23, 28, 41, 58]);
+  assert.deepEqual(res1.jogos[1], [2, 15, 22, 35, 44, 59]);
+
+  const textoPassado = '#3074 24/10/2026 02 03 20 25 39 57';
+  const res2 = parsearJogosTexto(textoPassado);
+  assert.equal(res2.concurso, '#3074');
+  assert.equal(res2.data, '24/10/2026');
+  assert.equal(res2.jogos.length, 1);
+  assert.deepEqual(res2.jogos[0], [2, 3, 20, 25, 39, 57]);
+});

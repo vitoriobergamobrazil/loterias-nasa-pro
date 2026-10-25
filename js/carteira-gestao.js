@@ -56,6 +56,25 @@
     }
   };
 
+  function obterListaCarteira() {
+    if (Array.isArray(window.carteiraJogos) && window.carteiraJogos.length > 0) {
+      return window.carteiraJogos;
+    }
+    try {
+      const bruto = localStorage.getItem('loterias_carteira_db');
+      if (bruto) {
+        const dados = JSON.parse(bruto);
+        if (Array.isArray(dados) && dados.length > 0) {
+          window.carteiraJogos = dados;
+          return dados;
+        }
+      }
+    } catch (e) {
+      console.warn('Erro ao ler carteira:', e);
+    }
+    return Array.isArray(window.carteiraJogos) ? window.carteiraJogos : [];
+  }
+
   function agruparBilhetes(bilhetes) {
     const grupos = {};
 
@@ -89,7 +108,7 @@
   }
 
   window.imprimirLoteGrupoCarteira = function (grupoId) {
-    const bilhetes = Array.isArray(window.carteiraJogos) ? window.carteiraJogos : [];
+    const bilhetes = obterListaCarteira();
     const grupos = agruparBilhetes(bilhetes);
     const grupo = grupos.find(g => g.id === grupoId);
     if (!grupo || !grupo.bilhetes.length) return;
@@ -100,7 +119,7 @@
   };
 
   window.compartilharWhatsAppGrupoCarteira = function (grupoId) {
-    const bilhetes = Array.isArray(window.carteiraJogos) ? window.carteiraJogos : [];
+    const bilhetes = obterListaCarteira();
     const grupos = agruparBilhetes(bilhetes);
     const grupo = grupos.find(g => g.id === grupoId);
     if (!grupo || !grupo.bilhetes.length) return;
@@ -121,7 +140,7 @@
   };
 
   window.removerLoteGrupoCarteira = function (grupoId) {
-    const bilhetes = Array.isArray(window.carteiraJogos) ? window.carteiraJogos : [];
+    const bilhetes = obterListaCarteira();
     const grupos = agruparBilhetes(bilhetes);
     const grupo = grupos.find(g => g.id === grupoId);
     if (!grupo) return;
@@ -147,7 +166,7 @@
     const container = document.getElementById('container-bilhetes-salvos');
     if (!container) return;
 
-    const listaOriginal = Array.isArray(window.carteiraJogos) ? window.carteiraJogos : [];
+    const listaOriginal = obterListaCarteira();
     const totalEl = document.getElementById('total-bilhetes-salvos');
     if (totalEl) totalEl.innerText = listaOriginal.length;
 
