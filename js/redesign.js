@@ -855,6 +855,10 @@ function criarDrawerPerfilConfig() {
           </div>
           <span class="text-rose-500 text-[10px]">Gerenciar →</span>
         </button>
+
+        <div class="text-[10px] text-slate-500 text-center pt-2 font-mono">
+          <span>🔞 +18 • Aposte com responsabilidade • Loterias NASA v3.2</span>
+        </div>
       </div>
     </div>
   `;
