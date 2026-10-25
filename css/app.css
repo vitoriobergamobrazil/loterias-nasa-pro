@@ -89,7 +89,11 @@
     /* RESET ABSOLUTO DE TODOS OS GRADIENTES ESCUROS NO TEMA CLARO */
     html:not(.dark) [class*="bg-gradient-to-b"],
     html:not(.dark) [class*="bg-gradient-to-br"],
-    html:not(.dark) [class*="bg-gradient-to-tr"] {
+    html:not(.dark) [class*="bg-gradient-to-tr"],
+    html:not(.dark) [class*="bg-gradient-to-r"],
+    html:not(.dark) [class*="bg-gradient-to-l"],
+    html:not(.dark) [class*="bg-gradient-to-tl"],
+    html:not(.dark) [class*="bg-gradient-to-bl"] {
       background-image: none !important;
       background-color: #ffffff !important;
       border-color: #e2e8f0 !important;
@@ -104,26 +108,37 @@
       box-shadow: 0 8px 25px -4px rgba(5, 150, 105, 0.4) !important;
     }
     html:not(.dark) button[class*="from-amber-"],
-    html:not(.dark) div[class*="from-amber-"] {
+    html:not(.dark) div[class*="from-amber-"]:not([class*="bg-gradient-to-r"]):not([class*="bg-gradient-to-br"]) {
       background-image: linear-gradient(to right, #f59e0b, #eab308) !important;
       color: #0f172a !important;
     }
     
     /* SUPERFÍCIES E CARDS NO TEMA CLARO */
-    html:not(.dark) .bg-slate-950 {
+    html:not(.dark) .bg-slate-950,
+    html:not(.dark) .bg-slate-950\/95,
+    html:not(.dark) .bg-slate-950\/90,
+    html:not(.dark) .bg-slate-950\/80,
+    html:not(.dark) .bg-slate-950\/70,
+    html:not(.dark) .bg-slate-950\/60,
+    html:not(.dark) .bg-slate-950\/50,
+    html:not(.dark) .bg-slate-950\/40,
+    html:not(.dark) .bg-slate-950\/30 {
       background-color: #f8fafc !important;
       border-color: #e2e8f0 !important;
       color: #0f172a !important;
     }
-    html:not(.dark) .bg-slate-900 {
+    html:not(.dark) .bg-slate-900,
+    html:not(.dark) .bg-slate-900\/95,
+    html:not(.dark) .bg-slate-900\/90,
+    html:not(.dark) .bg-slate-900\/80,
+    html:not(.dark) .bg-slate-900\/70,
+    html:not(.dark) .bg-slate-900\/60,
+    html:not(.dark) .bg-slate-900\/50,
+    html:not(.dark) .bg-slate-900\/40,
+    html:not(.dark) .bg-slate-900\/30 {
       background-color: #ffffff !important;
       border-color: #e2e8f0 !important;
       color: #0f172a !important;
-    }
-    html:not(.dark) .bg-slate-900\/90,
-    html:not(.dark) .bg-slate-900\/95 {
-      background-color: rgba(255, 255, 255, 0.98) !important;
-      border-color: #e2e8f0 !important;
     }
     html:not(.dark) .bg-slate-800 {
       background-color: #f1f5f9 !important;
@@ -133,8 +148,67 @@
     html:not(.dark) .border-slate-800,
     html:not(.dark) .border-slate-700,
     html:not(.dark) .border-cyan-800\/60,
-    html:not(.dark) .border-emerald-800\/60 {
+    html:not(.dark) .border-cyan-800\/50,
+    html:not(.dark) .border-emerald-800\/60,
+    html:not(.dark) .border-emerald-800\/50,
+    html:not(.dark) .border-purple-800\/60,
+    html:not(.dark) .border-teal-800\/60,
+    html:not(.dark) .border-rose-800\/60 {
       border-color: #e2e8f0 !important;
+    }
+
+    /* INPUTS, SELECTS E TEXTAREAS NO TEMA CLARO */
+    html:not(.dark) input:not([type="checkbox"]):not([type="radio"]),
+    html:not(.dark) select,
+    html:not(.dark) textarea {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+    html:not(.dark) input::placeholder,
+    html:not(.dark) textarea::placeholder {
+      color: #94a3b8 !important;
+    }
+    html:not(.dark) select option {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+    }
+
+    /* TABELAS NO TEMA CLARO */
+    html:not(.dark) table {
+      border-color: #e2e8f0 !important;
+    }
+    html:not(.dark) thead {
+      background-color: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+    }
+    html:not(.dark) th {
+      color: #334155 !important;
+      border-color: #e2e8f0 !important;
+    }
+    html:not(.dark) td {
+      border-color: #f1f5f9 !important;
+    }
+    html:not(.dark) tbody tr:hover {
+      background-color: #f8fafc !important;
+    }
+    html:not(.dark) tfoot {
+      background-color: #f8fafc !important;
+      border-color: #e2e8f0 !important;
+    }
+
+    /* AVISO CDC E ALERTAS NO TEMA CLARO */
+    html:not(.dark) .bg-amber-950\/40,
+    html:not(.dark) .bg-amber-950\/30,
+    html:not(.dark) .bg-amber-950\/50,
+    html:not(.dark) .bg-amber-950\/70 {
+      background-color: #fffbeb !important;
+      border-color: #fcd34d !important;
+      color: #78350f !important;
+    }
+    html:not(.dark) .text-amber-200\/90,
+    html:not(.dark) .text-amber-200 {
+      color: #78350f !important;
     }
     
     /* TIPOGRAFIA E CONTRASTES NO TEMA CLARO */

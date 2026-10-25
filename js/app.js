@@ -629,20 +629,55 @@
       const colunasAtivas = new Set(jogo.map(n => ((n - 1) % 10) + 1));
 
       if (modalidadeAtual === 'megasena') {
+        const qCounts = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
+        jogo.forEach(n => {
+          const l = Math.floor((n - 1) / 10) + 1;
+          const c = ((n - 1) % 10) + 1;
+          const q = l <= 3 ? (c <= 5 ? 'Q1' : 'Q2') : (c <= 5 ? 'Q3' : 'Q4');
+          qCounts[q] = (qCounts[q] || 0) + 1;
+        });
+
         grid.className = 'grid grid-cols-10 gap-1 text-center font-mono';
         document.getElementById('volante-titulo-tipo').innerText = 'Volante Mega-Sena (1 a 60)';
         document.getElementById('legenda-volante').innerHTML = `
-          <span class="text-emerald-400 bg-emerald-950/60 py-0.5 rounded border border-emerald-900/80">Q1 (1-25)</span>
-          <span class="text-blue-400 bg-blue-950/60 py-0.5 rounded border border-blue-900/80">Q2 (6-30)</span>
-          <span class="text-amber-400 bg-amber-950/60 py-0.5 rounded border border-amber-900/80">Q3 (31-55)</span>
-          <span class="text-purple-400 bg-purple-950/60 py-0.5 rounded border border-purple-900/80">Q4 (36-60)</span>
+          <div class="legenda-quad-box q1" title="Quadrante 1 (Noroeste): Linhas 1 a 3, Colunas 1 a 5 (15 dezenas)">
+            <span class="legenda-quad-title">Q1 Top-Esq</span>
+            <span class="legenda-quad-count">${qCounts.Q1} no jogo</span>
+          </div>
+          <div class="legenda-quad-box q2" title="Quadrante 2 (Nordeste): Linhas 1 a 3, Colunas 6 a 10 (15 dezenas)">
+            <span class="legenda-quad-title">Q2 Top-Dir</span>
+            <span class="legenda-quad-count">${qCounts.Q2} no jogo</span>
+          </div>
+          <div class="legenda-quad-box q3" title="Quadrante 3 (Sudoeste): Linhas 4 a 6, Colunas 1 a 5 (15 dezenas)">
+            <span class="legenda-quad-title">Q3 Base-Esq</span>
+            <span class="legenda-quad-count">${qCounts.Q3} no jogo</span>
+          </div>
+          <div class="legenda-quad-box q4" title="Quadrante 4 (Sudeste): Linhas 4 a 6, Colunas 6 a 10 (15 dezenas)">
+            <span class="legenda-quad-title">Q4 Base-Dir</span>
+            <span class="legenda-quad-count">${qCounts.Q4} no jogo</span>
+          </div>
         `;
       } else {
+        let molduraCount = 0, mioloCount = 0;
+        jogo.forEach(n => {
+          const l = Math.floor((n - 1) / 5) + 1;
+          const c = ((n - 1) % 5) + 1;
+          const ehM = (l === 1 || l === 5 || c === 1 || c === 5);
+          if (ehM) molduraCount++;
+          else mioloCount++;
+        });
+
         grid.className = 'grid grid-cols-5 gap-1.5 text-center max-w-xs mx-auto font-mono';
         document.getElementById('volante-titulo-tipo').innerText = 'Volante Lotofácil (5x5)';
         document.getElementById('legenda-volante').innerHTML = `
-          <span class="col-span-2 text-purple-400 bg-purple-950/60 py-0.5 rounded border border-purple-900/80">Moldura Externa (16)</span>
-          <span class="col-span-2 text-pink-400 bg-pink-950/60 py-0.5 rounded border border-pink-900/80">Miolo Centro (9)</span>
+          <div class="col-span-2 legenda-quad-box q4" title="Moldura Externa: 16 dezenas de contorno">
+            <span class="legenda-quad-title">Moldura (16 dezenas)</span>
+            <span class="legenda-quad-count">${molduraCount} no jogo</span>
+          </div>
+          <div class="col-span-2 legenda-quad-box q2" title="Miolo Central: 9 dezenas centrais">
+            <span class="legenda-quad-title">Miolo (9 dezenas)</span>
+            <span class="legenda-quad-count">${mioloCount} no jogo</span>
+          </div>
         `;
       }
 
@@ -664,15 +699,26 @@
         const colNum = ((i - 1) % 10) + 1;
         const estaNoSubgrid = modalidadeAtual === 'megasena' && destacarSubgrid && linhasAtivas.has(linhaNum) && colunasAtivas.has(colNum);
 
-        let estilo = 'bg-slate-950 text-slate-300 border border-slate-800 hover:border-slate-600';
+        // Atribui o estilo do quadrante oficial
+        let estilo = '';
+        if (modalidadeAtual === 'megasena') {
+          const qId = linhaNum <= 3 ? (colNum <= 5 ? 'q1' : 'q2') : (colNum <= 5 ? 'q3' : 'q4');
+          estilo = `volante-quad-${qId}`;
+        } else {
+          const lotoLinha = Math.floor((i - 1) / 5) + 1;
+          const lotoCol = ((i - 1) % 5) + 1;
+          const ehMoldura = (lotoLinha === 1 || lotoLinha === 5 || lotoCol === 1 || lotoCol === 5);
+          estilo = ehMoldura ? 'volante-quad-q4' : 'volante-quad-q2';
+        }
+
         if (estaNoSubgrid && !marcado && !ehFixo && !ehProibido) {
-          estilo = 'subgrid-active-cell text-cyan-200 border border-cyan-800';
+          estilo += ' subgrid-active-cell';
         }
 
         if (ehFixo) estilo = 'bg-emerald-900/90 text-emerald-300 border-2 border-emerald-400 font-black shadow';
         else if (ehProibido) estilo = 'bg-rose-950/90 text-rose-400 border-2 border-rose-600 line-through opacity-60';
         else if (ehNumeroBloqueado) estilo = 'bg-amber-950/90 text-amber-300 border-2 border-amber-400 font-black scale-105 shadow-md shadow-amber-500/30';
-        else if (marcado) estilo = modalidadeAtual === 'megasena' ? 'bg-emerald-500 text-slate-950 font-black scale-105 border-white shadow-md' : 'bg-purple-500 text-white font-black scale-105 border-white shadow-md';
+        else if (marcado) estilo = modalidadeAtual === 'megasena' ? 'volante-marcado-mega' : 'volante-marcado-loto';
 
         if (ehNumeroBloqueado) {
           btn.innerHTML = `<span class="flex items-center gap-0.5">${numStr}<span class="text-[8px]">🔒</span></span>`;

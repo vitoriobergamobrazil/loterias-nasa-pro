@@ -1457,3 +1457,333 @@ html:not(.dark) #conteudo-bateria-testes .text-slate-300,
 html:not(.dark) #conteudo-bateria-testes .text-slate-400 {
   color: #334155 !important;
 }
+
+/* =========================================================================
+   SISTEMA DE CORES DOS QUADRANTES DO VOLANTE (DARK & LIGHT MODE)
+   ========================================================================= */
+
+/* Dark Mode: Cores de Quadrantes no Volante */
+.volante-quad-q1 {
+  background-color: rgba(6, 78, 59, 0.4) !important;
+  color: #6ee7b7 !important;
+  border: 1px solid rgba(16, 185, 129, 0.45) !important;
+  font-weight: 800 !important;
+}
+.volante-quad-q1:hover {
+  background-color: rgba(16, 185, 129, 0.5) !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+}
+
+.volante-quad-q2 {
+  background-color: rgba(8, 51, 68, 0.45) !important;
+  color: #67e8f9 !important;
+  border: 1px solid rgba(6, 182, 212, 0.45) !important;
+  font-weight: 800 !important;
+}
+.volante-quad-q2:hover {
+  background-color: rgba(6, 182, 212, 0.5) !important;
+  border-color: #06b6d4 !important;
+  color: #ffffff !important;
+}
+
+.volante-quad-q3 {
+  background-color: rgba(69, 26, 3, 0.45) !important;
+  color: #fcd34d !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  font-weight: 800 !important;
+}
+.volante-quad-q3:hover {
+  background-color: rgba(245, 158, 11, 0.5) !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+}
+
+.volante-quad-q4 {
+  background-color: rgba(59, 7, 100, 0.45) !important;
+  color: #d8b4fe !important;
+  border: 1px solid rgba(168, 85, 247, 0.45) !important;
+  font-weight: 800 !important;
+}
+.volante-quad-q4:hover {
+  background-color: rgba(168, 85, 247, 0.5) !important;
+  border-color: #a855f7 !important;
+  color: #ffffff !important;
+}
+
+/* Dezenas Selecionadas no Volante (Mega-Sena & Lotofácil) */
+.volante-marcado-mega {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  color: #020617 !important;
+  font-weight: 900 !important;
+  border: 2px solid #ffffff !important;
+  transform: scale(1.08) !important;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.7) !important;
+  z-index: 2 !important;
+}
+
+.volante-marcado-loto {
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%) !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  border: 2px solid #ffffff !important;
+  transform: scale(1.08) !important;
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.7) !important;
+  z-index: 2 !important;
+}
+
+/* Legenda Dinâmica dos Quadrantes */
+.legenda-quad-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+  user-select: none;
+  font-family: inherit;
+}
+.legenda-quad-title {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.legenda-quad-count {
+  font-size: 0.75rem;
+  font-weight: 900;
+  font-family: monospace;
+}
+.legenda-quad-box.q1 {
+  background: rgba(6, 78, 59, 0.5);
+  border: 1px solid rgba(16, 185, 129, 0.6);
+  color: #34d399;
+}
+.legenda-quad-box.q2 {
+  background: rgba(8, 51, 68, 0.55);
+  border: 1px solid rgba(6, 182, 212, 0.6);
+  color: #22d3ee;
+}
+.legenda-quad-box.q3 {
+  background: rgba(69, 26, 3, 0.55);
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  color: #fbbf24;
+}
+.legenda-quad-box.q4 {
+  background: rgba(59, 7, 100, 0.55);
+  border: 1px solid rgba(168, 85, 247, 0.6);
+  color: #c084fc;
+}
+
+/* Light Mode: Quadrantes no Volante e Legenda */
+html:not(.dark) .volante-quad-q1 {
+  background-color: #ecfdf5 !important;
+  color: #065f46 !important;
+  border-color: #a7f3d0 !important;
+}
+html:not(.dark) .volante-quad-q1:hover {
+  background-color: #d1fae5 !important;
+  border-color: #059669 !important;
+  color: #064e3b !important;
+}
+
+html:not(.dark) .volante-quad-q2 {
+  background-color: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+html:not(.dark) .volante-quad-q2:hover {
+  background-color: #e0f2fe !important;
+  border-color: #0284c7 !important;
+  color: #0c4a6e !important;
+}
+
+html:not(.dark) .volante-quad-q3 {
+  background-color: #fffbeb !important;
+  color: #92400e !important;
+  border-color: #fde68a !important;
+}
+html:not(.dark) .volante-quad-q3:hover {
+  background-color: #fef3c7 !important;
+  border-color: #d97706 !important;
+  color: #78350f !important;
+}
+
+html:not(.dark) .volante-quad-q4 {
+  background-color: #faf5ff !important;
+  color: #6b21a8 !important;
+  border-color: #e9d5ff !important;
+}
+html:not(.dark) .volante-quad-q4:hover {
+  background-color: #f3e8ff !important;
+  border-color: #9333ea !important;
+  color: #581c87 !important;
+}
+
+html:not(.dark) .volante-marcado-mega {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  color: #ffffff !important;
+  border-color: #064e3b !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.45) !important;
+}
+
+html:not(.dark) .volante-marcado-loto {
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+  color: #ffffff !important;
+  border-color: #4c1d95 !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.45) !important;
+}
+
+html:not(.dark) .legenda-quad-box.q1 {
+  background: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #065f46 !important;
+}
+html:not(.dark) .legenda-quad-box.q2 {
+  background: #f0f9ff !important;
+  border-color: #bae6fd !important;
+  color: #0369a1 !important;
+}
+html:not(.dark) .legenda-quad-box.q3 {
+  background: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #92400e !important;
+}
+html:not(.dark) .legenda-quad-box.q4 {
+  background: #faf5ff !important;
+  border-color: #e9d5ff !important;
+  color: #6b21a8 !important;
+}
+
+/* =========================================================================
+   OVERHAUL ESPECÍFICO DE CONTRASTE TELA POR TELA (MODO CLARO / APOLLO WHITE)
+   ========================================================================= */
+
+/* 1. TELA FECHAMENTOS (Planejador de Orçamento, Telemetria & Coberturas) */
+html:not(.dark) #view-fechamentos .bg-gradient-to-r,
+html:not(.dark) #view-fechamentos .bg-gradient-to-br {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+}
+html:not(.dark) #view-fechamentos button[onclick^="aplicarOrcamentoInteligente"] {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+html:not(.dark) #view-fechamentos button[onclick^="aplicarOrcamentoInteligente"]:hover {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+  border-color: #047857 !important;
+}
+html:not(.dark) #card-telemetria-matriz {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+html:not(.dark) #card-telemetria-matriz .text-white {
+  color: #0f172a !important;
+}
+html:not(.dark) #resultado-fechamento-container {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* 2. TELA MINHA CARTEIRA (Calendário Caixa, Status & Portfólio) */
+html:not(.dark) #view-carteira .bg-gradient-to-r,
+html:not(.dark) #view-carteira .bg-gradient-to-br {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+}
+html:not(.dark) #view-carteira .bg-slate-950\/90 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+html:not(.dark) #view-carteira .text-white {
+  color: #0f172a !important;
+}
+html:not(.dark) #container-bilhetes-salvos {
+  color: #334155 !important;
+}
+html:not(.dark) #container-bilhetes-salvos > div {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* 3. TELA BOLÕES E RATEIO */
+html:not(.dark) #view-bolao .bg-gradient-to-br,
+html:not(.dark) #view-bolao .bg-slate-900 {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+}
+html:not(.dark) #view-bolao .bg-slate-950 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* 4. TELA ESTATÍSTICAS E CALOR */
+html:not(.dark) #view-calor .bg-gradient-to-br,
+html:not(.dark) #view-calor .bg-slate-900 {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+}
+html:not(.dark) #view-calor .bg-slate-950 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* 5. TELA PAINEL ADMINISTRATIVO */
+html:not(.dark) #view-admin .bg-gradient-to-r {
+  background: #ffffff !important;
+  border-color: #f59e0b !important;
+  box-shadow: 0 4px 24px rgba(245, 158, 11, 0.12) !important;
+}
+html:not(.dark) #view-admin h2.text-amber-400 {
+  color: #b45309 !important;
+}
+html:not(.dark) #view-admin .bg-slate-900\/90,
+html:not(.dark) #view-admin .bg-slate-900 {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important;
+}
+html:not(.dark) #view-admin #subtab-admin-usuarios.border-amber-400 {
+  border-color: #d97706 !important;
+  color: #b45309 !important;
+}
+html:not(.dark) #view-admin button[id^="subtab-admin-"]:not(.border-amber-400) {
+  color: #475569 !important;
+}
+html:not(.dark) #view-admin button[id^="subtab-admin-"]:hover {
+  color: #0f172a !important;
+}
+html:not(.dark) #view-admin thead {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+html:not(.dark) #view-admin thead th {
+  color: #334155 !important;
+  font-weight: 800 !important;
+}
+html:not(.dark) #view-admin tbody tr {
+  background-color: #ffffff !important;
+  border-color: #f1f5f9 !important;
+}
+html:not(.dark) #view-admin tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+html:not(.dark) #view-admin tbody td {
+  color: #0f172a !important;
+}
+html:not(.dark) #view-admin tfoot,
+html:not(.dark) #view-admin .bg-slate-950\/90 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
