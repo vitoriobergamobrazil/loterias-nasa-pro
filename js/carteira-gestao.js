@@ -141,7 +141,8 @@
           bilhetes: [],
           totalCusto: 0,
           totalPremio: 0,
-          premiadosCount: 0
+          premiadosCount: 0,
+          dezenasSorteadas: null
         };
       }
 
@@ -150,6 +151,22 @@
       const premio = Number(b.premioGanho || 0);
       grupos[grupoChave].totalPremio += premio;
       if (premio > 0) grupos[grupoChave].premiadosCount++;
+
+      // Identifica o resultado oficial do concurso para exibir no bilhete
+      if (!grupos[grupoChave].dezenasSorteadas) {
+        if (Array.isArray(b.dezenasSorteadas) && b.dezenasSorteadas.length > 0) {
+          grupos[grupoChave].dezenasSorteadas = b.dezenasSorteadas.map(Number);
+        } else {
+          const numConc = Number(String(conc).replace(/\D/g, ''));
+          const base = mod === 'megasena' ? (window.baseConcursosMega || []) : (window.baseConcursosLoto || []);
+          if (numConc > 0) {
+            const enc = base.find(c => Number(c.concurso) === numConc);
+            if (enc && Array.isArray(enc.dezenas) && enc.dezenas.length > 0) {
+              grupos[grupoChave].dezenasSorteadas = enc.dezenas.map(Number);
+            }
+          }
+        }
+      }
     });
 
     return Object.values(grupos);
@@ -269,22 +286,66 @@
       });
     }
 
+    // Atualiza status do botão principal de conferência no topo
+    const btnConferir = document.getElementById('btn-conferir-carteira-topo') || document.querySelector('button[onclick*="conferirTodosBilhetesSalvos"]');
+    if (btnConferir) {
+      if (listaOriginal.length === 0) {
+        btnConferir.className = 'px-3 py-1.5 bg-slate-800 text-slate-400 border border-slate-700 font-bold text-xs rounded-xl shadow cursor-not-allowed opacity-60';
+        btnConferir.innerHTML = '<span>⚡</span> <span>CONFERIR TUDO</span>';
+      } else {
+        const todosConferidos = listaOriginal.every(b => b.conferido);
+        const temPendentesPassados = listaOriginal.some(b => !b.conferido && (typeof dataBRNoFuturo === 'function' ? !dataBRNoFuturo(b.data) : true));
+        if (todosConferidos) {
+          btnConferir.className = 'px-3 py-1.5 bg-slate-900 text-emerald-400 border border-emerald-500/40 font-black text-xs rounded-xl shadow transition flex items-center gap-1.5';
+          btnConferir.innerHTML = '<span>✓</span> <span>CONFERIDO</span>';
+        } else if (temPendentesPassados) {
+          btnConferir.className = 'px-3.5 py-1.5 bg-gradient-to-r from-amber-400 to-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-emerald-500/30 active:scale-95 transition flex items-center gap-1.5 animate-pulse';
+          btnConferir.innerHTML = '<span>⚡</span> <span>CONFERIR AGORA</span>';
+        } else {
+          btnConferir.className = 'px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center gap-1.5';
+          btnConferir.innerHTML = '<span>⚡</span> <span>CONFERIR TUDO</span>';
+        }
+      }
+    }
+
     if (filtrados.length === 0) {
-      container.innerHTML = `
-        <div class="p-8 text-center bg-slate-950/60 rounded-2xl border border-slate-800 space-y-2">
-          <span class="text-3xl block">💼</span>
-          <p class="text-xs text-slate-400">Nenhum bilhete encontrado com os filtros selecionados.</p>
-          ${listaOriginal.length > 0 ? `
+      if (listaOriginal.length === 0) {
+        container.innerHTML = `
+          <div class="py-12 px-4 text-center space-y-4 bg-slate-950/80 rounded-3xl border border-dashed border-slate-800 shadow-xl">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-950 via-slate-900 to-emerald-950 border border-cyan-800/60 mx-auto flex items-center justify-center text-3xl shadow-lg shadow-cyan-500/10">
+              🎟️
+            </div>
+            <div class="space-y-1">
+              <h4 class="text-sm font-black text-white">Sua carteira está pronta</h4>
+              <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+                Você ainda não tem apostas registradas. Gere jogos calibrados pelo motor orbital ou cole palpites de grupos.
+              </p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-2 pt-2">
+              <button type="button" onclick="mudarAba('gerador')" class="px-4 py-2.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow-lg active:scale-95 transition flex items-center gap-1.5 font-mono">
+                <span>⚡</span> GERAR NO RADAR
+              </button>
+              <button type="button" onclick="alternarSubAbaCarteira('ferramentas')" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 font-bold text-xs rounded-xl border border-slate-700 active:scale-95 transition flex items-center gap-1.5">
+                <span>📥</span> Colar Apostas
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="p-8 text-center bg-slate-950/60 rounded-2xl border border-slate-800 space-y-2">
+            <span class="text-3xl block">🔍</span>
+            <p class="text-xs text-slate-400">Nenhum bilhete encontrado com os filtros selecionados.</p>
             <button onclick="window.carteiraFiltros.modalidade='todas'; window.carteiraFiltros.status='todos'; window.carteiraFiltros.busca=''; window.atualizarPainelCarteira();" class="text-cyan-400 text-xs underline font-bold">
               Limpar Filtros (${listaOriginal.length} apostas salvas)
             </button>
-          ` : ''}
-        </div>
-      `;
+          </div>
+        `;
+      }
       return;
     }
 
-    // MODO 1: AGRUPADO POR CONCURSO / DATA (PADRÃO FINTECH PREMIUM)
+    // MODO 1: AGRUPADO POR CONCURSO / DATA (PADRÃO FINTECH PREMIUM 10/10)
     if (window.carteiraFiltros.modo === 'agrupado') {
       const grupos = agruparBilhetes(filtrados);
 
@@ -309,9 +370,12 @@
         }
 
         return `
-          <div class="bg-slate-950 rounded-2xl border border-slate-800/90 overflow-hidden shadow-lg transition">
+          <div class="bg-slate-950 rounded-2xl border border-slate-800/90 hover:border-slate-700/80 overflow-hidden shadow-xl transition">
+            <!-- Barra Colorida de Topo (Identidade da Modalidade) -->
+            <div class="h-1 bg-gradient-to-r ${isMega ? 'from-emerald-500 via-teal-400 to-cyan-500' : 'from-purple-500 via-fuchsia-400 to-pink-500'}"></div>
+
             <!-- Cabeçalho do Concurso (Estilo Bilhete Oficial Coeso) -->
-            <div class="p-3 sm:p-4 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 flex items-center justify-between border-b border-slate-800/80 cursor-pointer select-none" onclick="alternarGrupoCarteira('${g.id}')">
+            <div class="p-3 sm:p-4 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 flex items-center justify-between border-b border-dashed border-slate-800/90 cursor-pointer select-none" onclick="alternarGrupoCarteira('${g.id}')">
               <div class="flex items-center gap-3 min-w-0">
                 <div class="w-9 h-9 rounded-xl ${isMega ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-purple-500/10 border-purple-500/30 text-purple-400'} border flex items-center justify-center text-base flex-shrink-0">
                   ${isMega ? '🍀' : '🟣'}
@@ -337,22 +401,35 @@
               </div>
             </div>
 
+            <!-- Faixa do Resultado Oficial da Caixa (Quando Sorteado) -->
+            ${aberto && g.dezenasSorteadas && g.dezenasSorteadas.length > 0 ? `
+              <div class="px-3 py-2 bg-emerald-950/25 border-b border-emerald-900/40 flex items-center justify-between gap-2 flex-wrap">
+                <span class="text-[10px] font-mono font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span>🎯</span> Sorteio Oficial Caixa:
+                </span>
+                <div class="flex items-center gap-1 flex-wrap">
+                  ${g.dezenasSorteadas.map(d => `<span class="w-6 h-6 rounded-md bg-emerald-500 text-slate-950 font-black text-[10px] font-mono flex items-center justify-center border border-white shadow-sm">${String(d).padStart(2,'0')}</span>`).join('')}
+                </div>
+              </div>
+            ` : ''}
+
             <!-- Lista de Bilhetes do Concurso -->
             ${aberto ? `
               <div class="p-2 sm:p-3 space-y-1.5 bg-slate-950/60 divide-y divide-slate-900">
                 ${g.bilhetes.map((b, idx) => {
-                  const dezenasSorteadas = (b.dezenasSorteadas || []).map(Number);
+                  const dezenasSorteadas = (b.dezenasSorteadas || g.dezenasSorteadas || []).map(Number);
                   const foiConferido = Boolean(b.conferido || b.acertos !== undefined);
                   const acertos = b.acertos !== undefined ? b.acertos : (dezenasSorteadas.length > 0 ? (b.dezenas || []).filter(d => dezenasSorteadas.includes(Number(d))).length : null);
                   const acertouAlgum = (acertos || 0) > 0;
+                  const isLoto = (b.dezenas || []).length > 10;
                   return `
-                    <div class="py-2 px-2 sm:px-2.5 rounded-xl flex items-center justify-between gap-2 text-xs transition ${b.premioGanho > 0 ? 'bg-emerald-950/20 border border-emerald-500/40' : 'hover:bg-slate-900/60'}">
+                    <div class="py-2.5 px-2.5 sm:px-3 rounded-xl flex items-center justify-between gap-2 text-xs transition ${b.premioGanho > 0 ? 'bg-emerald-950/20 border border-emerald-500/40' : 'hover:bg-slate-900/60'}">
                       <div class="flex items-center gap-2.5 min-w-0">
                         <span class="font-mono font-bold text-slate-500 text-[10px] w-4 flex-shrink-0">#${idx + 1}</span>
-                        <div class="flex flex-wrap gap-1 sm:gap-1.5 items-center">
+                        <div class="${isLoto ? 'grid grid-cols-5 sm:grid-cols-8 gap-1 items-center' : 'flex flex-wrap gap-1 sm:gap-1.5 items-center'}">
                           ${b.dezenas.map(d => {
                             const acertou = dezenasSorteadas.includes(Number(d));
-                            return `<span class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg text-[10px] sm:text-xs font-mono font-bold flex items-center justify-center transition ${
+                            return `<span class="${isLoto ? 'w-5 h-5 sm:w-6 sm:h-6 text-[9px] sm:text-[10px]' : 'w-6 h-6 sm:w-7 sm:h-7 text-[10px] sm:text-xs'} rounded-lg font-mono font-bold flex items-center justify-center transition ${
                               acertou
                                 ? 'bg-emerald-500 text-slate-950 font-black shadow-md shadow-emerald-500/50 scale-105 border border-white ring-1 ring-emerald-300'
                                 : 'bg-slate-800 text-slate-200 border border-slate-700/80'
