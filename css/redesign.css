@@ -65,6 +65,12 @@ html.redesign header > div:not(#nasa-unified-topbar) {
   min-height: 54px;
 }
 
+/* Oculta qualquer navegação legada na topbar unificada (substituída pela sidebar desktop e bottom bar mobile) */
+.nasa-desktop-nav,
+nav.nasa-desktop-nav {
+  display: none !important;
+}
+
 /* Logo compacto à esquerda */
 .nasa-brand-compact {
   display: flex;

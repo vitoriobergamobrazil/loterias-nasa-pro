@@ -85,28 +85,6 @@ function criarTopbarUnificada() {
       </button>
     </div>
 
-    <!-- Navegação Desktop Widescreen (Centro de Comando NASA) -->
-    <nav class="nasa-desktop-nav" role="navigation" aria-label="Navegação Desktop">
-      <button type="button" class="nasa-desktop-nav-btn active" data-tab="home" onclick="activateTab('home'); tocarBeep('click');">
-        <span>🚀</span> <span>Início</span>
-      </button>
-      <button type="button" class="nasa-desktop-nav-btn" data-tab="gerar" onclick="activateTab('gerar'); tocarBeep('click');">
-        <span>🎯</span> <span>Gerador & Volante</span>
-      </button>
-      <button type="button" class="nasa-desktop-nav-btn" data-tab="fechamentos" onclick="activateTab('fechamentos'); tocarBeep('click');">
-        <span>📐</span> <span>Fechamentos</span>
-      </button>
-      <button type="button" class="nasa-desktop-nav-btn" data-tab="analise" onclick="activateTab('analise'); tocarBeep('click');">
-        <span>📊</span> <span>Estatísticas</span>
-      </button>
-      <button type="button" class="nasa-desktop-nav-btn" data-tab="carteira" onclick="activateTab('carteira'); tocarBeep('click');">
-        <span>💼</span> <span>Carteira</span>
-      </button>
-      <button type="button" id="nasa-desktop-nav-admin" class="nasa-desktop-nav-btn hidden" data-tab="admin" onclick="mudarAba('admin'); tocarBeep('click');" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);">
-        <span>👑</span> <span>Admin Master</span>
-      </button>
-    </nav>
-
     <!-- Ações Rápidas: Tema + VIP/Créditos + Menu Perfil -->
     <div class="nasa-header-actions">
       <button type="button" id="nasa-top-theme-btn" class="nasa-theme-chip" onclick="alternarTema();" title="Alternar Modo Claro / Escuro">
