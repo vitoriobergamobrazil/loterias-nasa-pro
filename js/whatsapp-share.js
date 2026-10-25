@@ -22,7 +22,7 @@ function obterInfoProximoSorteio(modalidade) {
   // Fallback para data calculada se não tiver vindo da Caixa ainda
   if (!proximaData) {
     const hoje = new Date();
-    // Mega corre quarta (3) e sábado (6); Loto corre seg a sab (1 a 6)
+    // Mega corre terça (2), quinta (4) e sábado (6); Loto corre seg a sab (1 a 6)
     proximaData = hoje.toLocaleDateString('pt-BR');
   }
 

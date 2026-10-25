@@ -39,7 +39,7 @@ function renderizarCockpitInicioApostador() {
 
   const megaPremio = formatarMoedaCockpit(megaUltimo?.premioProximo) || 'R$ 85.000.000';
   const megaConcurso = megaUltimo?.proximoConcurso ? `#${megaUltimo.proximoConcurso}` : 'Próximo';
-  const megaData = megaUltimo?.dataProximo || 'Quarta/Sábado 20h';
+  const megaData = megaUltimo?.dataProximo || 'Ter/Qui/Sáb 20h';
 
   const lotoPremio = formatarMoedaCockpit(lotoUltimo?.premioProximo) || 'R$ 5.000.000';
   const lotoConcurso = lotoUltimo?.proximoConcurso ? `#${lotoUltimo.proximoConcurso}` : 'Próximo';

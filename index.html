@@ -1274,7 +1274,7 @@
           <div class="bg-slate-950/90 border border-emerald-500/30 rounded-2xl p-3 space-y-1.5 relative overflow-hidden">
             <div class="flex justify-between items-center">
               <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 font-black text-[10px] rounded-lg">MEGA-SENA</span>
-              <span class="text-[10px] text-slate-400 font-sans font-bold" id="cal-mega-status">🟢 Quarta e Sábado</span>
+              <span class="text-[10px] text-slate-400 font-sans font-bold" id="cal-mega-status">🟢 Terça, Quinta e Sábado</span>
             </div>
             <div class="flex justify-between items-end pt-1">
               <div>
@@ -1526,6 +1526,18 @@
           </span>
         </div>
 
+        <!-- AVISO LEGAL E CDC: Proteção contra litígios e expectativas irreais -->
+        <div class="p-3 bg-amber-950/40 border border-amber-500/30 rounded-2xl text-[11px] text-amber-200/90 leading-relaxed font-sans space-y-1">
+          <div class="font-black text-amber-300 flex items-center gap-1.5 text-xs">
+            <span>⚖️</span>
+            <span>Aviso Legal & Isenção de Responsabilidade (Art. 31 do CDC)</span>
+          </div>
+          <p>
+            Fechamentos e desdobramentos são <strong>matrizes combinatórias puras</strong>. Eles <strong>NÃO</strong> preveem sorteios futuros e <strong>NÃO asseguram premiação ou lucro</strong> financeiro. A cobertura matemática informada é <em>estritamente condicional</em>: só é satisfeita se as dezenas sorteadas pela Caixa estiverem contidas no conjunto de números que você escolheu. Loterias são jogos de azar probabilísticos. Jogue com responsabilidade (+18).
+          </p>
+        </div>
+
+
         <!-- Seletor de Matriz Combinatória -->
         <div class="space-y-1.5">
           <label class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
@@ -1542,7 +1554,7 @@
             <span id="matriz-info-dezenas" class="text-white font-black text-xs text-right">18 dezenas</span>
           </div>
           <div class="flex justify-between items-center gap-2">
-            <span class="text-slate-400 text-[11px] shrink-0">Garantia Oficial:</span>
+            <span class="text-slate-400 text-[11px] shrink-0">Cobertura Condicional:</span>
             <span id="matriz-info-garantia" class="text-emerald-400 font-black text-xs text-right">14 Pontos Acertando 15</span>
           </div>
           <div class="flex justify-between items-center gap-2">
@@ -2335,6 +2347,78 @@
       </div>
     </div>
 
+  
+    <!-- MODAL DE MESTRES & ESTRATEGISTAS DA LOTERIA -->
+    <div id="modal-mestres-loteria" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+      <div class="bg-slate-900 border-2 border-slate-700 rounded-3xl max-w-2xl w-full max-h-[85vh] flex flex-col p-5 sm:p-6 shadow-2xl relative font-sans">
+        <button onclick="fecharModalMestresLoteria()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+
+        <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+          <span class="text-2xl">🏛️</span>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-white uppercase">Mestres & Estrategistas da Loteria</h3>
+            <p class="text-[11px] text-cyan-400 font-mono">Ciência matemática e combinatória que fundamenta a ferramenta</p>
+          </div>
+        </div>
+
+        <div class="overflow-y-auto py-4 space-y-3 text-xs text-slate-300 leading-relaxed pr-1 font-sans flex-1">
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs flex items-center gap-1.5">
+                <span class="text-cyan-400 font-bold">📐</span> Stefan Mandel
+              </strong>
+              <span class="text-[9px] text-cyan-300 font-mono bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800">14x Ganhador</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-snug">
+              Matemático que eliminava o impossível através de cobertura combinatória. O algoritmo da NASA replica essa lógica com filtros orbitais de eliminação de combinações atípicas.
+            </p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs flex items-center gap-1.5">
+                <span class="text-emerald-400 font-bold">📊</span> Jerry & Marge Selbee
+              </strong>
+              <span class="text-[9px] text-emerald-300 font-mono bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">Lucro em Rolldown</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-snug">
+              Comprovaram que a disciplina matemática vence a emoção quando a expectativa matemática se torna positiva em concursos acumulados e prêmios secundários.
+            </p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs flex items-center gap-1.5">
+                <span class="text-purple-400 font-bold">🎓</span> Joan Ginther
+              </strong>
+              <span class="text-[9px] text-purple-300 font-mono bg-purple-950/80 px-2 py-0.5 rounded border border-purple-800">Ph.D Stanford (4x Ganhadora)</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-snug">
+              Defendia a dispersão homogênea no volante para evitar a aglomeração de dezenas em datas comemorativas (1 a 31), maximizando o valor do prêmio sem dividi-lo com milhares de apostas populares.
+            </p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between">
+              <strong class="text-white text-xs flex items-center gap-1.5">
+                <span class="text-amber-400 font-bold">👥</span> Bolão de Salvador
+              </strong>
+              <span class="text-[9px] text-amber-300 font-mono bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800">Mega da Virada (R$ 711M)</span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-snug">
+              Provou o poder do fechamento em grupo: jogar dezenas múltiplas com rateio de cotas garante sustentabilidade financeira e captura recorrente de prêmios secundários (Quadras e Quinas).
+            </p>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-800 pt-3 flex justify-end">
+          <button onclick="fecharModalMestresLoteria()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl text-xs transition">
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <script>
@@ -2364,9 +2448,9 @@
       primos: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59],
       fechamentos: [
           { id: 'mega_equilibrio_16', nome: 'Matriz de Equilíbrio (4x4 = 16 nºs)', n: 16, k: 6, jogos: 6 },
-        { id: 'mega_10_4', nome: '10 Dezenas (Garantia de Quadra se 4)', n: 10, k: 6, jogos: 3 },
-        { id: 'mega_12_4', nome: '12 Dezenas (Garantia de Quadra se 4)', n: 12, k: 6, jogos: 6 },
-        { id: 'mega_15_4', nome: '15 Dezenas (Garantia de Quadra se 5)', n: 15, k: 6, jogos: 14 }
+        { id: 'mega_10_4', nome: '10 Dezenas (Cobertura de Quadra se 4 no grupo)', n: 10, k: 6, jogos: 3 },
+        { id: 'mega_12_4', nome: '12 Dezenas (Cobertura de Quadra se 4 no grupo)', n: 12, k: 6, jogos: 6 },
+        { id: 'mega_15_4', nome: '15 Dezenas (Cobertura de Quadra se 5 no grupo)', n: 15, k: 6, jogos: 14 }
       ]
     };
 
@@ -2381,8 +2465,8 @@
       miolo: [7, 8, 9, 12, 13, 14, 17, 18, 19],
       primos: [2, 3, 5, 7, 11, 13, 17, 19, 23],
       fechamentos: [
-        { id: 'loto_18_14', nome: '18 Dezenas (Garantia de 14 se 15)', n: 18, k: 15, jogos: 8 },
-        { id: 'loto_20_13', nome: '20 Dezenas (Garantia de 13 se 15)', n: 20, k: 15, jogos: 12 }
+        { id: 'loto_18_14', nome: '18 Dezenas (Cobertura de 14 se 15 no grupo)', n: 18, k: 15, jogos: 8 },
+        { id: 'loto_20_13', nome: '20 Dezenas (Cobertura de 13 se 15 no grupo)', n: 20, k: 15, jogos: 12 }
       ]
     };
 
@@ -5391,11 +5475,11 @@ function abrirModalDialog(msg, callback) {
       megasena: [
         {
           id: 'mega-10-quadra',
-          nome: '10 Dezenas • Garantia de Quadra (10-6-4-4)',
+          nome: '10 Dezenas • Cobertura de Quadra (10-6-4-4)',
           n: 10,
           k: 6,
           jogos: 3,
-          garantia: 'Garantia de Quadra (100% se acertar 4)',
+          garantia: 'Quadra condicional (apenas se 4 sorteadas estiverem no grupo)',
           economia: 'Economia de 98.5% (R$ 15 vs R$ 1.050)',
           // Matriz clássica 10-6-4-4
           linhas: [
@@ -5406,11 +5490,11 @@ function abrirModalDialog(msg, callback) {
         },
         {
           id: 'mega-12-quadra',
-          nome: '12 Dezenas • Garantia de Quadra (12-6-4-4)',
+          nome: '12 Dezenas • Cobertura de Quadra (12-6-4-4)',
           n: 12,
           k: 6,
           jogos: 6,
-          garantia: 'Garantia de Quadra (100% se acertar 4)',
+          garantia: 'Quadra condicional (apenas se 4 sorteadas estiverem no grupo)',
           economia: 'Economia de 99.3% (R$ 30 vs R$ 4.620)',
           // Matriz clássica 12-6-4-4
           linhas: [
@@ -5424,11 +5508,11 @@ function abrirModalDialog(msg, callback) {
         },
         {
           id: 'mega-10-quina',
-          nome: '10 Dezenas • Garantia de Quina (10-6-5-5)',
+          nome: '10 Dezenas • Cobertura de Quina (10-6-5-5)',
           n: 10,
           k: 6,
           jogos: 14,
-          garantia: 'Garantia de Quina (100% se acertar 5)',
+          garantia: 'Quina condicional (apenas se 5 sorteadas estiverem no grupo)',
           economia: 'Economia de 93.3% (R$ 70 vs R$ 1.050)',
           linhas: [
             [0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 6, 7], [0, 1, 4, 5, 6, 7],
@@ -5442,11 +5526,11 @@ function abrirModalDialog(msg, callback) {
       lotofacil: [
         {
           id: 'loto-16-total',
-          nome: '16 Dezenas • Fechamento Total de 15 Pontos (16-15-15-15)',
+          nome: '16 Dezenas • Desdobramento Total (16-15-15-15)',
           n: 16,
           k: 15,
           jogos: 16,
-          garantia: '100% Garantia de 15 Pontos se acertar 15',
+          garantia: '15 Pontos (apenas se as 15 sorteadas estiverem no grupo)',
           economia: 'Desdobramento oficial de 16 números em 16 bilhetes simples',
           // Exclui cada uma das 16 posições uma por vez
           linhas: Array.from({length: 16}, (_, i) => {
@@ -5457,11 +5541,11 @@ function abrirModalDialog(msg, callback) {
         },
         {
           id: 'loto-17-14',
-          nome: '17 Dezenas • Garantia de 14 Pontos (17-15-14-14)',
+          nome: '17 Dezenas • Cobertura de 14 Pontos (17-15-14-14)',
           n: 17,
           k: 15,
           jogos: 8,
-          garantia: 'Garantia de 14 Pontos (100% se acertar 14)',
+          garantia: '14 Pontos condicionais (apenas se 14 sorteadas estiverem no grupo)',
           economia: 'Economia de 94.1% (R$ 24 vs R$ 408)',
           linhas: [
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
@@ -5476,11 +5560,11 @@ function abrirModalDialog(msg, callback) {
         },
         {
           id: 'loto-18-14',
-          nome: '18 Dezenas • Garantia de 14 Pontos (18-15-14-15)',
+          nome: '18 Dezenas • Cobertura de 14 Pontos (18-15-14-15)',
           n: 18,
           k: 15,
           jogos: 24,
-          garantia: 'Garantia de 14 Pontos (100% se acertar 15)',
+          garantia: '14 Pontos condicionais (apenas se 15 sorteadas estiverem no grupo)',
           economia: 'Economia de 97.1% (R$ 72 vs R$ 2.448)',
           // Amostragem combinatória otimizada 18-15-14-15
           linhas: Array.from({length: 24}, (_, i) => {
@@ -5494,11 +5578,11 @@ function abrirModalDialog(msg, callback) {
         },
         {
           id: 'loto-20-13',
-          nome: '20 Dezenas • Garantia de 13 Pontos (20-15-13-15)',
+          nome: '20 Dezenas • Cobertura de 13 Pontos (20-15-13-15)',
           n: 20,
           k: 15,
           jogos: 4,
-          garantia: 'Garantia de 13 Pontos (100% se acertar 15)',
+          garantia: '13 Pontos condicionais (apenas se 15 sorteadas estiverem no grupo)',
           economia: 'Apenas 4 jogos para cercar 80% do volante',
           linhas: [
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
@@ -5642,7 +5726,7 @@ function abrirModalDialog(msg, callback) {
       let msg = `🚀 *Loterias Analytics Pro — Fechamento Combinatório NASA*\n`;
       msg += `🎯 *Modalidade:* ${modalidadeAtual.toUpperCase()}\n`;
       msg += `📊 *Total de Apostas:* ${jogosFechamentoGerados.length} (${custo})\n`;
-      msg += `📐 *Garantia:* Matriz de Alta Cobertura NASA\n\n`;
+      msg += `📐 *Cobertura Combinatória:* Matriz Otimizada NASA C(n,k)\n\n`;
       jogosFechamentoGerados.slice(0, 10).forEach((j, idx) => {
         msg += `Jogo #${idx + 1}: ${j.map(d=>String(d).padStart(2,'0')).join(' ')}\n`;
       });

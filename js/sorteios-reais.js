@@ -17,12 +17,32 @@ const SORTEIOS_CONFIG = {
 };
 
 const SORTEIOS_CALENDARIO = {
-  // 0=domingo, 1=segunda ... 6=sábado
-  megasena: { dias: [3, 6], hora: 20 },
+  // 0=domingo, 1=segunda, 2=terça, 3=quarta, 4=quinta, 5=sexta, 6=sábado
+  // Mega-Sena: 3 sorteios semanais (Terça=2, Quinta=4, Sábado=6)
+  megasena: { dias: [2, 4, 6], hora: 20 },
+  // Lotofácil: 6 sorteios semanais (Segunda a Sábado)
   lotofacil: { dias: [1, 2, 3, 4, 5, 6], hora: 20 }
 };
 
 const NOMES_DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+
+/**
+ * Converte data da Caixa (dd/mm/aaaa) para rótulo amigável ('Hoje', 'Amanhã' ou dia da semana)
+ */
+function formatarDataProximoCaixa(dataProximoBR) {
+  if (!dataProximoBR) return null;
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(dataProximoBR).trim());
+  if (!m) return null;
+  const data = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  if (Number.isNaN(data.getTime())) return null;
+
+  const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
+  const diffDias = Math.round((data - hoje) / 86400000);
+  if (diffDias === 0) return 'Hoje';
+  if (diffDias === 1) return 'Amanhã';
+  return NOMES_DIAS[data.getDay()] || dataProximoBR;
+}
 
 /**
  * Próximo sorteio de uma modalidade a partir de `agora`.
@@ -216,10 +236,18 @@ async function sincronizarSorteiosReais({ silencioso = false } = {}) {
         if (mega) {
           dados.megasena.premio = mega.premioProximo;
           dados.megasena.concurso = mega.proximoConcurso;
+          if (mega.dataProximo) {
+            const rotulo = formatarDataProximoCaixa(mega.dataProximo);
+            if (rotulo) dados.megasena.dia = rotulo;
+          }
         }
         if (loto) {
           dados.lotofacil.premio = loto.premioProximo;
           dados.lotofacil.concurso = loto.proximoConcurso;
+          if (loto.dataProximo) {
+            const rotulo = formatarDataProximoCaixa(loto.dataProximo);
+            if (rotulo) dados.lotofacil.dia = rotulo;
+          }
         }
 
         atualizarSorteiosUI(dados, 'servidor');

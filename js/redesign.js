@@ -90,8 +90,8 @@ function criarTopbarUnificada() {
         <span id="nasa-top-vip-icon">⚡</span>
         <span id="nasa-top-vip-label">PRO</span>
       </button>
-      <button type="button" id="nasa-top-drawer-btn" class="nasa-drawer-trigger" onclick="abrirDrawerPerfil()" title="Menu, Conta, Som e Tema" aria-label="Abrir menu de configurações e conta">
-        <span id="nasa-top-avatar">👤</span>
+      <button type="button" id="nasa-top-drawer-btn" class="nasa-drawer-trigger" onclick="abrirDrawerPerfil()" title="Menu (Configurações, Mestres, Termos & LGPD)" aria-label="Abrir menu de configurações, mestres e conta">
+        <span id="nasa-top-avatar" style="font-size: 1.25rem; font-weight: 900; line-height: 1; letter-spacing: -1px;">⋯</span>
       </button>
     </div>
   `;
@@ -168,7 +168,7 @@ function sincronizarHeaderStatusUsuario() {
     } else if (usuarioSessao.tipo !== 'visitante' && usuarioSessao.nome) {
       topAvatar.innerText = (usuarioSessao.nome[0] || 'U').toUpperCase();
     } else {
-      topAvatar.innerText = '⚙️';
+      topAvatar.innerText = '⋯';
     }
   }
 }
@@ -369,72 +369,6 @@ function createSimplifiedHome() {
           <div class="text-center py-2 text-xs text-slate-400">Carregando auditoria dos concursos...</div>
         </div>
       </div>
-
-      <!-- SEÇÃO: GABINETE DOS GRANDES ESTRATEGISTAS DA LOTERIA -->
-      <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
-        <div class="flex items-center gap-1.5 border-b border-slate-800/80 pb-2">
-          <span class="text-sm">🏛️</span>
-          <div>
-            <h3 class="text-xs font-black text-white uppercase tracking-wide">Mestres & Estrategistas da Loteria</h3>
-            <span class="text-[10px] text-cyan-400 font-mono">Ciência que fundamenta o Loterias NASA</span>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 gap-2">
-          <!-- Stefan Mandel -->
-          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-            <div class="flex items-center justify-between">
-              <strong class="text-white text-xs flex items-center gap-1.5">
-                <span class="text-cyan-400 font-bold">📐</span> Stefan Mandel
-              </strong>
-              <span class="text-[9px] text-cyan-300 font-mono bg-cyan-950/80 px-1.5 py-0.2 rounded border border-cyan-800">14x Ganhador</span>
-            </div>
-            <p class="text-[10px] text-slate-400 leading-snug">
-              Matemático que eliminava o impossível através de cobertura combinatória. O algoritmo da NASA replica essa lógica com filtros orbitais.
-            </p>
-          </div>
-
-          <!-- Jerry e Marge Selbee -->
-          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-            <div class="flex items-center justify-between">
-              <strong class="text-white text-xs flex items-center gap-1.5">
-                <span class="text-emerald-400 font-bold">📊</span> Jerry & Marge Selbee
-              </strong>
-              <span class="text-[9px] text-emerald-300 font-mono bg-emerald-950/80 px-1.5 py-0.2 rounded border border-emerald-800">Lucro em Rolldown</span>
-            </div>
-            <p class="text-[10px] text-slate-400 leading-snug">
-              Comprovaram que a disciplina matemática vence a emoção quando a expectativa matemática se torna positiva em concursos acumulados.
-            </p>
-          </div>
-
-          <!-- Joan Ginther -->
-          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-            <div class="flex items-center justify-between">
-              <strong class="text-white text-xs flex items-center gap-1.5">
-                <span class="text-purple-400 font-bold">🎓</span> Joan Ginther
-              </strong>
-              <span class="text-[9px] text-purple-300 font-mono bg-purple-950/80 px-1.5 py-0.2 rounded border border-purple-800">Ph.D Stanford (4x Ganhadora)</span>
-            </div>
-            <p class="text-[10px] text-slate-400 leading-snug">
-              Defendia a dispersão homogênea no volante para evitar a aglomeração de dezenas em datas comemorativas (1 a 31).
-            </p>
-          </div>
-
-          <!-- Bolão de Salvador -->
-          <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-            <div class="flex items-center justify-between">
-              <strong class="text-white text-xs flex items-center gap-1.5">
-                <span class="text-amber-400 font-bold">👥</span> Bolão de Salvador
-              </strong>
-              <span class="text-[9px] text-amber-300 font-mono bg-amber-950/80 px-1.5 py-0.2 rounded border border-amber-800">Mega da Virada (R$ 711M)</span>
-            </div>
-            <p class="text-[10px] text-slate-400 leading-snug">
-              Provou o poder do fechamento em grupo: jogar dezenas múltiplas com rateio de cotas garante sustentabilidade e captura prêmios secundários.
-            </p>
-          </div>
-        </div>
-      </div>
-
 
       <!-- 4. CARD COMPACTO DE CONTA / PLANO PRO -->
       <div id="home-promo-pro-card" class="bg-gradient-to-r from-amber-950/50 via-slate-900 to-amber-950/40 border border-amber-500/50 rounded-2xl p-3.5 flex items-center justify-between gap-3">
@@ -883,13 +817,40 @@ function criarDrawerPerfilConfig() {
         </button>
       </div>
 
-      <!-- Privacidade, Termos e Exclusão LGPD -->
-      <div class="pt-3 mt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-        <button type="button" onclick="fecharDrawerPerfil(); abrirModalTermosLGPD('termos');" class="hover:text-white underline">
-          ⚖️ Termos & Privacidade (LGPD)
+      <!-- Links Institucionais: Mestres da Loteria, Jurídico & LGPD -->
+      <div class="space-y-1.5 pt-3 mt-3 border-t border-slate-800">
+        <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block">Conhecimento & Legal</span>
+        
+        <button type="button" onclick="fecharDrawerPerfil(); abrirModalMestresLoteria();" class="w-full p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-xs font-bold text-white flex items-center justify-between text-left transition">
+          <div class="flex items-center gap-2">
+            <span>🏛️</span>
+            <span>Mestres da Loteria & Ciência</span>
+          </div>
+          <span class="text-slate-500 text-[10px]">Ver →</span>
         </button>
-        <button type="button" onclick="fecharDrawerPerfil(); abrirModalTermosLGPD('direitos');" class="text-rose-400 hover:text-rose-300 underline">
-          🗑️ Meus Dados / Excluir
+
+        <button type="button" onclick="fecharDrawerPerfil(); abrirModalTermosLGPD('termos');" class="w-full p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 flex items-center justify-between text-left transition">
+          <div class="flex items-center gap-2">
+            <span>⚖️</span>
+            <span>Termos de Uso & Isenção de Ganho (CDC)</span>
+          </div>
+          <span class="text-slate-500 text-[10px]">Ver →</span>
+        </button>
+
+        <button type="button" onclick="fecharDrawerPerfil(); abrirModalTermosLGPD('lgpd');" class="w-full p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 flex items-center justify-between text-left transition">
+          <div class="flex items-center gap-2">
+            <span>🛡️</span>
+            <span>Privacidade & Proteção de Dados (LGPD)</span>
+          </div>
+          <span class="text-slate-500 text-[10px]">Ver →</span>
+        </button>
+
+        <button type="button" onclick="fecharDrawerPerfil(); abrirModalTermosLGPD('direitos');" class="w-full p-2.5 rounded-xl bg-rose-950/20 hover:bg-rose-950/40 border border-rose-900/30 text-xs font-bold text-rose-300 flex items-center justify-between text-left transition">
+          <div class="flex items-center gap-2">
+            <span>🗑️</span>
+            <span>Meus Dados / Exclusão de Conta (Art. 18)</span>
+          </div>
+          <span class="text-rose-500 text-[10px]">Gerenciar →</span>
         </button>
       </div>
     </div>
@@ -897,6 +858,25 @@ function criarDrawerPerfilConfig() {
 
   document.body.appendChild(backdrop);
 }
+
+function abrirModalMestresLoteria() {
+  if (typeof tocarBeep === 'function') tocarBeep('click');
+  const m = document.getElementById('modal-mestres-loteria');
+  if (m) {
+    m.classList.remove('hidden');
+    m.classList.add('flex');
+  }
+}
+
+function fecharModalMestresLoteria() {
+  const m = document.getElementById('modal-mestres-loteria');
+  if (m) {
+    m.classList.add('hidden');
+    m.classList.remove('flex');
+  }
+}
+window.abrirModalMestresLoteria = abrirModalMestresLoteria;
+window.fecharModalMestresLoteria = fecharModalMestresLoteria;
 
 function abrirDrawerPerfil() {
   if (typeof tocarBeep === 'function') tocarBeep('click');
