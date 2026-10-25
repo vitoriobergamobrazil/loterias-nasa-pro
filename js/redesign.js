@@ -137,6 +137,9 @@ function criarSidebarDesktop() {
   sidebar.setAttribute('aria-label', 'Centro de Comando NASA Desktop');
 
   sidebar.innerHTML = `
+    <!-- Alça de Redimensionamento Manual (Arraste com o Mouse) -->
+    <div class="sidebar-resizer" id="sidebar-resizer" title="Arraste para redimensionar a barra lateral"></div>
+
     <!-- Topo da Barra Lateral: Logo & Status -->
     <div class="sidebar-brand-box" onclick="activateTab('home'); tocarBeep('click');" role="button" tabindex="0" title="Ir para o Cockpit Inicial">
       <div class="sidebar-brand-icon">🚀</div>
@@ -145,6 +148,19 @@ function criarSidebarDesktop() {
         <span class="sidebar-brand-sub">COCKPIT ORBITAL</span>
       </div>
       <span class="sidebar-version-badge">v3.2</span>
+    </div>
+
+    <!-- Barra de Controle de Tamanho (◀ | P | M | G) -->
+    <div class="sidebar-size-bar">
+      <span class="sidebar-size-title">Barra:</span>
+      <div class="sidebar-size-pills">
+        <button type="button" id="btn-side-toggle" class="sidebar-size-btn" onclick="ajustarTamanhoSidebar('compacto')" title="Recolher / Expandir Ícones">
+          <span id="side-toggle-arrow">◀</span>
+        </button>
+        <button type="button" id="btn-side-p" class="sidebar-size-btn" onclick="ajustarTamanhoSidebar('P')" title="Estreita (240px)">P</button>
+        <button type="button" id="btn-side-m" class="sidebar-size-btn active" onclick="ajustarTamanhoSidebar('M')" title="Média (290px)">M</button>
+        <button type="button" id="btn-side-g" class="sidebar-size-btn" onclick="ajustarTamanhoSidebar('G')" title="Ampla (360px)">G</button>
+      </div>
     </div>
 
     <!-- Seletor de Modalidade (Mega-Sena / Lotofácil) -->
@@ -159,48 +175,42 @@ function criarSidebarDesktop() {
       </div>
     </div>
 
-    <!-- Links de Navegação da Barra Lateral -->
+    <!-- Links de Navegação da Barra Lateral (SEM TRUNCAMENTO) -->
     <nav class="sidebar-nav-list" role="navigation" aria-label="Menu Principal">
       <button type="button" class="sidebar-nav-btn active" data-tab="home" onclick="activateTab('home'); tocarBeep('click');">
         <span class="sidebar-nav-icon">🚀</span>
-        <span class="sidebar-nav-label">Início (Dashboard)</span>
-        <span class="sidebar-nav-tag">Live</span>
+        <span class="sidebar-nav-label">Início</span>
       </button>
 
       <button type="button" class="sidebar-nav-btn" data-tab="gerar" onclick="activateTab('gerar'); tocarBeep('click');">
         <span class="sidebar-nav-icon">🎯</span>
         <span class="sidebar-nav-label">Gerador & Volante</span>
-        <span class="sidebar-nav-tag">6 Testes</span>
       </button>
 
       <button type="button" class="sidebar-nav-btn" data-tab="fechamentos" onclick="activateTab('fechamentos'); tocarBeep('click');">
         <span class="sidebar-nav-icon">📐</span>
-        <span class="sidebar-nav-label">Fechamentos C(n,k)</span>
-        <span class="sidebar-nav-tag">Economia</span>
+        <span class="sidebar-nav-label">Fechamentos</span>
       </button>
 
       <button type="button" class="sidebar-nav-btn" data-tab="analise" onclick="activateTab('analise'); tocarBeep('click');">
         <span class="sidebar-nav-icon">📊</span>
-        <span class="sidebar-nav-label">Estatísticas & Ciclos</span>
-        <span class="sidebar-nav-tag">Calor</span>
+        <span class="sidebar-nav-label">Estatísticas</span>
       </button>
 
       <button type="button" class="sidebar-nav-btn" data-tab="carteira" onclick="activateTab('carteira'); tocarBeep('click');">
         <span class="sidebar-nav-icon">💼</span>
         <span class="sidebar-nav-label">Minha Carteira</span>
-        <span class="sidebar-nav-tag js-progresso-bilhetes">0</span>
+        <span class="sidebar-nav-count js-progresso-bilhetes">0</span>
       </button>
 
       <button type="button" class="sidebar-nav-btn" data-tab="bolao" onclick="irParaCarteiraSubAba('bolao'); tocarBeep('click');">
         <span class="sidebar-nav-icon">👥</span>
         <span class="sidebar-nav-label">Bolões & Rateio</span>
-        <span class="sidebar-nav-tag">WhatsApp</span>
       </button>
 
-      <button type="button" id="sidebar-nav-admin" class="sidebar-nav-btn hidden" data-tab="admin" onclick="mudarAba('admin'); tocarBeep('click');" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);">
+      <button type="button" id="sidebar-nav-admin" class="sidebar-nav-btn hidden" data-tab="admin" onclick="mudarAba('admin'); tocarBeep('click');" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.5);">
         <span class="sidebar-nav-icon">👑</span>
         <span class="sidebar-nav-label font-black">Painel Admin</span>
-        <span class="sidebar-nav-tag admin-tag">Master</span>
       </button>
     </nav>
 
@@ -240,10 +250,106 @@ function criarSidebarDesktop() {
 
   document.body.insertBefore(sidebar, document.body.firstChild);
 
+  // Restaura preferências salvas de largura da barra
+  restaurarConfiguracoesSidebar();
+  iniciarResizerSidebar();
+
   // Inicializa o estado visual do tema na sidebar
   if (typeof carregarTemaSalvo === 'function') {
     carregarTemaSalvo();
   }
+}
+
+function ajustarTamanhoSidebar(tamanho) {
+  const sidebar = document.getElementById('nasa-desktop-sidebar');
+  const seta = document.getElementById('side-toggle-arrow');
+  if (!sidebar) return;
+
+  if (typeof tocarBeep === 'function') tocarBeep('click');
+
+  let largura = 290;
+  if (tamanho === 'compacto') {
+    sidebar.classList.toggle('is-compact');
+    const compacta = sidebar.classList.contains('is-compact');
+    largura = compacta ? 78 : 290;
+    if (seta) seta.innerText = compacta ? '▶' : '◀';
+    localStorage.setItem('nasa_sidebar_compact', compacta ? '1' : '0');
+  } else {
+    sidebar.classList.remove('is-compact');
+    if (seta) seta.innerText = '◀';
+    localStorage.setItem('nasa_sidebar_compact', '0');
+    if (tamanho === 'P') largura = 240;
+    else if (tamanho === 'M') largura = 290;
+    else if (tamanho === 'G') largura = 360;
+  }
+
+  document.documentElement.style.setProperty('--sidebar-width', `${largura}px`);
+  localStorage.setItem('nasa_sidebar_width', String(largura));
+
+  ['p', 'm', 'g'].forEach(tam => {
+    const b = document.getElementById(`btn-side-${tam}`);
+    if (b) b.classList.toggle('active', tam.toUpperCase() === tamanho);
+  });
+}
+
+function restaurarConfiguracoesSidebar() {
+  const larguraSalva = localStorage.getItem('nasa_sidebar_width');
+  const compactaSalva = localStorage.getItem('nasa_sidebar_compact') === '1';
+
+  if (compactaSalva) {
+    const sidebar = document.getElementById('nasa-desktop-sidebar');
+    const seta = document.getElementById('side-toggle-arrow');
+    if (sidebar) sidebar.classList.add('is-compact');
+    if (seta) seta.innerText = '▶';
+    document.documentElement.style.setProperty('--sidebar-width', '78px');
+    return;
+  }
+
+  if (larguraSalva) {
+    const num = parseInt(larguraSalva);
+    if (!isNaN(num) && num >= 180 && num <= 500) {
+      document.documentElement.style.setProperty('--sidebar-width', `${num}px`);
+      ['p', 'm', 'g'].forEach(tam => {
+        const b = document.getElementById(`btn-side-${tam}`);
+        if (b) {
+          const esperado = tam === 'p' ? 240 : (tam === 'm' ? 290 : 360);
+          b.classList.toggle('active', Math.abs(num - esperado) < 30);
+        }
+      });
+    }
+  }
+}
+
+function iniciarResizerSidebar() {
+  const resizer = document.getElementById('sidebar-resizer');
+  if (!resizer) return;
+
+  let startX = 0;
+  let startWidth = 290;
+
+  const onMouseMove = (e) => {
+    const novaLargura = Math.max(200, Math.min(480, startWidth + (e.clientX - startX)));
+    document.documentElement.style.setProperty('--sidebar-width', `${novaLargura}px`);
+    localStorage.setItem('nasa_sidebar_width', String(novaLargura));
+    const sidebar = document.getElementById('nasa-desktop-sidebar');
+    if (sidebar) sidebar.classList.remove('is-compact');
+  };
+
+  const onMouseUp = () => {
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    resizer.classList.remove('resizing');
+  };
+
+  resizer.addEventListener('mousedown', (e) => {
+    startX = e.clientX;
+    const current = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--sidebar-width'));
+    startWidth = !isNaN(current) ? current : 290;
+    resizer.classList.add('resizing');
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    e.preventDefault();
+  });
 }
 
 function sincronizarVisualModalidadeGlobal() {
