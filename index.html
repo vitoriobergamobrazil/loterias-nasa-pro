@@ -52,7 +52,7 @@
   <!-- Programa dos 20 Testadores VIP Google Play -->
   <script src="./js/testadores-vip.js" defer></script>
   <!-- Gestão de Carteira em Lotes (High-Capacity UX) -->
-  <script src="./js/carteira-gestao.js" defer></script>
+  <script src="./js/carteira-gestao.js?v=18.2" defer></script>
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -1132,6 +1132,31 @@
         </div>
       </div>
 
+      <!-- IMPORTADOR PROMINENTE DE APOSTAS DO WHATSAPP OU TEXTO (SEMPRE VISÍVEL) -->
+      <div id="card-importador-apostas" class="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 border-2 border-cyan-500/60 rounded-3xl p-4 sm:p-5 space-y-3 font-sans shadow-xl">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📥</span>
+            <div>
+              <h3 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider font-mono">Colar Apostas do WhatsApp ou Texto</h3>
+              <p class="text-[10px] text-slate-400">Cole mensagens de bolão, palpites do robô ou sequências. O concurso e dezenas são identificados na hora.</p>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 text-[9px] font-mono font-bold">
+            ⚡ 1-Clique
+          </span>
+        </div>
+
+        <div class="space-y-2">
+          <textarea id="input-scanner-texto" rows="3" placeholder="Cole aqui sua mensagem do WhatsApp ou dezenas...&#10;Ex: Jogo #1: 02 - 22 - 23 - 31 - 51 - 59&#10;Jogo #2: 04 - 09 - 17 - 18 - 34 - 58" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono"></textarea>
+          
+          <button type="button" onclick="importarBilheteTexto()" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2 font-mono">
+            <span>⚡</span> PROCESSAR E SALVAR NA CARTEIRA
+          </button>
+        </div>
+        <div id="container-sugestao-inteligente" class="hidden transition-all duration-300"></div>
+      </div>
+
       <!-- BARRA DE CONTROLE INTELIGENTE: FILTROS + MODO AGRUPADO POR CONCURSO -->
       <div class="bg-slate-900 border border-slate-800 p-3 rounded-2xl space-y-2.5 shadow font-sans">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
@@ -1215,40 +1240,6 @@
         </div>
       </div>
 
-      <!-- Importador Inteligente de Apostas com Autocompletar por IA -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-        <div class="flex items-center justify-between">
-          <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5 font-mono">
-            <span>📥</span> Importador Inteligente de Apostas
-          </h3>
-          <span class="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800">
-            ✨ Autocompletar por IA
-          </span>
-        </div>
-        <p class="text-[11px] text-slate-400 font-sans">
-          Cole bilhetes do WhatsApp, comprovantes ou jogos incompletos. Se faltar dezenas para a aposta mínima, a IA sugere os melhores números estatísticos.
-        </p>
-        <div class="space-y-2 font-mono">
-          <div class="flex flex-col sm:flex-row gap-2">
-            <div class="sm:w-1/3">
-              <label class="block text-[10px] text-slate-400 mb-1 font-sans">Data do Sorteio (Opcional):</label>
-              <input id="input-import-data" type="date" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500" />
-            </div>
-            <div class="sm:w-2/3">
-              <label class="block text-[10px] text-slate-400 mb-1 font-sans">Texto ou Dezenas da Aposta:</label>
-              <textarea id="input-scanner-texto" rows="2" placeholder="Ex: 04 15 23 38 54 ou cole do WhatsApp..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 font-mono resize-none"></textarea>
-            </div>
-          </div>
-        </div>
-
-        <button onclick="importarBilheteTexto()" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-mono font-bold text-xs rounded-xl shadow-lg transition active:scale-[0.99] flex items-center justify-center gap-2">
-          <span>⚡</span> Processar e Salvar na Carteira
-        </button>
-
-        <!-- Container de Sugestão Inteligente (Exibido dinamicamente se faltar dezena) -->
-        <div id="container-sugestao-inteligente" class="hidden transition-all duration-300"></div>
-      </div>
-
       </div> <!-- Fim da gaveta de ferramentas -->
 
       <!-- SCANNER DE APOSTAS EM LOTE (AUDITORIA EM MASSA NASA) -->
@@ -1268,11 +1259,16 @@
 
         <div class="space-y-1.5">
           <textarea id="textarea-scanner-lote" rows="3" placeholder="Cole aqui seus jogos (um por linha)...&#10;Exemplo:&#10;05 12 24 35 48 59&#10;01 02 03 04 05 06" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 font-mono focus:outline-none focus:border-cyan-500"></textarea>
-          <div class="flex justify-between items-center pt-1">
-            <span class="text-[10px] text-slate-500 font-sans">Separe os números por espaço ou vírgula</span>
-            <button type="button" onclick="executarScannerEmLote()" class="px-3.5 py-2 btn-rocket-launch text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center gap-1.5">
-              <span>🔍</span> ESCANEAR APOSTAS
-            </button>
+          <div class="flex flex-wrap justify-between items-center gap-2 pt-1 font-sans">
+            <span class="text-[10px] text-slate-500">Separe os números por espaço ou vírgula</span>
+            <div class="flex gap-2">
+              <button type="button" onclick="importarJogosDoScannerLote()" class="px-3.5 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center gap-1.5" title="Salvar diretamente na Carteira todos os jogos colados">
+                <span>📥</span> SALVAR NA CARTEIRA
+              </button>
+              <button type="button" onclick="executarScannerEmLote()" class="px-3.5 py-2 btn-rocket-launch text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center gap-1.5">
+                <span>🔍</span> ESCANEAR APOSTAS
+              </button>
+            </div>
           </div>
         </div>
 
@@ -2264,8 +2260,8 @@
 
   </main>
 
-  <script src="./js/app.js?v=18.0"></script>
-  <script src="js/whatsapp-share.js?v=18.0"></script>
-  <script src="js/cockpit-inicio.js?v=18.0"></script>
+  <script src="./js/app.js?v=18.2"></script>
+  <script src="js/whatsapp-share.js?v=18.2"></script>
+  <script src="js/cockpit-inicio.js?v=18.2"></script>
 </body>
 </html>

@@ -32,7 +32,55 @@
   };
 
   window.filtrarCarteiraBusca = function (texto) {
-    window.carteiraFiltros.busca = (texto || '').toLowerCase().trim();
+    const limpo = (texto || '').trim();
+    const ehMensagemCompleta = limpo.includes('JOGOS') || limpo.includes('Jogo #') || limpo.includes('👉') || (limpo.split(/\n/).length >= 2) || (limpo.match(/\d+/g) || []).length >= 10;
+    
+    let avisoBox = document.getElementById('aviso-busca-jogos-colados');
+    if (ehMensagemCompleta) {
+      if (typeof window.parsearJogosTextoCompleto === 'function') {
+        const res = window.parsearJogosTextoCompleto(limpo);
+        if (res.jogos && res.jogos.length > 0) {
+          if (!avisoBox) {
+            const inputBusca = document.querySelector('input[oninput*="filtrarCarteiraBusca"]');
+            if (inputBusca && inputBusca.parentElement) {
+              const div = document.createElement('div');
+              div.id = 'aviso-busca-jogos-colados';
+              div.className = 'mt-2 p-3 bg-emerald-950/90 border-2 border-emerald-500 rounded-2xl flex items-center justify-between gap-2 text-xs font-sans text-emerald-200 shadow-xl';
+              div.innerHTML = `
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="text-lg">📥</span>
+                  <span class="truncate">Identificamos <b>${res.jogos.length} jogos</b> colados aqui!</span>
+                </div>
+                <button type="button" onclick="salvarApostasDaBuscaRapida()" class="px-3 py-1.5 bg-gradient-to-r from-emerald-400 to-teal-400 hover:from-emerald-300 hover:to-teal-300 text-slate-950 font-black rounded-xl text-xs shrink-0 shadow active:scale-95 transition">
+                  Salvar na Carteira
+                </button>
+              `;
+              inputBusca.parentElement.appendChild(div);
+            }
+          }
+          return;
+        }
+      }
+    }
+    if (avisoBox) avisoBox.remove();
+    window.carteiraFiltros.busca = limpo.toLowerCase();
+    window.atualizarPainelCarteira();
+  };
+
+  window.salvarApostasDaBuscaRapida = function () {
+    const inputBusca = document.querySelector('input[oninput*="filtrarCarteiraBusca"]');
+    const texto = inputBusca?.value || '';
+    if (typeof window.salvarApostasNaCarteiraAPartirDeTexto === 'function') {
+      window.salvarApostasNaCarteiraAPartirDeTexto(texto);
+    } else if (typeof window.importarBilheteTexto === 'function') {
+      const inputScanner = document.getElementById('input-scanner-texto');
+      if (inputScanner) inputScanner.value = texto;
+      window.importarBilheteTexto();
+    }
+    if (inputBusca) inputBusca.value = '';
+    window.carteiraFiltros.busca = '';
+    const avisoBox = document.getElementById('aviso-busca-jogos-colados');
+    if (avisoBox) avisoBox.remove();
     window.atualizarPainelCarteira();
   };
 

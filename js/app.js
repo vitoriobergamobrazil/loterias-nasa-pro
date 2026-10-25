@@ -306,7 +306,7 @@
 
       // Registrar Service Worker com Verificação Imediata de Atualizações
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js?v=25', { scope: './' })
+        navigator.serviceWorker.register('./sw.js?v=26', { scope: './' })
           .then((reg) => {
             console.log('[NASA Pro] Service Worker registrado. Verificando atualizações...');
             reg.update(); // força verificação no servidor imediatamente
@@ -4093,6 +4093,54 @@ function abrirModalDialog(msg, callback) {
       toast(`${aprovadas.length} jogos aprovados salvos na carteira!`, '💾');
     }
 
+    function salvarApostasNaCarteiraAPartirDeTexto(texto) {
+      if (!texto || !texto.trim()) {
+        toast("Cole ou informe o texto das apostas.", "⚠️");
+        return 0;
+      }
+      const res = parsearJogosTextoCompleto(texto);
+      if (!res.jogos || res.jogos.length === 0) {
+        toast("Nenhum jogo identificado no texto. Verifique as dezenas.", "⚠️");
+        return 0;
+      }
+      const mod = res.modalidadeDetectada || (res.jogos[0].length >= 15 ? 'lotofacil' : modalidadeAtual);
+      const precoBase = mod === 'lotofacil' ? 3.0 : 5.0;
+      const dataFinal = res.data || (typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).data : new Date().toLocaleDateString('pt-BR'));
+      const concFinal = res.concurso || (typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).concurso : 'Oficial');
+
+      res.jogos.forEach((dez, idx) => {
+        carteiraJogos.unshift({
+          id: Date.now() + idx + Math.random(),
+          modalidade: mod,
+          nome: `${mod === 'lotofacil' ? 'Lotofácil' : 'Mega-Sena'} • Jogo #${idx + 1} (${dez.length} dez)`,
+          dezenas: dez,
+          data: dataFinal,
+          concursoAlvo: concFinal,
+          custo: precoBase,
+          premioGanho: 0,
+          conferido: false,
+          status: 'Aguardando sorteio',
+          registradoComoJogado: true,
+          dataRegistro: new Date().toISOString()
+        });
+      });
+
+      salvarCarteiraStorage();
+      atualizarPainelCarteira();
+      tocarSomNasa('sucesso');
+      toast(`✅ ${res.jogos.length} aposta(s) salvas com sucesso para o concurso ${concFinal}!`, "🎉");
+      return res.jogos.length;
+    }
+
+    function importarJogosDoScannerLote() {
+      const input = document.getElementById('textarea-scanner-lote')?.value.trim();
+      if (!input) {
+        toast('Cole ao menos um jogo ou mensagem no campo.', '⚠️');
+        return;
+      }
+      salvarApostasNaCarteiraAPartirDeTexto(input);
+    }
+
     // Funções Utilitárias de Compatibilidade e Avaliação Estatística
     function salvarCarteiraNoStorage() {
       salvarCarteiraStorage();
@@ -5130,6 +5178,9 @@ function abrirModalDialog(msg, callback) {
     window.toast = toast;
     window.sincronizarCarteiraNuvem = sincronizarCarteiraNuvem;
     window.aplicarOrcamentoInteligente = aplicarOrcamentoInteligente;
+    window.importarBilheteTexto = importarBilheteTexto;
+    window.salvarApostasNaCarteiraAPartirDeTexto = salvarApostasNaCarteiraAPartirDeTexto;
+    window.importarJogosDoScannerLote = importarJogosDoScannerLote;
 
 
 
