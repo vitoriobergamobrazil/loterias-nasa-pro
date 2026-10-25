@@ -294,9 +294,21 @@
         const badgeCor = isMega 
           ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' 
           : 'bg-purple-950 text-purple-400 border border-purple-800';
-        const statusBadge = g.totalPremio > 0 
-          ? `<span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700 text-[10px] font-black">🏆 ${g.premiadosCount} Premiado(s) • ${fmtBRL(g.totalPremio)}</span>`
-          : `<span class="px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 border border-slate-800 text-[10px] font-bold">⏳ Aguardando Sorteio</span>`;
+        const todosConferidos = g.bilhetes.every(b => b.conferido);
+        const algumConferido = g.bilhetes.some(b => b.conferido);
+        const ehPassado = g.data ? (typeof dataBRNoFuturo === 'function' ? !dataBRNoFuturo(g.data) : true) : false;
+
+        let statusBadge = '';
+        if (g.totalPremio > 0) {
+          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-black">🏆 ${g.premiadosCount} Premiado(s) • ${fmtBRL(g.totalPremio)}</span>`;
+        } else if (todosConferidos || algumConferido) {
+          const totalAcertos = g.bilhetes.reduce((s, b) => s + (b.acertos || 0), 0);
+          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 text-[10px] font-bold">Conferido • ${totalAcertos} acerto(s)</span>`;
+        } else if (ehPassado) {
+          statusBadge = `<button type="button" onclick="conferirTodosBilhetesSalvos()" class="px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 text-[10px] font-black transition flex items-center gap-1 shadow">⚡ Sorteio Realizado • Conferir</button>`;
+        } else {
+          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-slate-900 text-slate-400 border border-slate-800 text-[10px] font-bold">⏳ Aguardando Sorteio Oficial</span>`;
+        }
 
         return `
           <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-lg transition">
@@ -344,15 +356,36 @@
             ${aberto ? `
               <div class="p-2 sm:p-3 space-y-1.5 bg-slate-950/40">
                 ${g.bilhetes.map((b, idx) => {
+                  const dezenasSorteadas = (b.dezenasSorteadas || []).map(Number);
+                  const foiConferido = Boolean(b.conferido || b.acertos !== undefined);
+                  const acertos = b.acertos !== undefined ? b.acertos : (dezenasSorteadas.length > 0 ? (b.dezenas || []).filter(d => dezenasSorteadas.includes(Number(d))).length : null);
                   return `
-                    <div class="p-2.5 bg-slate-900 rounded-xl border border-slate-800/80 flex items-center justify-between gap-2 flex-wrap text-xs">
+                    <div class="p-2.5 bg-slate-900 rounded-xl border ${b.premioGanho > 0 ? 'border-emerald-500/80 bg-emerald-950/20' : 'border-slate-800/80'} flex items-center justify-between gap-2 flex-wrap text-xs">
                       <div class="flex items-center gap-2">
                         <span class="font-black text-slate-500 font-mono text-[11px]">#${idx + 1}</span>
                         <div class="flex flex-wrap gap-1">
-                          ${b.dezenas.map(d => `<span class="w-5 h-5 rounded text-[9px] font-bold bg-slate-800 text-slate-200 border border-slate-700/60 flex items-center justify-center font-mono">${String(d).padStart(2,'0')}</span>`).join('')}
+                          ${b.dezenas.map(d => {
+                            const acertou = dezenasSorteadas.includes(Number(d));
+                            return `<span class="w-6 h-6 rounded text-[9px] font-bold flex items-center justify-center font-mono transition ${
+                              acertou
+                                ? 'bg-emerald-500 text-slate-950 font-black scale-105 shadow-md shadow-emerald-500/40 border border-white'
+                                : 'bg-slate-800 text-slate-200 border border-slate-700/60'
+                            }">${String(d).padStart(2,'0')}</span>`;
+                          }).join('')}
                         </div>
                       </div>
                       <div class="flex items-center gap-2">
+                        ${foiConferido && acertos !== null ? `
+                          <span class="px-2 py-0.5 rounded-lg text-[10px] font-black ${
+                            b.premioGanho > 0 
+                              ? 'bg-emerald-500 text-slate-950 shadow' 
+                              : acertos >= 4 
+                                ? 'bg-cyan-950 text-cyan-300 border border-cyan-800' 
+                                : 'bg-slate-800 text-slate-400 border border-slate-700'
+                          }">
+                            ${acertos} acerto(s)
+                          </span>
+                        ` : ''}
                         ${b.premioGanho > 0 ? `<span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 font-bold text-[10px]">+${fmtBRL(b.premioGanho)}</span>` : ''}
                         <button type="button" onclick="carregarBilheteNoVolante('${b.id}')" class="text-cyan-400 hover:text-cyan-300 text-[11px] font-bold px-2 py-1 bg-slate-800 rounded-lg border border-slate-700" title="Ver no volante">
                           🎯 Volante

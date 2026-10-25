@@ -36,7 +36,7 @@
   <!-- Sorteios Reais (Real lottery data via APIs) -->
   <script src="./js/sorteios-reais.js" defer></script>
   <!-- Conferência de bilhetes contra o resultado oficial da Caixa -->
-  <script src="./js/conferencia-real.js" defer></script>
+  <script src="./js/conferencia-real.js?v=18.3" defer></script>
   <!-- Histórico oficial de concursos (base das análises estatísticas) -->
   <script src="./js/historico-real.js" defer></script>
   <!-- Assinatura: o servidor decide quem é PRO -->
@@ -52,7 +52,7 @@
   <!-- Programa dos 20 Testadores VIP Google Play -->
   <script src="./js/testadores-vip.js" defer></script>
   <!-- Gestão de Carteira em Lotes (High-Capacity UX) -->
-  <script src="./js/carteira-gestao.js?v=18.2" defer></script>
+  <script src="./js/carteira-gestao.js?v=18.3" defer></script>
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -1048,6 +1048,58 @@
       <!-- COLUNA 1 (DESKTOP ESQUERDA): TELEMETRIA FINANCEIRA, FERRAMENTAS & IMPORTADORES -->
       <div class="lg:col-span-5 space-y-4 lg:sticky lg:top-24">
 
+      <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
+        <div class="flex justify-between items-center font-mono">
+          <div>
+            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">SEUS BILHETES E RESULTADOS</span>
+            <h2 class="text-base font-black text-white font-sans">Minha carteira</h2>
+          </div>
+          <button onclick="conferirTodosBilhetesSalvos()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition">
+            ⚡ CONFERIR TUDO
+          </button>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block font-sans">Total Investido</span>
+            <strong id="banca-investido" class="text-rose-400 text-sm block mt-0.5">R$ 0,00</strong>
+          </div>
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block font-sans">Total Prêmios</span>
+            <strong id="banca-premios" class="text-emerald-400 text-sm block mt-0.5">R$ 0,00</strong>
+          </div>
+          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block font-sans">Lucro Líquido</span>
+            <strong id="banca-lucro" class="text-cyan-400 text-sm block mt-0.5">R$ 0,00</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMPORTADOR PROMINENTE DE APOSTAS DO WHATSAPP OU TEXTO (SEMPRE VISÍVEL) -->
+      <div id="card-importador-apostas" class="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 border-2 border-cyan-500/60 rounded-3xl p-4 sm:p-5 space-y-3 font-sans shadow-xl">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">📥</span>
+            <div>
+              <h3 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider font-mono">Colar Apostas do WhatsApp ou Texto</h3>
+              <p class="text-[10px] text-slate-400">Cole mensagens de bolão, palpites do robô ou sequências. O concurso e dezenas são identificados na hora.</p>
+            </div>
+          </div>
+          <span class="px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 text-[9px] font-mono font-bold">
+            ⚡ 1-Clique
+          </span>
+        </div>
+
+        <div class="space-y-2">
+          <textarea id="input-scanner-texto" rows="3" placeholder="Cole aqui sua mensagem do WhatsApp ou dezenas...&#10;Ex: Jogo #1: 02 - 22 - 23 - 31 - 51 - 59&#10;Jogo #2: 04 - 09 - 17 - 18 - 34 - 58" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono"></textarea>
+          
+          <button type="button" onclick="importarBilheteTexto()" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2 font-mono">
+            <span>⚡</span> PROCESSAR E SALVAR NA CARTEIRA
+          </button>
+        </div>
+        <div id="container-sugestao-inteligente" class="hidden transition-all duration-300"></div>
+      </div>
+
       <!-- TELEMETRIA DO CALENDÁRIO OFICIAL DAS LOTERIAS CAIXA -->
       <div class="bg-gradient-to-r from-slate-900 via-cyan-950/30 to-slate-900 border border-cyan-800/50 rounded-3xl p-4 sm:p-5 shadow-xl font-mono">
         <div class="flex flex-wrap justify-between items-center gap-2 pb-3 border-b border-slate-800">
@@ -1103,58 +1155,6 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
-        <div class="flex justify-between items-center font-mono">
-          <div>
-            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">SEUS BILHETES E RESULTADOS</span>
-            <h2 class="text-base font-black text-white font-sans">Minha carteira</h2>
-          </div>
-          <button onclick="conferirTodosBilhetesSalvos()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition">
-            ⚡ CONFERIR TUDO
-          </button>
-        </div>
-
-        <div class="grid grid-cols-3 gap-2 text-center text-xs font-mono">
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 block font-sans">Total Investido</span>
-            <strong id="banca-investido" class="text-rose-400 text-sm block mt-0.5">R$ 0,00</strong>
-          </div>
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 block font-sans">Total Prêmios</span>
-            <strong id="banca-premios" class="text-emerald-400 text-sm block mt-0.5">R$ 0,00</strong>
-          </div>
-          <div class="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
-            <span class="text-[10px] text-slate-400 block font-sans">Lucro Líquido</span>
-            <strong id="banca-lucro" class="text-cyan-400 text-sm block mt-0.5">R$ 0,00</strong>
-          </div>
-        </div>
-      </div>
-
-      <!-- IMPORTADOR PROMINENTE DE APOSTAS DO WHATSAPP OU TEXTO (SEMPRE VISÍVEL) -->
-      <div id="card-importador-apostas" class="bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/40 border-2 border-cyan-500/60 rounded-3xl p-4 sm:p-5 space-y-3 font-sans shadow-xl">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="text-xl">📥</span>
-            <div>
-              <h3 class="text-xs sm:text-sm font-black text-white uppercase tracking-wider font-mono">Colar Apostas do WhatsApp ou Texto</h3>
-              <p class="text-[10px] text-slate-400">Cole mensagens de bolão, palpites do robô ou sequências. O concurso e dezenas são identificados na hora.</p>
-            </div>
-          </div>
-          <span class="px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800 text-[9px] font-mono font-bold">
-            ⚡ 1-Clique
-          </span>
-        </div>
-
-        <div class="space-y-2">
-          <textarea id="input-scanner-texto" rows="3" placeholder="Cole aqui sua mensagem do WhatsApp ou dezenas...&#10;Ex: Jogo #1: 02 - 22 - 23 - 31 - 51 - 59&#10;Jogo #2: 04 - 09 - 17 - 18 - 34 - 58" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono"></textarea>
-          
-          <button type="button" onclick="importarBilheteTexto()" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2 font-mono">
-            <span>⚡</span> PROCESSAR E SALVAR NA CARTEIRA
-          </button>
-        </div>
-        <div id="container-sugestao-inteligente" class="hidden transition-all duration-300"></div>
       </div>
 
       <!-- BARRA DE CONTROLE INTELIGENTE: FILTROS + MODO AGRUPADO POR CONCURSO -->
@@ -2260,7 +2260,7 @@
 
   </main>
 
-  <script src="./js/app.js?v=18.2"></script>
+  <script src="./js/app.js?v=18.3"></script>
   <script src="js/whatsapp-share.js?v=18.2"></script>
   <script src="js/cockpit-inicio.js?v=18.2"></script>
 </body>

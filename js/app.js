@@ -2548,6 +2548,10 @@ function gerarPalpiteInteligente() {
 
       atualizarCalibracaoPortfolio();
 
+      if (typeof conferirSorteiosPassadosAutomatico === 'function') {
+        conferirSorteiosPassadosAutomatico();
+      }
+
       if (carteiraJogos.length === 0) {
         container.innerHTML = '<p class="text-xs text-slate-500 text-center py-6 font-mono">Nenhum bilhete registrado na carteira.</p>';
         return;
@@ -2558,8 +2562,10 @@ function gerarPalpiteInteligente() {
       container.innerHTML = carteiraJogos.map((b) => {
         const analise = avaliarJogo(b.dezenas, b.modalidade || modalidadeAtual);
         const aberto = !!carteiraDetalhesAbertos[b.id];
+        const dezenasSorteadas = (b.dezenasSorteadas || []).map(Number);
+        const ehPassado = b.data ? (typeof dataBRNoFuturo === 'function' ? !dataBRNoFuturo(b.data) : true) : false;
         return `
-          <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 space-y-2 text-xs font-mono">
+          <div class="p-3 bg-slate-950 rounded-2xl border ${b.premioGanho > 0 ? 'border-emerald-500/80 bg-emerald-950/20' : 'border-slate-800'} space-y-2 text-xs font-mono">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
                 <div class="flex items-center gap-1.5 mb-1.5 flex-wrap">
@@ -2568,10 +2574,13 @@ function gerarPalpiteInteligente() {
                   <span class="text-[9px] px-1.5 py-0.5 rounded font-bold ${analise.aprovadosCount === 6 ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-amber-950 text-amber-300 border border-amber-800'}">
                     Score: ${analise.score}/100 (${analise.aprovadosCount}/6 OK)
                   </span>
-                  ${b.conferido ? `<span class="text-[9px] font-bold ${b.premioGanho > 0 ? 'text-emerald-400' : 'text-slate-500'}">${b.status}</span>` : '<span class="text-[9px] text-amber-400 font-bold bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-900">Aguardando Sorteio</span>'}
+                  ${b.conferido ? `<span class="text-[9px] font-bold ${b.premioGanho > 0 ? 'text-emerald-400 font-black' : 'text-slate-400'}">${b.status}</span>` : (ehPassado ? '<span class="text-[9px] text-amber-300 font-bold bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800">Sorteio Realizado</span>' : '<span class="text-[9px] text-slate-400 font-bold bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800">Aguardando Sorteio</span>')}
                 </div>
                 <div class="flex flex-wrap gap-1">
-                  ${b.dezenas.map(d => `<span class="w-5 h-5 rounded text-[9px] font-bold bg-slate-800 text-slate-200 flex items-center justify-center">${String(d).padStart(2,'0')}</span>`).join('')}
+                  ${b.dezenas.map(d => {
+                    const acertou = dezenasSorteadas.includes(Number(d));
+                    return `<span class="w-5 h-5 rounded text-[9px] font-bold flex items-center justify-center font-mono ${acertou ? 'bg-emerald-500 text-slate-950 font-black border border-white scale-105 shadow' : 'bg-slate-800 text-slate-200'}">${String(d).padStart(2,'0')}</span>`;
+                  }).join('')}
                 </div>
               </div>
               <div class="flex items-center gap-1.5 self-end sm:self-center flex-wrap">

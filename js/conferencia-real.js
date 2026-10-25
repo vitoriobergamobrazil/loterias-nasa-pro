@@ -42,19 +42,38 @@ const STATUS = {
 // Evita repetir a mesma consulta para vários bilhetes da mesma data.
 const cacheResultados = new Map();
 
-async function obterResultadoOficial(modalidade, dataBR) {
-  const chave = `${modalidade}|${dataBR}`;
+async function obterResultadoOficial(modalidade, dataBR, concursoNum) {
+  const chave = `${modalidade}|${concursoNum || dataBR}`;
   if (cacheResultados.has(chave)) return cacheResultados.get(chave);
 
-  // Consulta direta ao portal da Caixa: ele libera CORS e responde ao
-  // navegador do usuário, que está no Brasil. A Edge Function equivalente
-  // não serve aqui porque a Caixa recusa conexão dos datacenters do Supabase.
-  const resultado =
-    typeof buscarConcursoPorData === 'function'
-      ? await buscarConcursoPorData(modalidade, dataBR)
-      : null;
+  // 1. Tenta achar na baseConcursos em memória primeiro (ultra-rápido, sem rede)
+  const base = modalidade === 'megasena' ? (window.baseConcursosMega || []) : (window.baseConcursosLoto || []);
+  let encontrado = null;
+  if (concursoNum) {
+    const num = Number(String(concursoNum).replace(/\D/g, ''));
+    if (num > 0) encontrado = base.find(c => Number(c.concurso) === num);
+  }
+  if (!encontrado && dataBR) {
+    encontrado = base.find(c => c.data === dataBR);
+  }
+  if (encontrado && Array.isArray(encontrado.dezenas) && encontrado.dezenas.length > 0) {
+    cacheResultados.set(chave, encontrado);
+    return encontrado;
+  }
 
-  cacheResultados.set(chave, resultado);
+  // 2. Se não achou na memória, busca via API da Caixa por número de concurso ou data
+  let resultado = null;
+  if (concursoNum && window.caixaApi && typeof window.caixaApi.ultimo === 'function') {
+    const num = Number(String(concursoNum).replace(/\D/g, ''));
+    if (num > 0) {
+      resultado = await window.caixaApi.ultimo(modalidade, num).catch(() => null);
+    }
+  }
+  if (!resultado && typeof buscarConcursoPorData === 'function') {
+    resultado = await buscarConcursoPorData(modalidade, dataBR).catch(() => null);
+  }
+
+  if (resultado) cacheResultados.set(chave, resultado);
   return resultado;
 }
 
@@ -63,7 +82,7 @@ function dataBRNoFuturo(dataBR) {
   if (!partes) return false;
 
   const [, dia, mes, ano] = partes;
-  const alvo = new Date(Number(ano), Number(mes) - 1, Number(dia), 23, 59, 59);
+  const alvo = new Date(Number(ano), Number(mes) - 1, Number(dia), 20, 0, 0);
   return alvo.getTime() > Date.now();
 }
 
@@ -73,8 +92,8 @@ function premioDaFaixa(resultado, acertos) {
 }
 
 function avaliarBilhete(bilhete, resultado) {
-  const sorteadas = resultado.dezenas || [];
-  const acertos = sorteadas.filter((d) => bilhete.dezenas.includes(d)).length;
+  const sorteadas = (resultado.dezenas || []).map(Number);
+  const acertos = sorteadas.filter((d) => (bilhete.dezenas || []).map(Number).includes(d)).length;
   const faixas = FAIXAS_PREMIACAO[bilhete.modalidade] || [];
   const faixa = faixas.find((f) => f.acertos === acertos);
 
@@ -83,7 +102,7 @@ function avaliarBilhete(bilhete, resultado) {
     dezenasSorteadas: sorteadas,
     concursoConferido: resultado.concurso,
     premioGanho: faixa ? premioDaFaixa(resultado, acertos) : 0,
-    status: faixa ? faixa.rotulo : STATUS.naoPremiado,
+    status: faixa ? faixa.rotulo : `${acertos} acertos (Não premiado)`,
     premiado: Boolean(faixa)
   };
 }
@@ -113,10 +132,11 @@ async function conferirTodosBilhetesSalvos() {
       continue;
     }
 
-    const resultado = await obterResultadoOficial(bilhete.modalidade, bilhete.data);
+    const numConc = bilhete.concursoAlvo ? Number(String(bilhete.concursoAlvo).replace(/\D/g, '')) : null;
+    const resultado = await obterResultadoOficial(bilhete.modalidade, bilhete.data, numConc);
 
     if (!resultado) {
-      // Sem resultado oficial não se afirma nada sobre o bilhete.
+      // Sem resultado oficial ainda
       bilhete.conferido = false;
       bilhete.status = STATUS.indisponivel;
       bilhete.premioGanho = 0;
@@ -192,8 +212,41 @@ function montarRegistroConcurso(resultado) {
   return registro;
 }
 
+let conferindoAutomatico = false;
+async function conferirSorteiosPassadosAutomatico() {
+  if (conferindoAutomatico || !Array.isArray(carteiraJogos) || carteiraJogos.length === 0) return;
+  const pendentes = carteiraJogos.filter(b => !b.conferido && !dataBRNoFuturo(b.data));
+  if (pendentes.length === 0) return;
+
+  conferindoAutomatico = true;
+  let alterou = false;
+
+  for (const bilhete of pendentes) {
+    const numConc = bilhete.concursoAlvo ? Number(String(bilhete.concursoAlvo).replace(/\D/g, '')) : null;
+    const resultado = await obterResultadoOficial(bilhete.modalidade, bilhete.data, numConc);
+    if (resultado) {
+      const avaliacao = avaliarBilhete(bilhete, resultado);
+      bilhete.conferido = true;
+      bilhete.status = avaliacao.status;
+      bilhete.premioGanho = avaliacao.premioGanho;
+      bilhete.acertos = avaliacao.acertos;
+      bilhete.concursoConferido = avaliacao.concursoConferido;
+      bilhete.dezenasSorteadas = avaliacao.dezenasSorteadas;
+      alterou = true;
+    }
+  }
+
+  conferindoAutomatico = false;
+  if (alterou) {
+    salvarCarteiraStorage();
+    if (typeof atualizarPainelCarteira === 'function') atualizarPainelCarteira();
+  }
+}
+window.conferirSorteiosPassadosAutomatico = conferirSorteiosPassadosAutomatico;
+
 window.conferencia = {
   conferir: conferirTodosBilhetesSalvos,
+  conferirAutomatico: conferirSorteiosPassadosAutomatico,
   resultado: obterResultadoOficial,
   ultimo: obterUltimoResultadoOficial,
   limparCache: () => cacheResultados.clear()
