@@ -847,85 +847,440 @@ html:not(.dark) .nasa-jackpot-hero {
 }
 
 /* ========== DESKTOP / TABLET GRANDE (ACIMA DE 1024PX - CENTRO DE COMANDO NASA) ========== */
-.nasa-desktop-nav {
+/* Botão de Tema no Header Mobile */
+.nasa-theme-chip {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.nasa-theme-chip:hover {
+  border-color: #f59e0b;
+  transform: scale(1.05);
+}
+html:not(.dark) .nasa-theme-chip {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #d97706;
+}
+
+/* =========================================================================
+   BARRA LATERAL DESKTOP (COCKPIT NASA - TELAS >= 1024PX)
+   ========================================================================= */
+.nasa-desktop-sidebar {
   display: none;
 }
 
 @media (min-width: 1024px) {
-  .nasa-desktop-nav {
+  .nasa-desktop-sidebar {
     display: flex !important;
-    align-items: center;
-    gap: 0.35rem;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 260px;
+    background: rgba(9, 13, 22, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(51, 65, 85, 0.8);
+    padding: 1.25rem 1rem;
+    z-index: 50;
+    overflow-y: auto;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
   }
 
-  .nasa-desktop-nav-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.45rem 0.8rem;
-    border-radius: 12px;
-    background: rgba(15, 23, 42, 0.7);
-    border: 1px solid rgba(51, 65, 85, 0.7);
-    color: #94a3b8;
-    font-size: 0.8rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.18s ease;
-    white-space: nowrap;
-  }
-
-  .nasa-desktop-nav-btn:hover {
-    color: #ffffff;
-    border-color: rgba(56, 189, 248, 0.6);
-    background: rgba(15, 23, 42, 0.95);
-    transform: translateY(-1px);
-  }
-
-  .nasa-desktop-nav-btn.active {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.25));
-    border-color: #10b981;
-    color: #ffffff;
-    font-weight: 900;
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
-  }
-
-  html.lotofacil-mode .nasa-desktop-nav-btn.active {
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25));
-    border-color: #a855f7;
-    box-shadow: 0 0 12px rgba(168, 85, 247, 0.25);
-  }
-
-  /* No Desktop, a barra mobile inferior dá lugar à navegação de topo aeroespacial */
+  /* Oculta o header mobile e a barra de polegar no desktop */
+  html.redesign header,
+  #nasa-unified-topbar,
   #bottom-tab-bar {
     display: none !important;
   }
 
-  #nasa-unified-topbar {
-    max-width: 1280px !important;
-    padding: 0.6rem 1.5rem !important;
-  }
-
+  /* Expande o conteúdo para o resto da tela widescreen */
   html.redesign main {
-    max-width: 1280px !important;
-    padding-left: 1.5rem !important;
-    padding-right: 1.5rem !important;
-    padding-bottom: 3rem !important;
+    margin-left: 260px !important;
+    max-width: calc(100vw - 260px) !important;
+    width: calc(100vw - 260px) !important;
+    padding: 1.75rem 2.5rem 4rem 2.5rem !important;
+    min-height: 100vh;
   }
 
   html.redesign footer {
-    max-width: 1280px !important;
-    padding-left: 1.5rem !important;
-    padding-right: 1.5rem !important;
+    margin-left: 260px !important;
+    max-width: calc(100vw - 260px) !important;
+    padding: 1.5rem 2.5rem !important;
   }
 
-  /* No desktop, o layout 12 colunas já exibe gerador e volante lado a lado */
   #nasa-seg-gerar {
     display: none !important;
   }
 
-  /* Grade de ferramentas rápidas expandida em 4 colunas */
   .nasa-quick-tools-grid {
     grid-template-columns: repeat(4, 1fr) !important;
     gap: 0.85rem !important;
   }
+}
+
+/* Elementos Internos da Sidebar */
+.sidebar-brand-box {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 1.25rem;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.sidebar-brand-box:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.sidebar-brand-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.3));
+  border: 1px solid rgba(16, 185, 129, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
+}
+.sidebar-brand-text {
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-brand-title {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.03em;
+}
+.sidebar-brand-sub {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #38bdf8;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+.sidebar-version-badge {
+  margin-left: auto;
+  font-size: 0.65rem;
+  font-family: monospace;
+  font-weight: 800;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+}
+
+.sidebar-mod-selector {
+  margin-bottom: 1.25rem;
+}
+.sidebar-mod-pill {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+}
+.sidebar-mod-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.4rem;
+  border-radius: 10px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.sidebar-mod-btn.active-mega {
+  background: linear-gradient(135deg, #10b981, #06b6d4);
+  color: #020617;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.3);
+}
+.sidebar-mod-btn.active-loto {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  color: #ffffff;
+  box-shadow: 0 2px 10px rgba(168, 85, 247, 0.35);
+}
+
+.sidebar-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+}
+.sidebar-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  width: 100%;
+}
+.sidebar-nav-btn:hover {
+  background: rgba(30, 41, 59, 0.6);
+  color: #ffffff;
+  border-color: rgba(51, 65, 85, 0.7);
+  transform: translateX(2px);
+}
+.sidebar-nav-btn.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(6, 182, 212, 0.18));
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #ffffff;
+  font-weight: 900;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.15);
+}
+html.lotofacil-mode .sidebar-nav-btn.active {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(236, 72, 153, 0.18));
+  border-color: rgba(168, 85, 247, 0.5);
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.15);
+}
+.sidebar-nav-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.sidebar-nav-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-nav-tag {
+  font-size: 0.62rem;
+  font-family: monospace;
+  font-weight: 800;
+  padding: 0.12rem 0.4rem;
+  border-radius: 6px;
+  background: rgba(51, 65, 85, 0.6);
+  color: #94a3b8;
+}
+.sidebar-nav-btn.active .sidebar-nav-tag {
+  background: rgba(16, 185, 129, 0.3);
+  color: #6ee7b7;
+}
+.admin-tag {
+  background: rgba(245, 158, 11, 0.25) !important;
+  color: #fbbf24 !important;
+}
+
+.sidebar-lottery-card {
+  margin: 1rem 0;
+  padding: 0.85rem;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.95));
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.sidebar-lottery-card:hover {
+  border-color: #10b981;
+  transform: translateY(-1px);
+}
+.sidebar-lottery-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.3rem;
+}
+.sidebar-live-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulse 2s infinite;
+}
+.sidebar-lottery-prize {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.2rem;
+}
+.sidebar-lottery-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-bottom-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(51, 65, 85, 0.7);
+}
+.sidebar-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  border-radius: 12px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+.sidebar-action-btn:hover {
+  background: #1e293b;
+  border-color: #38bdf8;
+}
+.sidebar-profile-card {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 14px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.sidebar-profile-card:hover {
+  border-color: #f59e0b;
+}
+.sidebar-profile-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0284c7;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+.sidebar-profile-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.sidebar-profile-name {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sidebar-profile-badge {
+  font-size: 0.62rem;
+  color: #94a3b8;
+  font-family: monospace;
+}
+.master-badge {
+  color: #fbbf24 !important;
+  font-weight: 800 !important;
+}
+.vip-badge {
+  color: #34d399 !important;
+  font-weight: 800 !important;
+}
+.sidebar-profile-opt {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+/* ========== TEMA CLARO PARA SIDEBAR E ELEM. DESKTOP ========== */
+html:not(.dark) .nasa-desktop-sidebar {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 4px 0 20px rgba(15, 23, 42, 0.05) !important;
+}
+html:not(.dark) .sidebar-brand-title {
+  color: #0f172a !important;
+}
+html:not(.dark) .sidebar-mod-pill {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+html:not(.dark) .sidebar-mod-btn {
+  color: #475569 !important;
+}
+html:not(.dark) .sidebar-mod-btn.active-mega {
+  background: #10b981 !important;
+  color: #ffffff !important;
+}
+html:not(.dark) .sidebar-mod-btn.active-loto {
+  background: #a855f7 !important;
+  color: #ffffff !important;
+}
+html:not(.dark) .sidebar-nav-btn {
+  color: #475569 !important;
+}
+html:not(.dark) .sidebar-nav-btn:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+html:not(.dark) .sidebar-nav-btn.active {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: #10b981 !important;
+  color: #065f46 !important;
+}
+html:not(.dark) .sidebar-nav-tag {
+  background: #e2e8f0 !important;
+  color: #475569 !important;
+}
+html:not(.dark) .sidebar-lottery-card {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+html:not(.dark) .sidebar-lottery-prize {
+  color: #0f172a !important;
+}
+html:not(.dark) .sidebar-bottom-actions {
+  border-color: #e2e8f0 !important;
+}
+html:not(.dark) .sidebar-action-btn {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+html:not(.dark) .sidebar-action-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #0284c7 !important;
+}
+html:not(.dark) .sidebar-profile-card {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+html:not(.dark) .sidebar-profile-name {
+  color: #0f172a !important;
 }

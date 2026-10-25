@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
   subAbaGerarAtiva = window.innerWidth <= 640 ? 'rapido' : 'todos';
 
   criarTopbarUnificada();
+  criarSidebarDesktop();
   createBottomTabBar();
   createSimplifiedHome();
   criarDrawerPerfilConfig();
@@ -106,8 +107,11 @@ function criarTopbarUnificada() {
       </button>
     </nav>
 
-    <!-- Ações Rápidas: VIP/Créditos + Menu Perfil -->
+    <!-- Ações Rápidas: Tema + VIP/Créditos + Menu Perfil -->
     <div class="nasa-header-actions">
+      <button type="button" id="nasa-top-theme-btn" class="nasa-theme-chip" onclick="alternarTema();" title="Alternar Modo Claro / Escuro">
+        <span id="nasa-top-theme-icon">☀️</span>
+      </button>
       <button type="button" id="nasa-top-vip-btn" class="nasa-vip-chip" onclick="abrirModalPaywall('header')" title="Status do Plano e Créditos">
         <span id="nasa-top-vip-icon">⚡</span>
         <span id="nasa-top-vip-label">PRO</span>
@@ -119,6 +123,127 @@ function criarTopbarUnificada() {
   `;
 
   header.insertBefore(topbar, header.firstChild);
+}
+
+// ===================================================================
+// 1.1 SIDEBAR LATERAL DESKTOP (CENTRO DE COMANDO DEFINITIVO)
+// ===================================================================
+function criarSidebarDesktop() {
+  if (document.getElementById('nasa-desktop-sidebar')) return;
+
+  const sidebar = document.createElement('aside');
+  sidebar.id = 'nasa-desktop-sidebar';
+  sidebar.className = 'nasa-desktop-sidebar';
+  sidebar.setAttribute('aria-label', 'Centro de Comando NASA Desktop');
+
+  sidebar.innerHTML = `
+    <!-- Topo da Barra Lateral: Logo & Status -->
+    <div class="sidebar-brand-box" onclick="activateTab('home'); tocarBeep('click');" role="button" tabindex="0" title="Ir para o Cockpit Inicial">
+      <div class="sidebar-brand-icon">🚀</div>
+      <div class="sidebar-brand-text">
+        <span class="sidebar-brand-title">NASA PRO</span>
+        <span class="sidebar-brand-sub">COCKPIT ORBITAL</span>
+      </div>
+      <span class="sidebar-version-badge">v3.2</span>
+    </div>
+
+    <!-- Seletor de Modalidade (Mega-Sena / Lotofácil) -->
+    <div class="sidebar-mod-selector">
+      <div class="sidebar-mod-pill" role="tablist" aria-label="Escolha a loteria">
+        <button type="button" id="sidebar-pill-mega" class="sidebar-mod-btn active-mega" onclick="trocarModalidade('megasena'); tocarBeep('click');">
+          <span>🍀</span> <span>Mega-Sena</span>
+        </button>
+        <button type="button" id="sidebar-pill-loto" class="sidebar-mod-btn" onclick="trocarModalidade('lotofacil'); tocarBeep('click');">
+          <span>🟣</span> <span>Lotofácil</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Links de Navegação da Barra Lateral -->
+    <nav class="sidebar-nav-list" role="navigation" aria-label="Menu Principal">
+      <button type="button" class="sidebar-nav-btn active" data-tab="home" onclick="activateTab('home'); tocarBeep('click');">
+        <span class="sidebar-nav-icon">🚀</span>
+        <span class="sidebar-nav-label">Início (Dashboard)</span>
+        <span class="sidebar-nav-tag">Live</span>
+      </button>
+
+      <button type="button" class="sidebar-nav-btn" data-tab="gerar" onclick="activateTab('gerar'); tocarBeep('click');">
+        <span class="sidebar-nav-icon">🎯</span>
+        <span class="sidebar-nav-label">Gerador & Volante</span>
+        <span class="sidebar-nav-tag">6 Testes</span>
+      </button>
+
+      <button type="button" class="sidebar-nav-btn" data-tab="fechamentos" onclick="activateTab('fechamentos'); tocarBeep('click');">
+        <span class="sidebar-nav-icon">📐</span>
+        <span class="sidebar-nav-label">Fechamentos C(n,k)</span>
+        <span class="sidebar-nav-tag">Economia</span>
+      </button>
+
+      <button type="button" class="sidebar-nav-btn" data-tab="analise" onclick="activateTab('analise'); tocarBeep('click');">
+        <span class="sidebar-nav-icon">📊</span>
+        <span class="sidebar-nav-label">Estatísticas & Ciclos</span>
+        <span class="sidebar-nav-tag">Calor</span>
+      </button>
+
+      <button type="button" class="sidebar-nav-btn" data-tab="carteira" onclick="activateTab('carteira'); tocarBeep('click');">
+        <span class="sidebar-nav-icon">💼</span>
+        <span class="sidebar-nav-label">Minha Carteira</span>
+        <span class="sidebar-nav-tag js-progresso-bilhetes">0</span>
+      </button>
+
+      <button type="button" class="sidebar-nav-btn" data-tab="bolao" onclick="irParaCarteiraSubAba('bolao'); tocarBeep('click');">
+        <span class="sidebar-nav-icon">👥</span>
+        <span class="sidebar-nav-label">Bolões & Rateio</span>
+        <span class="sidebar-nav-tag">WhatsApp</span>
+      </button>
+
+      <button type="button" id="sidebar-nav-admin" class="sidebar-nav-btn hidden" data-tab="admin" onclick="mudarAba('admin'); tocarBeep('click');" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);">
+        <span class="sidebar-nav-icon">👑</span>
+        <span class="sidebar-nav-label font-black">Painel Admin</span>
+        <span class="sidebar-nav-tag admin-tag">Master</span>
+      </button>
+    </nav>
+
+    <!-- Mini Widget do Próximo Sorteio Oficial -->
+    <div class="sidebar-lottery-card" onclick="sincronizarConcursos(); tocarBeep('click');" role="button" tabindex="0" title="Clique para sincronizar resultados com a Caixa">
+      <div class="sidebar-lottery-header">
+        <span class="sidebar-live-indicator"></span>
+        <span id="sidebar-lottery-name" class="font-bold text-[11px] text-emerald-400">MEGA-SENA</span>
+        <span class="text-[9px] text-slate-400 font-mono ml-auto" id="sidebar-lottery-time">20h</span>
+      </div>
+      <div class="sidebar-lottery-prize js-mega-premio" id="sidebar-lottery-prize">R$ 300M</div>
+      <div class="sidebar-lottery-footer">
+        <span class="text-[9px] text-slate-400">⏱️ <span class="js-megasena-countdown">Sincronizando...</span></span>
+        <span class="text-[9px] text-cyan-400 font-mono">🔄 Caixa</span>
+      </div>
+    </div>
+
+    <!-- Rodapé da Barra Lateral: Alternador de Tema + Perfil -->
+    <div class="sidebar-bottom-actions">
+      <!-- Alternador Tema Claro / Escuro -->
+      <button type="button" id="sidebar-btn-theme" class="sidebar-action-btn" onclick="alternarTema();" title="Alternar entre Modo Claro e Modo Escuro">
+        <span id="sidebar-icon-theme" class="text-base">☀️</span>
+        <span id="sidebar-lbl-theme" class="text-xs font-bold">Modo Claro</span>
+      </button>
+
+      <!-- Cartão de Identidade / VIP -->
+      <div class="sidebar-profile-card" onclick="abrirModalAuthOuPerfil(); tocarBeep('click');" role="button" tabindex="0" title="Gerenciar Conta / Acesso Master">
+        <div class="sidebar-profile-avatar" id="sidebar-user-avatar">👤</div>
+        <div class="sidebar-profile-info">
+          <span class="sidebar-profile-name" id="sidebar-user-name">Visitante</span>
+          <span class="sidebar-profile-badge" id="sidebar-user-badge">Plano Gratuito</span>
+        </div>
+        <button type="button" class="sidebar-profile-opt" title="Opções de Conta">⋯</button>
+      </div>
+    </div>
+  `;
+
+  document.body.insertBefore(sidebar, document.body.firstChild);
+
+  // Inicializa o estado visual do tema na sidebar
+  if (typeof carregarTemaSalvo === 'function') {
+    carregarTemaSalvo();
+  }
 }
 
 function sincronizarVisualModalidadeGlobal() {
@@ -135,6 +260,28 @@ function sincronizarVisualModalidadeGlobal() {
     } else {
       pillMega.className = 'nasa-mod-btn';
       pillLoto.className = 'nasa-mod-btn active-loto';
+    }
+  }
+
+  // Sincroniza o seletor da Sidebar Desktop
+  const sidePillMega = document.getElementById('sidebar-pill-mega');
+  const sidePillLoto = document.getElementById('sidebar-pill-loto');
+  const sideLotteryName = document.getElementById('sidebar-lottery-name');
+  if (sidePillMega && sidePillLoto) {
+    if (mod === 'megasena') {
+      sidePillMega.className = 'sidebar-mod-btn active-mega';
+      sidePillLoto.className = 'sidebar-mod-btn';
+      if (sideLotteryName) {
+        sideLotteryName.innerText = 'MEGA-SENA';
+        sideLotteryName.className = 'font-bold text-[11px] text-emerald-400';
+      }
+    } else {
+      sidePillMega.className = 'sidebar-mod-btn';
+      sidePillLoto.className = 'sidebar-mod-btn active-loto';
+      if (sideLotteryName) {
+        sideLotteryName.innerText = 'LOTOFÁCIL';
+        sideLotteryName.className = 'font-bold text-[11px] text-purple-400';
+      }
     }
   }
 
@@ -195,11 +342,44 @@ function sincronizarHeaderStatusUsuario() {
   }
 
   const desktopAdminBtn = document.getElementById('nasa-desktop-nav-admin');
+  const sideAdminBtn = document.getElementById('sidebar-nav-admin');
+  const ehMaster = usuarioSessao?.tipo === 'master_founder';
+
   if (desktopAdminBtn) {
-    if (usuarioSessao?.tipo === 'master_founder') {
-      desktopAdminBtn.classList.remove('hidden');
+    if (ehMaster) desktopAdminBtn.classList.remove('hidden');
+    else desktopAdminBtn.classList.add('hidden');
+  }
+  if (sideAdminBtn) {
+    if (ehMaster) sideAdminBtn.classList.remove('hidden');
+    else sideAdminBtn.classList.add('hidden');
+  }
+
+  // Sincroniza cartão de perfil da Sidebar Desktop
+  const sideAvatar = document.getElementById('sidebar-user-avatar');
+  const sideName = document.getElementById('sidebar-user-name');
+  const sideBadge = document.getElementById('sidebar-user-badge');
+
+  if (sideAvatar && sideName && sideBadge && typeof usuarioSessao !== 'undefined' && usuarioSessao) {
+    if (ehMaster) {
+      sideAvatar.innerText = '👑';
+      sideName.innerText = usuarioSessao.nome || 'Vitório Bérgamo';
+      sideBadge.innerText = 'Master Founder';
+      sideBadge.className = 'sidebar-profile-badge master-badge';
+    } else if (usuarioSessao.tipo === 'vip_convidado' || ehPro) {
+      sideAvatar.innerText = '👑';
+      sideName.innerText = usuarioSessao.nome || 'Assinante VIP';
+      sideBadge.innerText = 'VIP Vitalício';
+      sideBadge.className = 'sidebar-profile-badge vip-badge';
+    } else if (usuarioSessao.tipo !== 'visitante') {
+      sideAvatar.innerText = (usuarioSessao.nome?.[0] || 'U').toUpperCase();
+      sideName.innerText = usuarioSessao.nome.split(' ')[0] || 'Usuário';
+      sideBadge.innerText = 'Membro Gratuito';
+      sideBadge.className = 'sidebar-profile-badge';
     } else {
-      desktopAdminBtn.classList.add('hidden');
+      sideAvatar.innerText = '👤';
+      sideName.innerText = 'Visitante';
+      sideBadge.innerText = 'Toque para Entrar';
+      sideBadge.className = 'sidebar-profile-badge';
     }
   }
 }
@@ -1096,6 +1276,10 @@ function activateTab(tabId) {
   });
 
   document.querySelectorAll('.nasa-desktop-nav-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+  });
+
+  document.querySelectorAll('.sidebar-nav-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
   });
 

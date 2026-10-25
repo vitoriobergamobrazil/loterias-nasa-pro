@@ -161,18 +161,35 @@
       tocarBeep('alert');
     }
 
+    function sincronizarIconesTemaUI(modo) {
+      const isDark = modo === 'dark';
+      // Atualiza todos os botões de tema espalhados pela interface
+      const icon = document.getElementById('theme-icon');
+      if (icon) icon.innerText = isDark ? '🌙' : '☀️';
+
+      const sideIcon = document.getElementById('sidebar-icon-theme');
+      const sideLbl = document.getElementById('sidebar-lbl-theme');
+      if (sideIcon) sideIcon.innerText = isDark ? '☀️' : '🌙';
+      if (sideLbl) sideLbl.innerText = isDark ? 'Modo Claro' : 'Modo Escuro';
+
+      const topThemeIcon = document.getElementById('nasa-top-theme-icon');
+      if (topThemeIcon) topThemeIcon.innerText = isDark ? '☀️' : '🌙';
+
+      const drawerThemeIcon = document.getElementById('drawer-theme-icon');
+      if (drawerThemeIcon) drawerThemeIcon.innerText = isDark ? '☀️' : '🌙';
+    }
+
     function alternarTema() {
       const isDark = document.documentElement.classList.contains('dark');
-      const icon = document.getElementById('theme-icon');
       if (isDark) {
         document.documentElement.classList.remove('dark');
         localStorage.setItem('nasa_theme', 'light');
-        if (icon) icon.innerText = '☀️';
+        sincronizarIconesTemaUI('light');
         toast("Modo Claro (Apollo White) ativado!", "☀️");
       } else {
         document.documentElement.classList.add('dark');
         localStorage.setItem('nasa_theme', 'dark');
-        if (icon) icon.innerText = '🌙';
+        sincronizarIconesTemaUI('dark');
         toast("Modo Escuro (Deep Space) ativado!", "🌙");
       }
       tocarBeep('click');
@@ -180,13 +197,12 @@
 
     function carregarTemaSalvo() {
       const tema = localStorage.getItem('nasa_theme');
-      const icon = document.getElementById('theme-icon');
       if (tema === 'light') {
         document.documentElement.classList.remove('dark');
-        if (icon) icon.innerText = '☀️';
+        sincronizarIconesTemaUI('light');
       } else {
         document.documentElement.classList.add('dark');
-        if (icon) icon.innerText = '🌙';
+        sincronizarIconesTemaUI('dark');
       }
     }
 
