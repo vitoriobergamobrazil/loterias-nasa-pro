@@ -215,7 +215,7 @@ ${linhasJogos}
 • Equilíbrio estatístico de pares e ímpares
 
 🛰️ *Loterias NASA Pro* — Monte e audite seus jogos:
-👉 https://vitoriobergamobrazil.github.io/loterias-nasa-pro/`;
+👉 https://loterias.pd.dev.br/`;
 
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoLote)}`;
     window.open(url, '_blank');
@@ -246,7 +246,7 @@ ${linhasJogos}
 • Proporção ideal de pares e ímpares
 
 🛰️ *Loterias NASA Pro* — Monte e audite seus jogos:
-👉 https://vitoriobergamobrazil.github.io/loterias-nasa-pro/`;
+👉 https://loterias.pd.dev.br/`;
 
   const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoUnico)}`;
   window.open(url, '_blank');

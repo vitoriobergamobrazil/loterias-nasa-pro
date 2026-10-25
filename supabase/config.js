@@ -8,5 +8,5 @@ window.NASA_SUPABASE_CONFIG = {
   googleEnabled: true,
   supportEmail: '',
   supportPhone: '',
-  googleRedirectUrl: 'https://vitoriobergamobrazil.github.io/loterias-nasa-pro/'
+  googleRedirectUrl: 'https://loterias.pd.dev.br/'
 };
