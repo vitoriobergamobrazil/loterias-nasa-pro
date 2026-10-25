@@ -38,10 +38,14 @@ function formatarDataProximoCaixa(dataProximoBR) {
 
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
-  const diffDias = Math.round((data - hoje) / 86400000);
-  if (diffDias === 0) return 'Hoje';
-  if (diffDias === 1) return 'Amanhã';
-  return NOMES_DIAS[data.getDay()] || dataProximoBR;
+  data.setHours(0, 0, 0, 0);
+  const diffDias = Math.round((data.getTime() - hoje.getTime()) / 86400000);
+  const diaSemana = NOMES_DIAS[data.getDay()] || '';
+  const dataCurta = `${String(data.getDate()).padStart(2, '0')}/${String(data.getMonth() + 1).padStart(2, '0')}`;
+
+  if (diffDias === 0) return `Hoje (${diaSemana})`;
+  if (diffDias === 1) return `Amanhã (${diaSemana} ${dataCurta})`;
+  return `${diaSemana} (${dataCurta})`;
 }
 
 /**
@@ -50,24 +54,29 @@ function formatarDataProximoCaixa(dataProximoBR) {
  */
 function calcularProximoSorteio(modalidade, agora = new Date()) {
   const cfg = SORTEIOS_CALENDARIO[modalidade];
-  if (!cfg) return { dia: '—', hora: '20h' };
+  if (!cfg) return { dia: '—', hora: '20h', dataBR: '' };
 
   const hojeEhDiaDeSorteio = cfg.dias.includes(agora.getDay());
   const aindaDaTempoHoje = agora.getHours() < cfg.hora;
 
   if (hojeEhDiaDeSorteio && aindaDaTempoHoje) {
-    return { dia: 'Hoje', hora: `${cfg.hora}h` };
+    const diaSemana = NOMES_DIAS[agora.getDay()];
+    return { dia: `Hoje (${diaSemana})`, hora: `${cfg.hora}h`, dataBR: agora.toLocaleDateString('pt-BR') };
   }
 
   for (let i = 1; i <= 7; i++) {
-    const candidato = (agora.getDay() + i) % 7;
+    const alvo = new Date(agora);
+    alvo.setDate(alvo.getDate() + i);
+    const candidato = alvo.getDay();
     if (cfg.dias.includes(candidato)) {
-      const dia = i === 1 ? 'Amanhã' : NOMES_DIAS[candidato];
-      return { dia, hora: `${cfg.hora}h` };
+      const diaSemana = NOMES_DIAS[candidato];
+      const dataCurta = `${String(alvo.getDate()).padStart(2, '0')}/${String(alvo.getMonth() + 1).padStart(2, '0')}`;
+      const rotulo = i === 1 ? `Amanhã (${diaSemana} ${dataCurta})` : `${diaSemana} (${dataCurta})`;
+      return { dia: rotulo, hora: `${cfg.hora}h`, dataBR: alvo.toLocaleDateString('pt-BR') };
     }
   }
 
-  return { dia: '—', hora: `${cfg.hora}h` };
+  return { dia: '—', hora: `${cfg.hora}h`, dataBR: '' };
 }
 
 /**

@@ -808,6 +808,9 @@ function criarDrawerPerfilConfig() {
             <span>Sincronizar</span>
           </button>
         </div>
+        <button type="button" onclick="fecharDrawerPerfil(); forcarAtualizacaoPWA();" class="w-full mt-2 py-2 px-3 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-800 text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition">
+          <span>🔄</span> <span>Forçar Atualização (Limpar Cache)</span>
+        </button>
       </div>
 
       <!-- Botão Painel Admin (visível apenas para o fundador/admin) -->

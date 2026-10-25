@@ -1,0 +1,21 @@
+{
+  "name": "loterias-nasa-pro",
+  "version": "1.2.0",
+  "description": "Loterias NASA Pro - PWA de Telemetria e Análise Estatística para Mega-Sena e Lotofácil",
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check-syntax": "node scripts/verify-syntax.mjs",
+    "ci": "node scripts/verify-syntax.mjs && node --test tests/*.test.mjs"
+  },
+  "keywords": [
+    "loterias",
+    "mega-sena",
+    "lotofacil",
+    "pwa",
+    "telemetria",
+    "combinatoria"
+  ],
+  "author": "Vitorio Bergamo Neto",
+  "license": "MIT"
+}
