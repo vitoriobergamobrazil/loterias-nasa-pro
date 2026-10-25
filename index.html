@@ -1378,6 +1378,28 @@
         </div>
 
 
+        <!-- NOVO: OTIMIZADOR POR ORÇAMENTO (PLANEJADOR DE BANCA INTELIGENTE) -->
+        <div class="p-3.5 bg-gradient-to-r from-emerald-950/40 via-slate-950 to-slate-900 border border-emerald-500/40 rounded-2xl space-y-2">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-1.5 text-xs font-bold text-emerald-400 font-sans">
+              <span>💰</span> Planejador de Orçamento
+            </div>
+            <span class="text-[9px] text-emerald-300 font-mono bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
+              Custo Exato
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400 font-sans">
+            Escolha quanto deseja investir nesta rodada para calibrar o fechamento ideal:
+          </p>
+          <div class="grid grid-cols-5 gap-1.5 font-mono text-xs">
+            <button type="button" onclick="aplicarOrcamentoInteligente(15)" class="py-2 px-1 rounded-xl bg-slate-900 hover:bg-emerald-600 hover:text-slate-950 border border-slate-800 text-slate-200 font-bold transition active:scale-95 text-center">R$ 15</button>
+            <button type="button" onclick="aplicarOrcamentoInteligente(24)" class="py-2 px-1 rounded-xl bg-slate-900 hover:bg-emerald-600 hover:text-slate-950 border border-slate-800 text-slate-200 font-bold transition active:scale-95 text-center">R$ 24</button>
+            <button type="button" onclick="aplicarOrcamentoInteligente(30)" class="py-2 px-1 rounded-xl bg-slate-900 hover:bg-emerald-600 hover:text-slate-950 border border-slate-800 text-slate-200 font-bold transition active:scale-95 text-center">R$ 30</button>
+            <button type="button" onclick="aplicarOrcamentoInteligente(48)" class="py-2 px-1 rounded-xl bg-slate-900 hover:bg-emerald-600 hover:text-slate-950 border border-slate-800 text-slate-200 font-bold transition active:scale-95 text-center">R$ 48</button>
+            <button type="button" onclick="aplicarOrcamentoInteligente(72)" class="py-2 px-1 rounded-xl bg-slate-900 hover:bg-emerald-600 hover:text-slate-950 border border-slate-800 text-slate-200 font-bold transition active:scale-95 text-center">R$ 72</button>
+          </div>
+        </div>
+
         <!-- Seletor de Matriz Combinatória -->
         <div class="space-y-1.5">
           <label class="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">

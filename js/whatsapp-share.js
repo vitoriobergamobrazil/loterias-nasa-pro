@@ -214,7 +214,8 @@ ${linhasJogos}
 • Dezenas bem espalhadas no volante
 • Equilíbrio estatístico de pares e ímpares
 
-Gerado no *Loterias NASA Pro*`;
+🛰️ *Loterias NASA Pro* — Monte e audite seus jogos:
+👉 https://vitoriobergamobrazil.github.io/loterias-nasa-pro/`;
 
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoLote)}`;
     window.open(url, '_blank');
@@ -244,7 +245,8 @@ Gerado no *Loterias NASA Pro*`;
 • Dezenas bem espalhadas no volante
 • Proporção ideal de pares e ímpares
 
-Gerado no *Loterias NASA Pro*`;
+🛰️ *Loterias NASA Pro* — Monte e audite seus jogos:
+👉 https://vitoriobergamobrazil.github.io/loterias-nasa-pro/`;
 
   const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoUnico)}`;
   window.open(url, '_blank');

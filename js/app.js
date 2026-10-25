@@ -138,6 +138,7 @@
       window.carteiraJogos = carteiraJogos;
     }
 
+    let syncNuvemTimeout = null;
     function salvarCarteiraStorage() {
       if (window.carteiraJogos && Array.isArray(window.carteiraJogos)) {
         carteiraJogos = window.carteiraJogos;
@@ -145,6 +146,14 @@
         window.carteiraJogos = carteiraJogos;
       }
       localStorage.setItem('loterias_carteira_db', JSON.stringify(carteiraJogos));
+
+      // Sincronização em nuvem segura com debounce (evita chamadas excessivas)
+      clearTimeout(syncNuvemTimeout);
+      syncNuvemTimeout = setTimeout(() => {
+        if (typeof sincronizarCarteiraNuvem === 'function') {
+          sincronizarCarteiraNuvem(false);
+        }
+      }, 1500);
     }
 
     function realizarLogin() {
@@ -2550,6 +2559,18 @@ function gerarPalpiteInteligente() {
       atualizarPainelCarteira();
       if (typeof renderizarBarraJogosTesteRapido === 'function') renderizarBarraJogosTesteRapido();
       if (typeof toast === 'function') toast("Bilhete removido!", "🗑️");
+
+      // Remove da nuvem se autenticado no Supabase
+      try {
+        const cliente = typeof obterClienteSupabase === 'function' ? obterClienteSupabase() : null;
+        if (cliente) {
+          cliente.auth.getSession().then(({ data }) => {
+            if (data?.session?.user) {
+              cliente.from('carteira_apostas').delete().eq('bilhete_id', String(id)).then();
+            }
+          });
+        }
+      } catch (e) {}
     }
 
     function solicitarLimparCarteira() {
@@ -2561,12 +2582,173 @@ function gerarPalpiteInteligente() {
         atualizarPainelCarteira();
         if (typeof renderizarBarraJogosTesteRapido === 'function') renderizarBarraJogosTesteRapido();
         if (typeof toast === 'function') toast("Carteira limpa com sucesso!", "🧹");
+
+        // Limpa na nuvem se autenticado
+        try {
+          const cliente = typeof obterClienteSupabase === 'function' ? obterClienteSupabase() : null;
+          if (cliente) {
+            cliente.auth.getSession().then(({ data }) => {
+              if (data?.session?.user) {
+                cliente.from('carteira_apostas').delete().eq('user_id', data.session.user.id).then();
+              }
+            });
+          }
+        } catch (e) {}
       };
 
       if (typeof abrirModalDialog === 'function') {
         abrirModalDialog("Deseja realmente apagar todos os bilhetes registrados na carteira?", acaoLimpar);
       } else if (confirm("Deseja realmente apagar todos os bilhetes registrados na carteira?")) {
         acaoLimpar();
+      }
+    }
+
+    async function sincronizarCarteiraNuvem(notificar = false) {
+      const cliente = typeof obterClienteSupabase === 'function' ? obterClienteSupabase() : null;
+      if (!cliente) return;
+
+      try {
+        const { data: sessaoData } = await cliente.auth.getSession();
+        const user = sessaoData?.session?.user;
+        if (!user) return; // Visitante: mantém seguro em localStorage
+
+        // 1. Busca apostas salvas na nuvem para este usuário
+        const { data: apostasNuvem, error } = await cliente
+          .from('carteira_apostas')
+          .select('*')
+          .eq('user_id', user.id);
+
+        if (error) {
+          // Se tabela ainda não foi criada, não trava a experiência
+          return;
+        }
+
+        let local = Array.isArray(window.carteiraJogos) ? window.carteiraJogos : (JSON.parse(localStorage.getItem('loterias_carteira_db') || '[]'));
+        const mapExistentes = new Map();
+        local.forEach(b => mapExistentes.set(String(b.id), b));
+
+        let novasDaNuvem = 0;
+        (apostasNuvem || []).forEach(remota => {
+          const idStr = String(remota.bilhete_id);
+          if (!mapExistentes.has(idStr)) {
+            local.push({
+              id: remota.bilhete_id,
+              modalidade: remota.modalidade,
+              nome: remota.nome,
+              dezenas: remota.dezenas,
+              data: remota.data,
+              concursoAlvo: remota.concurso_alvo,
+              custo: Number(remota.custo || 5),
+              premioGanho: Number(remota.premio_ganho || 0),
+              conferido: remota.conferido,
+              status: remota.status,
+              registradoComoJogado: remota.registrado_como_jogado,
+              dataRegistro: remota.data_registro
+            });
+            mapExistentes.set(idStr, local[local.length - 1]);
+            novasDaNuvem++;
+          }
+        });
+
+        // 2. Envia apostas locais que ainda não subiram para a nuvem
+        const idsRemotos = new Set((apostasNuvem || []).map(r => String(r.bilhete_id)));
+        const pendentesNuvem = local.filter(b => !idsRemotos.has(String(b.id)));
+
+        if (pendentesNuvem.length > 0) {
+          const payload = pendentesNuvem.map(b => ({
+            user_id: user.id,
+            bilhete_id: String(b.id),
+            modalidade: b.modalidade || 'megasena',
+            nome: b.nome || 'Aposta',
+            dezenas: b.dezenas || [],
+            data: b.data || '',
+            concurso_alvo: b.concursoAlvo || '',
+            custo: Number(b.custo || 5),
+            premio_ganho: Number(b.premioGanho || 0),
+            conferido: Boolean(b.conferido),
+            status: b.status || 'Aguardando sorteio',
+            registrado_como_jogado: Boolean(b.registradoComoJogado)
+          }));
+
+          await cliente.from('carteira_apostas').upsert(payload, { onConflict: 'user_id,bilhete_id' });
+        }
+
+        carteiraJogos = local;
+        window.carteiraJogos = local;
+        localStorage.setItem('loterias_carteira_db', JSON.stringify(local));
+        if (typeof atualizarPainelCarteira === 'function') atualizarPainelCarteira();
+
+        if (notificar && novasDaNuvem > 0 && typeof toast === 'function') {
+          toast(`☁️ ${novasDaNuvem} aposta(s) sincronizada(s) da sua conta!`, '☁️');
+        }
+      } catch (err) {
+        console.warn('Sincronização em nuvem da carteira:', err);
+      }
+    }
+
+    function aplicarOrcamentoInteligente(valor) {
+      const mod = typeof modalidadeAtual !== 'undefined' ? modalidadeAtual : 'megasena';
+      tocarSomNasa('beep');
+
+      if (mod === 'megasena') {
+        if (valor <= 15) {
+          setQtdJogosParaGerar(3);
+          mudarAba('volante');
+          gerarApostaNasaComMatriz4x4();
+          toast(`🎯 Orçamento R$ 15: 3 apostas simples calibradas geradas!`, '💰');
+        } else if (valor <= 30) {
+          mudarAba('fechamentos');
+          const select = document.getElementById('select-tipo-fechamento');
+          if (select) {
+            select.value = 'mega-12-quadra';
+            atualizarResumoFechamento();
+          }
+          toast(`🎯 Orçamento R$ 30: Fechamento 12 Dezenas (Quadra) ativado!`, '💰');
+        } else if (valor <= 50) {
+          setQtdJogosParaGerar(5);
+          mudarAba('volante');
+          gerarApostaNasaComMatriz4x4();
+          toast(`🎯 Orçamento R$ 50: 5 apostas equilibradas geradas!`, '💰');
+        } else {
+          mudarAba('fechamentos');
+          const select = document.getElementById('select-tipo-fechamento');
+          if (select) {
+            select.value = 'mega-10-quina';
+            atualizarResumoFechamento();
+          }
+          toast(`🎯 Orçamento VIP: Fechamento 10 Dezenas (Quina) ativado!`, '💰');
+        }
+      } else {
+        if (valor <= 15) {
+          setQtdJogosParaGerar(5);
+          mudarAba('volante');
+          gerarApostaNasaComMatriz4x4();
+          toast(`🎯 Orçamento R$ 15: 5 apostas Lotofácil geradas!`, '💰');
+        } else if (valor <= 24) {
+          mudarAba('fechamentos');
+          const select = document.getElementById('select-tipo-fechamento');
+          if (select) {
+            select.value = 'loto-17-14';
+            atualizarResumoFechamento();
+          }
+          toast(`🎯 Orçamento R$ 24: Fechamento 17 Dezenas (14 Pontos) ativado!`, '💰');
+        } else if (valor <= 48) {
+          mudarAba('fechamentos');
+          const select = document.getElementById('select-tipo-fechamento');
+          if (select) {
+            select.value = 'loto-16-total';
+            atualizarResumoFechamento();
+          }
+          toast(`🎯 Orçamento R$ 48: Fechamento Total 16 Dezenas ativado!`, '💰');
+        } else {
+          mudarAba('fechamentos');
+          const select = document.getElementById('select-tipo-fechamento');
+          if (select) {
+            select.value = 'loto-18-14';
+            atualizarResumoFechamento();
+          }
+          toast(`🎯 Orçamento R$ 72: Fechamento 18 Dezenas (14 Pontos) ativado!`, '💰');
+        }
       }
     }
 
@@ -4077,6 +4259,9 @@ function abrirModalDialog(msg, callback) {
       planoUsuario = assinatura ? 'pro' : 'free';
       atualizarVisualPlano();
       atualizarPerfilUsuarioUI();
+      if (typeof sincronizarCarteiraNuvem === 'function') {
+        sincronizarCarteiraNuvem(false);
+      }
     }
 
     function atualizarPerfilUsuarioUI() {
@@ -4858,6 +5043,8 @@ function abrirModalDialog(msg, callback) {
     window.getJogoAtual = getJogoAtual;
     window.tocarBeep = tocarBeep;
     window.toast = toast;
+    window.sincronizarCarteiraNuvem = sincronizarCarteiraNuvem;
+    window.aplicarOrcamentoInteligente = aplicarOrcamentoInteligente;
 
 
 

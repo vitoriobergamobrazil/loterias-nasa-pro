@@ -135,7 +135,7 @@
       msg += `*Jogo #${idx + 1}:* ${dezenasFormatadas}\n`;
     });
 
-    msg += `\nGerado e auditado por telemetria aeroespacial.`;
+    msg += `\n🛰️ *Loterias NASA Pro* — Monte e audite seus bolões:\n👉 https://vitoriobergamobrazil.github.io/loterias-nasa-pro/`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
