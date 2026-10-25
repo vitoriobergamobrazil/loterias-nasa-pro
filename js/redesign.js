@@ -954,47 +954,6 @@ function configurarSubAbasCarteiraEBolao() {
   const secBolao = document.getElementById('view-bolao');
   if (!secCarteira || document.getElementById('nasa-seg-carteira')) return;
 
-  // Move o conteúdo de #view-bolao para dentro de um container dedicado em #view-carteira
-  // mantendo todos os IDs intactos para que calcularRateioBolao(), incluirJogoAtualNoBolao() etc. funcionem 100%
-  const filhosCarteira = Array.from(secCarteira.children);
-  const wrapperBilhetes = document.createElement('div');
-  wrapperBilhetes.id = 'carteira-subview-bilhetes';
-  wrapperBilhetes.className = 'space-y-4';
-
-  const wrapperFerramentas = document.createElement('div');
-  wrapperFerramentas.id = 'carteira-subview-ferramentas';
-  wrapperFerramentas.className = 'space-y-4 hidden';
-
-  // Distribui os cards originais da carteira:
-  // [0] Calendário Caixa, [1] Minha Carteira (Saldos), [2] Calibração Portfólio, [3] Exportação/Backup, [4] Importador, [5] Lista Bilhetes, [6] Scanner em Lote
-  filhosCarteira.forEach((card, idx) => {
-    if (idx === 1 || idx === 5 || idx === 0) {
-      wrapperBilhetes.appendChild(card);
-    } else {
-      wrapperFerramentas.appendChild(card);
-    }
-  });
-
-  // Reordena dentro de Meus Bilhetes para que "Minha Carteira" e "Lista de Bilhetes" venham no topo, antes do Calendário
-  const cardsBilhetes = Array.from(wrapperBilhetes.children);
-  if (cardsBilhetes.length === 3) {
-    // original: [0]=Calendário, [1]=Saldos, [2]=Lista
-    wrapperBilhetes.innerHTML = '';
-    wrapperBilhetes.appendChild(cardsBilhetes[1]); // Saldos + Botão Conferir Tudo
-    wrapperBilhetes.appendChild(cardsBilhetes[2]); // Lista de Bilhetes Salvos
-    wrapperBilhetes.appendChild(cardsBilhetes[0]); // Calendário Oficial Caixa
-  }
-
-  const wrapperBolao = document.createElement('div');
-  wrapperBolao.id = 'carteira-subview-bolao';
-  wrapperBolao.className = 'space-y-4 hidden';
-
-  if (secBolao) {
-    while (secBolao.firstChild) {
-      wrapperBolao.appendChild(secBolao.firstChild);
-    }
-  }
-
   const segBar = document.createElement('div');
   segBar.id = 'nasa-seg-carteira';
   segBar.className = 'nasa-segmented-bar';
@@ -1010,10 +969,52 @@ function configurarSubAbasCarteiraEBolao() {
     </button>
   `;
 
+  const wrapperBilhetes = document.getElementById('carteira-subview-bilhetes');
+  const wrapperBolao = document.getElementById('carteira-subview-bolao');
+  const wrapperFerramentas = document.getElementById('carteira-subview-ferramentas');
+
+  if (wrapperBilhetes && wrapperBolao && wrapperFerramentas) {
+    if (secBolao) {
+      while (secBolao.firstChild) {
+        wrapperBolao.appendChild(secBolao.firstChild);
+      }
+    }
+    secCarteira.insertBefore(segBar, secCarteira.firstChild);
+    return;
+  }
+
+  // Fallback caso a estrutura dinâmica legada seja utilizada
+  const filhosCarteira = Array.from(secCarteira.children);
+  const wBilhetes = document.createElement('div');
+  wBilhetes.id = 'carteira-subview-bilhetes';
+  wBilhetes.className = 'space-y-4';
+
+  const wFerramentas = document.createElement('div');
+  wFerramentas.id = 'carteira-subview-ferramentas';
+  wFerramentas.className = 'space-y-4 hidden';
+
+  filhosCarteira.forEach((card, idx) => {
+    if (idx === 1 || idx === 5 || idx === 0) {
+      wBilhetes.appendChild(card);
+    } else {
+      wFerramentas.appendChild(card);
+    }
+  });
+
+  const wBolao = document.createElement('div');
+  wBolao.id = 'carteira-subview-bolao';
+  wBolao.className = 'space-y-4 hidden';
+
+  if (secBolao) {
+    while (secBolao.firstChild) {
+      wBolao.appendChild(secBolao.firstChild);
+    }
+  }
+
   secCarteira.appendChild(segBar);
-  secCarteira.appendChild(wrapperBilhetes);
-  secCarteira.appendChild(wrapperBolao);
-  secCarteira.appendChild(wrapperFerramentas);
+  secCarteira.appendChild(wBilhetes);
+  secCarteira.appendChild(wBolao);
+  secCarteira.appendChild(wFerramentas);
 }
 
 function alternarSubAbaCarteira(modo) {
@@ -1032,6 +1033,7 @@ function alternarSubAbaCarteira(modo) {
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+window.alternarSubAbaCarteira = alternarSubAbaCarteira;
 
 function irParaCarteiraSubAba(subAba) {
   activateTab('carteira');

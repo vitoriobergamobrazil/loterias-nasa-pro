@@ -2457,7 +2457,7 @@ function gerarPalpiteInteligente() {
     }
 
     function importarBilheteTexto() {
-      const input = document.getElementById('input-scanner-texto');
+      const input = document.getElementById('textarea-scanner-lote') || document.getElementById('input-scanner-texto');
       const inputData = document.getElementById('input-import-data')?.value;
       const containerSugestao = document.getElementById('container-sugestao-inteligente');
       if (containerSugestao) {
@@ -2514,6 +2514,9 @@ function gerarPalpiteInteligente() {
         input.value = '';
         tocarBeep('success');
         toast(`✅ ${res.jogos.length} aposta(s) importada(s) para ${concFinal} (${dataFinal})!`, "📥");
+        if (typeof alternarSubAbaCarteira === 'function') {
+          alternarSubAbaCarteira('bilhetes');
+        }
       }
 
       // Se encontrou aposta incompleta, exibe a sugestão inteligente
@@ -4142,12 +4145,19 @@ function abrirModalDialog(msg, callback) {
     }
 
     function importarJogosDoScannerLote() {
-      const input = document.getElementById('textarea-scanner-lote')?.value.trim();
+      const el = document.getElementById('textarea-scanner-lote') || document.getElementById('input-scanner-texto');
+      const input = el?.value.trim();
       if (!input) {
         toast('Cole ao menos um jogo ou mensagem no campo.', '⚠️');
         return;
       }
-      salvarApostasNaCarteiraAPartirDeTexto(input);
+      const qtd = salvarApostasNaCarteiraAPartirDeTexto(input);
+      if (qtd > 0) {
+        if (el) el.value = '';
+        if (typeof alternarSubAbaCarteira === 'function') {
+          alternarSubAbaCarteira('bilhetes');
+        }
+      }
     }
 
     // Funções Utilitárias de Compatibilidade e Avaliação Estatística

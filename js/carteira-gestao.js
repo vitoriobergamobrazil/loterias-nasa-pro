@@ -73,7 +73,7 @@
     if (typeof window.salvarApostasNaCarteiraAPartirDeTexto === 'function') {
       window.salvarApostasNaCarteiraAPartirDeTexto(texto);
     } else if (typeof window.importarBilheteTexto === 'function') {
-      const inputScanner = document.getElementById('input-scanner-texto');
+      const inputScanner = document.getElementById('textarea-scanner-lote') || document.getElementById('input-scanner-texto');
       if (inputScanner) inputScanner.value = texto;
       window.importarBilheteTexto();
     }
