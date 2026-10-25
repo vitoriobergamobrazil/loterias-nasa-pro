@@ -398,7 +398,7 @@
           <span class="text-[9px] text-slate-500 font-mono">Vitalício</span>
         </div>
         <div class="flex gap-1.5">
-          <input type="text" id="input-cupom-vip-auth" placeholder="Ex: VIPVITORIO ou MASTER2026" class="flex-1 bg-slate-950 border border-amber-500/40 rounded-xl px-2.5 py-1.5 text-xs text-amber-300 font-mono uppercase focus:outline-none focus:border-amber-400" />
+          <input type="text" id="input-cupom-vip-auth" placeholder="Digite seu código ou convite VIP" class="flex-1 bg-slate-950 border border-amber-500/40 rounded-xl px-2.5 py-1.5 text-xs text-amber-300 font-mono uppercase focus:outline-none focus:border-amber-400" />
           <button type="button" onclick="const cod = document.getElementById('input-cupom-vip-auth')?.value; if (typeof resgatarCupomVip === 'function') { resgatarCupomVip(cod); } else { toast('Carregando...', '⏳'); }" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition whitespace-nowrap">
             ATIVAR
           </button>
