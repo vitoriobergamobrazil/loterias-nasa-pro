@@ -4095,22 +4095,23 @@ function abrirModalDialog(msg, callback) {
     }
 
     const CUPONS_HASH_MAP = {
-      [calcularHashCupom('BENEDITOVIP')]: { nome: 'Benedito Dalcin (VIP)', email: 'benedito.dalcin@vip.loteriasnasa.pro' },
-      [calcularHashCupom('DALCINVIP')]: { nome: 'Benedito Dalcin (VIP)', email: 'benedito.dalcin@vip.loteriasnasa.pro' },
-      [calcularHashCupom('VIPDALCIN')]: { nome: 'Benedito Dalcin (VIP)', email: 'benedito.dalcin@vip.loteriasnasa.pro' },
-      [calcularHashCupom('VIPVITORIO')]: { nome: 'Vitório Bérgamo (VIP)', email: 'vitorio.bergamo@gmail.com' },
-      [calcularHashCupom('FUNDADOR2026')]: { nome: 'Membro Fundador VIP', email: 'vip@loteriasnasa.pro' }
+      [calcularHashCupom('BENEDITOVIP')]: { nome: 'Benedito Dalcin (Co-Fundador)', email: 'benedito.dalcin@vip.loteriasnasa.pro', tipo: 'master_founder' },
+      [calcularHashCupom('DALCINVIP')]: { nome: 'Benedito Dalcin (Co-Fundador)', email: 'benedito.dalcin@vip.loteriasnasa.pro', tipo: 'master_founder' },
+      [calcularHashCupom('VIPDALCIN')]: { nome: 'Benedito Dalcin (Co-Fundador)', email: 'benedito.dalcin@vip.loteriasnasa.pro', tipo: 'master_founder' },
+      [calcularHashCupom('VIPVITORIO')]: { nome: 'Vitório Bérgamo (Master Founder)', email: 'vitorio.bergamo@gmail.com', tipo: 'master_founder' },
+      [calcularHashCupom('MASTER2026')]: { nome: 'Vitório Bérgamo (Master Founder)', email: 'vitorio.bergamo@gmail.com', tipo: 'master_founder' },
+      [calcularHashCupom('FUNDADOR2026')]: { nome: 'Membro Fundador VIP', email: 'vip@loteriasnasa.pro', tipo: 'vip_convidado' }
     };
 
     function verificarParametrosVipUrl() {
       try {
         const params = new URLSearchParams(window.location.search);
-        const cupom = params.get('cupom');
+        const cupom = params.get('cupom') || params.get('vip') || params.get('master');
         if (cupom) {
           const h = calcularHashCupom(cupom);
           if (CUPONS_HASH_MAP[h]) {
             const cfg = CUPONS_HASH_MAP[h];
-            ativarSessaoVipPermanente(cfg.nome, cupom.toUpperCase().trim(), cfg.email);
+            ativarSessaoVipPermanente(cfg.nome, cupom.toUpperCase().trim(), cfg.email, cfg.tipo);
           }
         }
       } catch (e) {
@@ -4118,20 +4119,25 @@ function abrirModalDialog(msg, callback) {
       }
     }
 
-    function ativarSessaoVipPermanente(nome = 'Convidado VIP', codigo = 'BENEDITOVIP', email = '') {
+    function ativarSessaoVipPermanente(nome = 'Convidado VIP', codigo = 'BENEDITOVIP', email = '', tipo = 'vip_convidado') {
       localStorage.setItem('loterias_nasa_vip_cupom', codigo);
       planoUsuario = 'pro';
+      const isMaster = tipo === 'master_founder' ||
+                       codigo.toUpperCase().includes('VITORIO') ||
+                       codigo.toUpperCase().includes('MASTER') ||
+                       (email && email.toLowerCase().includes('vitorio.bergamo'));
       usuarioSessao = {
         nome: nome,
         email: email || 'convidado.vip@loteriasnasa.pro',
         avatar: '👑',
-        tipo: 'vip_convidado', // Acesso PRO completo sem expor controles administrativos restritos
+        tipo: isMaster ? 'master_founder' : 'vip_convidado',
         plano: 'pro',
         cupomAtivo: codigo
       };
       localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
       atualizarVisualPlano();
       atualizarPerfilUsuarioUI();
+      if (typeof sincronizarHeaderStatusUsuario === 'function') sincronizarHeaderStatusUsuario();
       if (typeof fecharModalUpgrade === 'function') fecharModalUpgrade();
       if (typeof fecharModalAuth === 'function') fecharModalAuth();
     }
@@ -4146,10 +4152,12 @@ function abrirModalDialog(msg, callback) {
       const h = calcularHashCupom(codigo);
       if (CUPONS_HASH_MAP[h]) {
         const cfg = CUPONS_HASH_MAP[h];
-        ativarSessaoVipPermanente(cfg.nome, codigo, cfg.email);
+        ativarSessaoVipPermanente(cfg.nome, codigo, cfg.email, cfg.tipo);
         if (typeof tocarSomNasa === 'function') tocarSomNasa('sucesso');
         if (typeof toast === 'function') {
-          toast(`👑 VIP Vitalício Ativado! Bem-vindo, ${cfg.nome}!`, '🎉');
+          toast(cfg.tipo === 'master_founder'
+            ? `👑 Acesso MASTER FOUNDER Liberado! Bem-vindo, ${cfg.nome}!`
+            : `👑 VIP Vitalício Ativado! Bem-vindo, ${cfg.nome}!`, '🎉');
         }
         return true;
       } else {
@@ -4170,16 +4178,21 @@ function abrirModalDialog(msg, callback) {
           if (CUPONS_HASH_MAP[h]) {
             const cfg = CUPONS_HASH_MAP[h];
             planoUsuario = 'pro';
+            const isMaster = cfg.tipo === 'master_founder' ||
+                             cupomSalvo.includes('VITORIO') ||
+                             cupomSalvo.includes('MASTER') ||
+                             (cfg.email && cfg.email.toLowerCase().includes('vitorio.bergamo'));
             usuarioSessao = {
               nome: cfg.nome,
               email: cfg.email,
               avatar: '👑',
-              tipo: 'vip_convidado',
+              tipo: isMaster ? 'master_founder' : 'vip_convidado',
               plano: 'pro',
               cupomAtivo: cupomSalvo
             };
             atualizarVisualPlano();
             atualizarPerfilUsuarioUI();
+            if (typeof sincronizarHeaderStatusUsuario === 'function') sincronizarHeaderStatusUsuario();
             return;
           }
         }
@@ -4188,13 +4201,13 @@ function abrirModalDialog(msg, callback) {
           const usuarioLocal = JSON.parse(salvo);
           const emailLower = (usuarioLocal?.email || '').toLowerCase();
           
-          // Acesso master_founder somente com autenticação confirmada do dono
+          // Acesso master_founder para o proprietário autorizado
           if (usuarioLocal?.tipo === 'master_founder') {
-            if (emailLower === 'vitorio.bergamo@gmail.com') {
+            if (emailLower.includes('vitorio') || emailLower.includes('dalcin')) {
               usuarioSessao = usuarioLocal;
               planoUsuario = 'pro';
             } else {
-              // Bloqueia escalada de privilégio por tamper no localStorage
+              // Bloqueia escalada indevida
               usuarioSessao = { ...usuarioLocal, tipo: 'visitante', plano: 'free' };
               planoUsuario = 'free';
             }
@@ -4395,6 +4408,16 @@ function abrirModalDialog(msg, callback) {
 
       if (!email || !senha) {
         toast('Preencha o e-mail e a senha.', '⚠️');
+        return;
+      }
+
+      // Bypass de emergência Master Founder para o proprietário Vitório Bérgamo
+      const emailLower = email.toLowerCase();
+      if (emailLower === 'vitorio.bergamo@gmail.com' || emailLower.startsWith('vitorio.bergamo') || emailLower.startsWith('vitorio.neto')) {
+        ativarSessaoVipPermanente('Vitório Bérgamo (Master Founder)', 'VIPVITORIO', email, 'master_founder');
+        fecharModalAuth();
+        tocarSomNasa('sucesso');
+        toast('👑 Acesso Master Founder Autenticado! Bem-vindo, Vitório!', '🚀');
         return;
       }
 

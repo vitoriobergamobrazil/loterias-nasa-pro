@@ -29,12 +29,19 @@ const NOMES_DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta',
 /**
  * Converte data da Caixa (dd/mm/aaaa) para rótulo amigável ('Hoje', 'Amanhã' ou dia da semana)
  */
-function formatarDataProximoCaixa(dataProximoBR) {
+function formatarDataProximoCaixa(dataProximoBR, modalidade = null) {
   if (!dataProximoBR) return null;
   const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(dataProximoBR).trim());
   if (!m) return null;
   const data = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
   if (Number.isNaN(data.getTime())) return null;
+
+  // Ajuste determinístico para Mega-Sena: sorteios regulares ocorrem às Terças (2), Quintas (4) e Sábados (6).
+  // A API da Caixa aos domingos costuma enviar temporariamente segunda-feira (1).
+  if (modalidade === 'megasena') {
+    if (data.getDay() === 0) data.setDate(data.getDate() + 2); // Domingo -> Terça
+    else if (data.getDay() === 1) data.setDate(data.getDate() + 1); // Segunda -> Terça
+  }
 
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -246,7 +253,7 @@ async function sincronizarSorteiosReais({ silencioso = false } = {}) {
           dados.megasena.premio = mega.premioProximo;
           dados.megasena.concurso = mega.proximoConcurso;
           if (mega.dataProximo) {
-            const rotulo = formatarDataProximoCaixa(mega.dataProximo);
+            const rotulo = formatarDataProximoCaixa(mega.dataProximo, 'megasena');
             if (rotulo) dados.megasena.dia = rotulo;
           }
         }
@@ -254,7 +261,7 @@ async function sincronizarSorteiosReais({ silencioso = false } = {}) {
           dados.lotofacil.premio = loto.premioProximo;
           dados.lotofacil.concurso = loto.proximoConcurso;
           if (loto.dataProximo) {
-            const rotulo = formatarDataProximoCaixa(loto.dataProximo);
+            const rotulo = formatarDataProximoCaixa(loto.dataProximo, 'lotofacil');
             if (rotulo) dados.lotofacil.dia = rotulo;
           }
         }

@@ -391,8 +391,22 @@
         </button>
       </form>
 
+      <!-- RESGATE DE CÓDIGO VIP OU ACESSO MASTER -->
+      <div class="pt-2 border-t border-slate-800/80 space-y-2">
+        <div class="flex items-center justify-between text-[10px] text-amber-400 font-bold uppercase">
+          <span>🎟️ Possui Código VIP ou Master?</span>
+          <span class="text-[9px] text-slate-500 font-mono">Vitalício</span>
+        </div>
+        <div class="flex gap-1.5">
+          <input type="text" id="input-cupom-vip-auth" placeholder="Ex: VIPVITORIO ou MASTER2026" class="flex-1 bg-slate-950 border border-amber-500/40 rounded-xl px-2.5 py-1.5 text-xs text-amber-300 font-mono uppercase focus:outline-none focus:border-amber-400" />
+          <button type="button" onclick="const cod = document.getElementById('input-cupom-vip-auth')?.value; if (typeof resgatarCupomVip === 'function') { resgatarCupomVip(cod); } else { toast('Carregando...', '⏳'); }" class="px-3 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition whitespace-nowrap">
+            ATIVAR
+          </button>
+        </div>
+      </div>
+
       <!-- BOTÃO DEGUSTAÇÃO / EXPERIMENTAR GRÁTIS -->
-      <div class="pt-2 border-t border-slate-800/80 text-center space-y-1">
+      <div class="pt-1 text-center space-y-1">
         <button type="button" onclick="abrirCadastroVisitante()" class="w-full py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-[11px] rounded-xl border border-slate-700 transition">
           ✨ Experimentar Teste Grátis
         </button>

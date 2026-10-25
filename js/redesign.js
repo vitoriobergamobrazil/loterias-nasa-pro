@@ -84,6 +84,28 @@ function criarTopbarUnificada() {
       </button>
     </div>
 
+    <!-- Navegação Desktop Widescreen (Centro de Comando NASA) -->
+    <nav class="nasa-desktop-nav" role="navigation" aria-label="Navegação Desktop">
+      <button type="button" class="nasa-desktop-nav-btn active" data-tab="home" onclick="activateTab('home'); tocarBeep('click');">
+        <span>🚀</span> <span>Início</span>
+      </button>
+      <button type="button" class="nasa-desktop-nav-btn" data-tab="gerar" onclick="activateTab('gerar'); tocarBeep('click');">
+        <span>🎯</span> <span>Gerador & Volante</span>
+      </button>
+      <button type="button" class="nasa-desktop-nav-btn" data-tab="fechamentos" onclick="activateTab('fechamentos'); tocarBeep('click');">
+        <span>📐</span> <span>Fechamentos</span>
+      </button>
+      <button type="button" class="nasa-desktop-nav-btn" data-tab="analise" onclick="activateTab('analise'); tocarBeep('click');">
+        <span>📊</span> <span>Estatísticas</span>
+      </button>
+      <button type="button" class="nasa-desktop-nav-btn" data-tab="carteira" onclick="activateTab('carteira'); tocarBeep('click');">
+        <span>💼</span> <span>Carteira</span>
+      </button>
+      <button type="button" id="nasa-desktop-nav-admin" class="nasa-desktop-nav-btn hidden" data-tab="admin" onclick="mudarAba('admin'); tocarBeep('click');" style="color: #fbbf24; border-color: rgba(245, 158, 11, 0.4);">
+        <span>👑</span> <span>Admin Master</span>
+      </button>
+    </nav>
+
     <!-- Ações Rápidas: VIP/Créditos + Menu Perfil -->
     <div class="nasa-header-actions">
       <button type="button" id="nasa-top-vip-btn" class="nasa-vip-chip" onclick="abrirModalPaywall('header')" title="Status do Plano e Créditos">
@@ -169,6 +191,15 @@ function sincronizarHeaderStatusUsuario() {
       topAvatar.innerText = (usuarioSessao.nome[0] || 'U').toUpperCase();
     } else {
       topAvatar.innerText = '⋯';
+    }
+  }
+
+  const desktopAdminBtn = document.getElementById('nasa-desktop-nav-admin');
+  if (desktopAdminBtn) {
+    if (usuarioSessao?.tipo === 'master_founder') {
+      desktopAdminBtn.classList.remove('hidden');
+    } else {
+      desktopAdminBtn.classList.add('hidden');
     }
   }
 }
@@ -461,11 +492,11 @@ function configurarSubAbasGerar() {
   const secVolante = document.getElementById('view-volante');
   if (!secVolante || document.getElementById('nasa-seg-gerar')) return;
 
-  // Identifica os blocos filhos da section#view-volante para alterná-los sem esconder nada permanentemente
-  const cards = Array.from(secVolante.children);
-  if (cards[0]) cards[0].id = cards[0].id || 'card-gerador-rapido';
-  if (cards[1]) cards[1].id = cards[1].id || 'card-volante-manual';
-  if (cards[2]) cards[2].id = cards[2].id || 'card-matriz-4x4-box';
+  // Localiza os cartões reais dentro da coluna 1 (sem sobrescrever o container grid desktop)
+  const col1 = secVolante.querySelector('.lg\\:col-span-7') || secVolante;
+  const col1Cards = col1 ? Array.from(col1.children).filter((c) => c.tagName === 'DIV') : [];
+  if (col1Cards[0] && !col1Cards[0].id) col1Cards[0].id = 'card-gerador-rapido';
+  if (col1Cards[1] && !col1Cards[1].id) col1Cards[1].id = 'card-volante-manual';
 
   const segBar = document.createElement('div');
   segBar.id = 'nasa-seg-gerar';
@@ -515,6 +546,12 @@ function aplicarVisibilidadeSubAbaGerar() {
     el.style.display = visivel ? '' : 'none';
   };
 
+  // No desktop widescreen (>= 1024px), cockpit completo: exibe ambas as colunas sem esconder nada
+  if (window.innerWidth >= 1024) {
+    [cardGerador, cardVolante, cardMatriz, cardScore, cardTestes, cardSugestao, cardRetro].forEach((el) => mostrar(el, true));
+    return;
+  }
+
   if (subAbaGerarAtiva === 'rapido') {
     mostrar(cardGerador, true);
     mostrar(cardScore, true);
@@ -539,7 +576,6 @@ function aplicarVisibilidadeSubAbaGerar() {
     mostrar(cardSugestao, true);
     mostrar(cardMatriz, true);
     mostrar(cardRetro, true);
-    // Garante que os painéis colapsáveis estejam abertos ao visitar a aba 6 Testes
     ['conteudo-bateria-testes', 'conteudo-matriz-vitorio', 'conteudo-simulador-historico'].forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.classList.remove('hidden');
@@ -1057,6 +1093,10 @@ function activateTab(tabId) {
     if (btn) {
       btn.classList.toggle('active', tab.id === tabId);
     }
+  });
+
+  document.querySelectorAll('.nasa-desktop-nav-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
   });
 
   const allViews = document.querySelectorAll('main > section');
