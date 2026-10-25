@@ -201,6 +201,7 @@
     html:not(.dark) .bg-amber-950\/40,
     html:not(.dark) .bg-amber-950\/30,
     html:not(.dark) .bg-amber-950\/50,
+    html:not(.dark) .bg-amber-950\/60,
     html:not(.dark) .bg-amber-950\/70 {
       background-color: #fffbeb !important;
       border-color: #fcd34d !important;
@@ -210,6 +211,47 @@
     html:not(.dark) .text-amber-200 {
       color: #78350f !important;
     }
+
+    /* LEGENDA DO VOLANTE (QUADRANTES Q1, Q2, Q3, Q4) - LEGIBILIDADE TOTAL NO TEMA CLARO */
+    html:not(.dark) #legenda-volante {
+      border-color: #cbd5e1 !important;
+    }
+    html:not(.dark) #legenda-volante span,
+    html:not(.dark) #legenda-volante div {
+      font-weight: 800 !important;
+      letter-spacing: 0.02em !important;
+    }
+    /* Fallback para tags span antigas */
+    html:not(.dark) #legenda-volante .bg-emerald-950\/60,
+    html:not(.dark) #legenda-volante .bg-emerald-950 {
+      background-color: #ecfdf5 !important;
+      color: #065f46 !important;
+      border-color: #a7f3d0 !important;
+    }
+    html:not(.dark) #legenda-volante .bg-blue-950\/60,
+    html:not(.dark) #legenda-volante .bg-blue-950,
+    html:not(.dark) #legenda-volante .bg-cyan-950\/60,
+    html:not(.dark) #legenda-volante .bg-cyan-950 {
+      background-color: #f0f9ff !important;
+      color: #0369a1 !important;
+      border-color: #bae6fd !important;
+    }
+    html:not(.dark) #legenda-volante .bg-amber-950\/60,
+    html:not(.dark) #legenda-volante .bg-amber-950 {
+      background-color: #fffbeb !important;
+      color: #92400e !important;
+      border-color: #fde68a !important;
+    }
+    html:not(.dark) #legenda-volante .bg-purple-950\/60,
+    html:not(.dark) #legenda-volante .bg-purple-950 {
+      background-color: #faf5ff !important;
+      color: #6b21a8 !important;
+      border-color: #e9d5ff !important;
+    }
+    html:not(.dark) #legenda-volante .text-emerald-400 { color: #065f46 !important; }
+    html:not(.dark) #legenda-volante .text-blue-400 { color: #0369a1 !important; }
+    html:not(.dark) #legenda-volante .text-amber-400 { color: #92400e !important; }
+    html:not(.dark) #legenda-volante .text-purple-400 { color: #6b21a8 !important; }
     
     /* TIPOGRAFIA E CONTRASTES NO TEMA CLARO */
     html:not(.dark) .text-white {
