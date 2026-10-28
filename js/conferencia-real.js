@@ -124,7 +124,11 @@ async function conferirTodosBilhetesSalvos() {
   let indisponiveis = 0;
 
   for (const bilhete of carteiraJogos) {
-    if (dataBRNoFuturo(bilhete.data)) {
+    const ehPassado = typeof window.concursoOuDataEhPassado === 'function'
+      ? window.concursoOuDataEhPassado(bilhete.concursoAlvo, bilhete.data, bilhete.modalidade)
+      : !dataBRNoFuturo(bilhete.data);
+
+    if (!ehPassado) {
       bilhete.conferido = false;
       bilhete.status = STATUS.aguardando;
       bilhete.premioGanho = 0;
@@ -142,6 +146,10 @@ async function conferirTodosBilhetesSalvos() {
       bilhete.premioGanho = 0;
       indisponiveis++;
       continue;
+    }
+
+    if (resultado.data && (!bilhete.data || bilhete.data !== resultado.data)) {
+      bilhete.data = resultado.data; // Corrige para a data oficial
     }
 
     const avaliacao = avaliarBilhete(bilhete, resultado);
@@ -215,7 +223,13 @@ function montarRegistroConcurso(resultado) {
 let conferindoAutomatico = false;
 async function conferirSorteiosPassadosAutomatico() {
   if (conferindoAutomatico || !Array.isArray(carteiraJogos) || carteiraJogos.length === 0) return;
-  const pendentes = carteiraJogos.filter(b => !b.conferido && !dataBRNoFuturo(b.data));
+  const pendentes = carteiraJogos.filter(b => {
+    if (b.conferido) return false;
+    if (typeof window.concursoOuDataEhPassado === 'function') {
+      return window.concursoOuDataEhPassado(b.concursoAlvo, b.data, b.modalidade);
+    }
+    return !dataBRNoFuturo(b.data);
+  });
   if (pendentes.length === 0) return;
 
   conferindoAutomatico = true;
@@ -225,6 +239,9 @@ async function conferirSorteiosPassadosAutomatico() {
     const numConc = bilhete.concursoAlvo ? Number(String(bilhete.concursoAlvo).replace(/\D/g, '')) : null;
     const resultado = await obterResultadoOficial(bilhete.modalidade, bilhete.data, numConc);
     if (resultado) {
+      if (resultado.data && (!bilhete.data || bilhete.data !== resultado.data)) {
+        bilhete.data = resultado.data;
+      }
       const avaliacao = avaliarBilhete(bilhete, resultado);
       bilhete.conferido = true;
       bilhete.status = avaliacao.status;

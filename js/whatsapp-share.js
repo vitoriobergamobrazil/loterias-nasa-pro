@@ -19,6 +19,18 @@ function obterInfoProximoSorteio(modalidade) {
     proximaData = ultimo.dataProximo || null;
   }
 
+  // Valida se proximaData ainda está no futuro ou é hoje
+  if (proximaData) {
+    const partes = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(proximaData).trim());
+    if (partes) {
+      const [, dia, mes, ano] = partes;
+      const alvo = new Date(Number(ano), Number(mes) - 1, Number(dia), 20, 0, 0);
+      if (alvo.getTime() <= Date.now()) {
+        proximaData = null; // A data gravada no registro anterior já passou!
+      }
+    }
+  }
+
   // Fallback para data calculada se não tiver vindo da Caixa ainda
   if (!proximaData) {
     if (typeof calcularProximoSorteio === 'function') {

@@ -885,12 +885,14 @@ html:not(.dark) .nasa-theme-chip {
 /* =========================================================================
    BARRA LATERAL DESKTOP (COCKPIT NASA - REDIMENSIONÁVEL & SEM TRUNCAMENTO)
    ========================================================================= */
-.nasa-desktop-sidebar {
-  display: none;
+.nasa-desktop-sidebar,
+#nasa-desktop-sidebar {
+  display: none !important;
 }
 
 @media (min-width: 1024px) {
-  .nasa-desktop-sidebar {
+  .nasa-desktop-sidebar,
+  #nasa-desktop-sidebar {
     display: flex !important;
     flex-direction: column;
     position: fixed;

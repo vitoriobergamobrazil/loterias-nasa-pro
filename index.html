@@ -777,6 +777,9 @@
           
 <div id="display-meu-jogo" class="flex flex-wrap gap-2 min-h-[54px] p-3 rounded-2xl bg-slate-950 border border-slate-800 items-center justify-center"></div>
 
+          <!-- Alerta Inteligente de Repetição / Jogo Já Jogado na Carteira -->
+          <div id="alerta-jogo-ja-jogado" class="hidden transition-all duration-300"></div>
+
           <!-- Ações Rápidas do Jogo: Joguei Este Jogo, Salvar na Carteira & WhatsApp -->
           <div class="space-y-2 pt-2">
             <!-- Botão de Ação Primária em Destaque: Joguei este jogo -->
@@ -1092,9 +1095,17 @@
           </div>
         </div>
 
+        <!-- Filtro Rápido de Temporalidade (Todos, Próximo Sorteio, Histórico Arquivado) -->
+        <div class="flex items-center gap-1.5 pt-0.5 text-[10px] font-bold">
+          <span class="text-slate-500 text-[9px] uppercase tracking-wider font-mono mr-0.5">Exibir:</span>
+          <button type="button" id="btn-filtro-tempo-todos" onclick="setFiltroTempoCarteira('todos')" class="px-2 py-0.5 rounded-lg bg-slate-800 text-cyan-300 border border-slate-700 transition">Todos</button>
+          <button type="button" id="btn-filtro-tempo-proximo" onclick="setFiltroTempoCarteira('proximo')" class="px-2 py-0.5 rounded-lg bg-slate-950 text-slate-400 hover:text-white border border-slate-800 transition">⏳ Próximo Sorteio</button>
+          <button type="button" id="btn-filtro-tempo-historico" onclick="setFiltroTempoCarteira('historico')" class="px-2 py-0.5 rounded-lg bg-slate-950 text-slate-400 hover:text-white border border-slate-800 transition">🏛️ Concursos Anteriores</button>
+        </div>
+
         <!-- Busca Instantânea de Jogo ou Concurso -->
         <div class="relative">
-          <input type="text" oninput="filtrarCarteiraBusca(this.value)" placeholder="🔍 Buscar por concurso (#2788), data ou dezenas..." class="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-sans">
+          <input type="text" id="input-busca-carteira" oninput="filtrarCarteiraBusca(this.value)" placeholder="🔍 Buscar por concurso (#2788), data ou dezenas..." class="w-full px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-sans">
         </div>
       </div>
 
@@ -1143,8 +1154,35 @@
           </span>
         </div>
 
-        <div class="space-y-2">
-          <textarea id="textarea-scanner-lote" rows="4" placeholder="Cole aqui seus jogos ou mensagem do WhatsApp...&#10;Ex: Jogo #1: 02 - 22 - 23 - 31 - 51 - 59&#10;Jogo #2: 04 - 09 - 17 - 18 - 34 - 58&#10;Ou apenas dezenas: 05 12 24 35 48 59" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono"></textarea>
+        <div class="space-y-2.5">
+          <!-- Identificação do Concurso e Data (Auto ou Manual para Bilhetes Anteriores) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-950/90 p-2.5 rounded-2xl border border-slate-800 text-xs font-mono">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label for="input-import-concurso-manual" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  🎯 Concurso do Jogo
+                </label>
+                <span class="text-[9px] text-cyan-400 font-sans">Atual ou Anterior</span>
+              </div>
+              <div class="flex gap-1.5">
+                <input type="text" id="input-import-concurso-manual" placeholder="Auto ou digite ex: #3074" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-1.5 text-xs text-white placeholder-slate-500 font-bold focus:outline-none focus:border-cyan-400 font-mono" />
+                <button type="button" onclick="document.getElementById('input-import-concurso-manual').value='#3074'" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 text-[10px] font-bold rounded-xl whitespace-nowrap border border-slate-700 active:scale-95 transition" title="Usar concurso apurado anterior">
+                  #3074
+                </button>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label for="input-import-data-manual" class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                  📅 Data do Sorteio
+                </label>
+                <span class="text-[9px] text-slate-500 font-sans">Opcional</span>
+              </div>
+              <input type="date" id="input-import-data-manual" class="w-full bg-slate-900 border border-slate-700/80 rounded-xl px-2.5 py-1.5 text-xs text-white font-mono focus:outline-none focus:border-cyan-400" />
+            </div>
+          </div>
+
+          <textarea id="textarea-scanner-lote" rows="3" placeholder="Cole aqui seus jogos ou mensagem do WhatsApp...&#10;Ex: Jogo #1: 02 - 22 - 23 - 31 - 51 - 59&#10;Jogo #2: 04 - 09 - 17 - 18 - 34 - 58&#10;Ou apenas dezenas: 05 12 24 35 48 59" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono"></textarea>
           
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <button type="button" onclick="importarJogosDoScannerLote()" class="w-full py-2.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-xs rounded-xl shadow-lg active:scale-[0.98] transition flex items-center justify-center gap-2 font-mono">

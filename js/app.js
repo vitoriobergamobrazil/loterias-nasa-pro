@@ -882,6 +882,112 @@
       } else {
         document.getElementById('custo-jogo-selecionado').innerText = `Mínimo de ${config.minDezenas} dezenas`;
       }
+
+      verificarJogoNaCarteira(jogo, modalidadeAtual);
+    }
+
+    function verificarJogoNaCarteira(jogo, mod) {
+      const container = document.getElementById('alerta-jogo-ja-jogado');
+      if (!container) return;
+
+      if (!Array.isArray(jogo) || jogo.length === 0) {
+        container.innerHTML = '';
+        container.classList.add('hidden');
+        return;
+      }
+
+      const config = typeof getConfigAtual === 'function' ? getConfigAtual() : { minDezenas: mod === 'lotofacil' ? 15 : 6 };
+      if (jogo.length < config.minDezenas) {
+        container.innerHTML = '';
+        container.classList.add('hidden');
+        return;
+      }
+
+      const modAtual = mod || modalidadeAtual;
+      const jogosCarteira = (carteiraJogos || []).filter(b => (b.modalidade || 'megasena') === modAtual);
+
+      if (jogosCarteira.length === 0) {
+        container.innerHTML = `
+          <div class="p-2 rounded-xl bg-emerald-950/30 border border-emerald-800/40 text-emerald-300 text-[11px] flex items-center justify-between gap-2 font-mono">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs">✨</span>
+              <span>Jogo Inédito • Primeira aposta do seu portfólio.</span>
+            </div>
+          </div>
+        `;
+        container.classList.remove('hidden');
+        return;
+      }
+
+      const jogoSet = new Set(jogo.map(Number));
+      let matchExato = null;
+      let matchParcial = null;
+      let maxIntersecao = 0;
+
+      for (const b of jogosCarteira) {
+        const dezB = (b.dezenas || []).map(Number);
+        const intersecao = dezB.filter(d => jogoSet.has(d));
+        if (dezB.length === jogo.length && intersecao.length === jogo.length) {
+          matchExato = b;
+          break;
+        }
+        if (intersecao.length > maxIntersecao) {
+          maxIntersecao = intersecao.length;
+          matchParcial = { bilhete: b, qtd: intersecao.length };
+        }
+      }
+
+      if (matchExato) {
+        const conc = matchExato.concursoAlvo || matchExato.concurso || '—';
+        const acertosTxt = matchExato.acertos !== undefined ? ` • ${matchExato.acertos} acertos` : '';
+        const statusTxt = matchExato.conferido ? `Apurado${acertosTxt}` : (matchExato.status || 'Registrado');
+        container.innerHTML = `
+          <div class="p-2.5 rounded-xl bg-amber-500/15 border-2 border-amber-500/50 text-amber-300 text-xs flex items-center justify-between gap-2 font-mono">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-base flex-shrink-0">⚠️</span>
+              <div class="min-w-0">
+                <div class="font-black text-amber-300 text-[11px] leading-tight">Você já jogou exatamente estas dezenas!</div>
+                <div class="text-[10px] text-amber-200/90 truncate">Concurso ${conc} (${matchExato.data || '—'}) • ${statusTxt}</div>
+              </div>
+            </div>
+            <button type="button" onclick="mudarAba('carteira'); if(typeof filtrarCarteiraBusca === 'function') { const inp = document.getElementById('input-busca-carteira'); if(inp) { inp.value='${conc}'; filtrarCarteiraBusca(inp.value); } }" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-[10px] whitespace-nowrap active:scale-95 transition flex-shrink-0 cursor-pointer">
+              Ver na Carteira
+            </button>
+          </div>
+        `;
+        container.classList.remove('hidden');
+        return;
+      }
+
+      // Mega-Sena: 5 de 6. Lotofácil: 13 ou 14 de 15.
+      const limiarAlta = modAtual === 'megasena' ? 5 : 13;
+      if (matchParcial && matchParcial.qtd >= limiarAlta) {
+        const conc = matchParcial.bilhete.concursoAlvo || matchParcial.bilhete.concurso || '—';
+        container.innerHTML = `
+          <div class="p-2 rounded-xl bg-cyan-950/40 border border-cyan-800/50 text-cyan-300 text-xs flex items-center justify-between gap-2 font-mono">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-sm flex-shrink-0">ℹ️</span>
+              <div class="text-[11px] min-w-0">
+                <strong class="text-cyan-200">${matchParcial.qtd} dezenas coincidem</strong> com seu bilhete do Concurso ${conc}.
+              </div>
+            </div>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-cyan-900/60 text-cyan-300 border border-cyan-700/60 font-bold flex-shrink-0">Alta Afinidade</span>
+          </div>
+        `;
+        container.classList.remove('hidden');
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="p-2 rounded-xl bg-emerald-950/25 border border-emerald-800/40 text-emerald-300 text-[11px] flex items-center justify-between gap-2 font-mono">
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs">✨</span>
+            <span>Jogo inédito no seu histórico pessoal (${jogosCarteira.length} apostas cadastradas).</span>
+          </div>
+          <button type="button" onclick="mudarAba('carteira')" class="text-[9px] text-cyan-400 hover:underline">Ver Histórico</button>
+        </div>
+      `;
+      container.classList.remove('hidden');
     }
 
     function limparSelecao() {
@@ -2458,7 +2564,8 @@ function gerarPalpiteInteligente() {
 
     function importarBilheteTexto() {
       const input = document.getElementById('textarea-scanner-lote') || document.getElementById('input-scanner-texto');
-      const inputData = document.getElementById('input-import-data')?.value;
+      const inputData = document.getElementById('input-import-data-manual')?.value || document.getElementById('input-import-data')?.value;
+      const inputConcManual = document.getElementById('input-import-concurso-manual')?.value?.trim();
       const containerSugestao = document.getElementById('container-sugestao-inteligente');
       if (containerSugestao) {
         containerSugestao.innerHTML = '';
@@ -2474,7 +2581,7 @@ function gerarPalpiteInteligente() {
       let dataManual = null;
       if (inputData) {
         const [ano, mes, dia] = inputData.split('-');
-        dataManual = `${dia}/${mes}/${ano}`;
+        if (dia && mes && ano) dataManual = `${dia}/${mes}/${ano}`;
       }
 
       const res = parsearJogosTextoCompleto(input.value, dataManual);
@@ -2487,12 +2594,57 @@ function gerarPalpiteInteligente() {
 
       const mod = res.modalidadeDetectada || (res.jogos?.[0]?.length >= 15 || res.incompletos?.[0]?.modalidade === 'lotofacil' ? 'lotofacil' : modalidadeAtual);
       const precoBase = mod === 'lotofacil' ? 3.0 : 5.0;
-      const dataFinal = res.data || (typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).data : new Date().toLocaleDateString('pt-BR'));
-      const concFinal = res.concurso || (typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).concurso : 'Oficial');
+
+      let concFinal = inputConcManual || res.concurso;
+      if (concFinal && !concFinal.startsWith('#') && /^\d+$/.test(concFinal)) {
+        concFinal = `#${concFinal}`;
+      }
+
+      let dataFinal = dataManual || res.data;
+
+      // Se informou concurso mas não informou data, busca data oficial histórica
+      const numConc = concFinal ? Number(String(concFinal).replace(/\D/g, '')) : 0;
+      const base = mod === 'megasena' ? (window.baseConcursosMega || []) : (window.baseConcursosLoto || []);
+      const encOficial = numConc > 0 ? base.find(c => Number(c.concurso) === numConc) : null;
+
+      if (encOficial && encOficial.data && !dataFinal) {
+        dataFinal = encOficial.data;
+      }
+
+      if (!dataFinal) {
+        dataFinal = typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).data : new Date().toLocaleDateString('pt-BR');
+      }
+      if (!concFinal) {
+        concFinal = typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).concurso : 'Oficial';
+      }
+
+      // Verifica se é concurso passado
+      const ehPassado = typeof window.concursoOuDataEhPassado === 'function'
+        ? window.concursoOuDataEhPassado(concFinal, dataFinal, mod)
+        : false;
 
       // Se encontrou jogos completos, salva na carteira
       if (res.jogos && res.jogos.length > 0) {
         res.jogos.forEach((dez, idx) => {
+          let conferido = false;
+          let status = ehPassado ? 'Sorteio Realizado' : 'Aguardando sorteio';
+          let premioGanho = 0;
+          let acertos = undefined;
+          let dezenasSorteadas = undefined;
+
+          if (encOficial && Array.isArray(encOficial.dezenas) && encOficial.dezenas.length > 0) {
+            dezenasSorteadas = encOficial.dezenas.map(Number);
+            acertos = dez.map(Number).filter(d => dezenasSorteadas.includes(d)).length;
+            conferido = true;
+            if (typeof avaliarBilhete === 'function') {
+              const av = avaliarBilhete({ modalidade: mod, dezenas: dez }, encOficial);
+              status = av.status;
+              premioGanho = av.premioGanho || 0;
+            } else {
+              status = `${acertos} acertos`;
+            }
+          }
+
           carteiraJogos.unshift({
             id: Date.now() + idx,
             modalidade: mod,
@@ -2501,9 +2653,11 @@ function gerarPalpiteInteligente() {
             data: dataFinal,
             concursoAlvo: concFinal,
             custo: precoBase,
-            premioGanho: 0,
-            conferido: false,
-            status: 'Aguardando sorteio',
+            premioGanho: premioGanho,
+            conferido: conferido,
+            status: status,
+            acertos: acertos,
+            dezenasSorteadas: dezenasSorteadas,
             registradoComoJogado: true,
             dataRegistro: new Date().toISOString()
           });
@@ -2513,7 +2667,15 @@ function gerarPalpiteInteligente() {
         atualizarPainelCarteira();
         input.value = '';
         tocarBeep('success');
-        toast(`✅ ${res.jogos.length} aposta(s) importada(s) para ${concFinal} (${dataFinal})!`, "📥");
+        
+        if (encOficial) {
+          toast(`✅ ${res.jogos.length} aposta(s) do Concurso ${concFinal} arquivadas e apuradas!`, "🎉");
+        } else {
+          toast(`✅ ${res.jogos.length} aposta(s) importada(s) para ${concFinal} (${dataFinal})!`, "📥");
+          if (ehPassado && typeof conferirSorteiosPassadosAutomatico === 'function') {
+            conferirSorteiosPassadosAutomatico();
+          }
+        }
         if (typeof alternarSubAbaCarteira === 'function') {
           alternarSubAbaCarteira('bilhetes');
         }
@@ -4110,17 +4272,71 @@ function abrirModalDialog(msg, callback) {
         toast("Cole ou informe o texto das apostas.", "⚠️");
         return 0;
       }
-      const res = parsearJogosTextoCompleto(texto);
+
+      const manualConcInput = document.getElementById('input-import-concurso-manual')?.value?.trim();
+      const manualDataInput = document.getElementById('input-import-data-manual')?.value?.trim();
+      let dataManualFormatada = null;
+      if (manualDataInput) {
+        const [ano, mes, dia] = manualDataInput.split('-');
+        if (dia && mes && ano) dataManualFormatada = `${dia}/${mes}/${ano}`;
+      }
+
+      const res = parsearJogosTextoCompleto(texto, dataManualFormatada);
       if (!res.jogos || res.jogos.length === 0) {
         toast("Nenhum jogo identificado no texto. Verifique as dezenas.", "⚠️");
         return 0;
       }
       const mod = res.modalidadeDetectada || (res.jogos[0].length >= 15 ? 'lotofacil' : modalidadeAtual);
       const precoBase = mod === 'lotofacil' ? 3.0 : 5.0;
-      const dataFinal = res.data || (typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).data : new Date().toLocaleDateString('pt-BR'));
-      const concFinal = res.concurso || (typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).concurso : 'Oficial');
+
+      let concFinal = manualConcInput || res.concurso;
+      if (concFinal && !concFinal.startsWith('#') && /^\d+$/.test(concFinal)) {
+        concFinal = `#${concFinal}`;
+      }
+
+      let dataFinal = dataManualFormatada || res.data;
+
+      // Se informou concurso mas não informou data, busca data oficial histórica
+      const numConc = concFinal ? Number(String(concFinal).replace(/\D/g, '')) : 0;
+      const base = mod === 'megasena' ? (window.baseConcursosMega || []) : (window.baseConcursosLoto || []);
+      const encOficial = numConc > 0 ? base.find(c => Number(c.concurso) === numConc) : null;
+
+      if (encOficial && encOficial.data && !dataFinal) {
+        dataFinal = encOficial.data;
+      }
+
+      if (!dataFinal) {
+        dataFinal = typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).data : new Date().toLocaleDateString('pt-BR');
+      }
+      if (!concFinal) {
+        concFinal = typeof obterInfoProximoSorteio === 'function' ? obterInfoProximoSorteio(mod).concurso : 'Oficial';
+      }
+
+      // Verifica se é concurso passado
+      const ehPassado = typeof window.concursoOuDataEhPassado === 'function'
+        ? window.concursoOuDataEhPassado(concFinal, dataFinal, mod)
+        : false;
 
       res.jogos.forEach((dez, idx) => {
+        let conferido = false;
+        let status = ehPassado ? 'Sorteio Realizado' : 'Aguardando sorteio';
+        let premioGanho = 0;
+        let acertos = undefined;
+        let dezenasSorteadas = undefined;
+
+        if (encOficial && Array.isArray(encOficial.dezenas) && encOficial.dezenas.length > 0) {
+          dezenasSorteadas = encOficial.dezenas.map(Number);
+          acertos = dez.map(Number).filter(d => dezenasSorteadas.includes(d)).length;
+          conferido = true;
+          if (typeof avaliarBilhete === 'function') {
+            const av = avaliarBilhete({ modalidade: mod, dezenas: dez }, encOficial);
+            status = av.status;
+            premioGanho = av.premioGanho || 0;
+          } else {
+            status = `${acertos} acertos`;
+          }
+        }
+
         carteiraJogos.unshift({
           id: Date.now() + idx + Math.random(),
           modalidade: mod,
@@ -4129,9 +4345,11 @@ function abrirModalDialog(msg, callback) {
           data: dataFinal,
           concursoAlvo: concFinal,
           custo: precoBase,
-          premioGanho: 0,
-          conferido: false,
-          status: 'Aguardando sorteio',
+          premioGanho: premioGanho,
+          conferido: conferido,
+          status: status,
+          acertos: acertos,
+          dezenasSorteadas: dezenasSorteadas,
           registradoComoJogado: true,
           dataRegistro: new Date().toISOString()
         });
@@ -4140,7 +4358,15 @@ function abrirModalDialog(msg, callback) {
       salvarCarteiraStorage();
       atualizarPainelCarteira();
       tocarSomNasa('sucesso');
-      toast(`✅ ${res.jogos.length} aposta(s) salvas com sucesso para o concurso ${concFinal}!`, "🎉");
+      
+      if (encOficial) {
+        toast(`✅ ${res.jogos.length} aposta(s) do Concurso ${concFinal} arquivadas e apuradas!`, "🎉");
+      } else {
+        toast(`✅ ${res.jogos.length} aposta(s) salvas com sucesso para o concurso ${concFinal}!`, "🎉");
+        if (ehPassado && typeof conferirSorteiosPassadosAutomatico === 'function') {
+          conferirSorteiosPassadosAutomatico();
+        }
+      }
       return res.jogos.length;
     }
 

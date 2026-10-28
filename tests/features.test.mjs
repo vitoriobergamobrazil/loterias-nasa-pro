@@ -143,3 +143,60 @@ Total de Jogos: 2
   assert.equal(res4.incompletos[0].sugestao.jogoCompleto.length, 15);
   assert.ok(res4.incompletos[0].sugestao.dezenasSugeridas[0] >= 1 && res4.incompletos[0].sugestao.dezenasSugeridas[0] <= 25);
 });
+
+test('Carteira & Inteligência: Identificação de Concursos Passados e Detector de Jogos Já Jogados', () => {
+  // 1. Validação de Concursos Passados vs Futuros
+  const baseSimulada = [{ concurso: 3074, data: '24/10/2026', dezenas: [2, 5, 18, 27, 44, 59] }];
+
+  function concursoOuDataEhPassado(concurso, data, base) {
+    const numConc = concurso ? Number(String(concurso).replace(/\D/g, '')) : null;
+    if (numConc && base.length > 0) {
+      const ultimo = Number(base[0].concurso);
+      if (numConc <= ultimo || base.some(c => Number(c.concurso) === numConc)) {
+        return true;
+      }
+    }
+    if (data) {
+      const partes = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(data).trim());
+      if (partes) {
+        const [, dia, mes, ano] = partes;
+        const alvo = new Date(Number(ano), Number(mes) - 1, Number(dia), 20, 0, 0);
+        return alvo.getTime() <= Date.now();
+      }
+    }
+    return false;
+  }
+
+  assert.equal(concursoOuDataEhPassado('#3074', null, baseSimulada), true, 'Concurso 3074 deve ser reconhecido como passado');
+  assert.equal(concursoOuDataEhPassado('#3070', null, baseSimulada), true, 'Concurso anterior 3070 deve ser passado');
+  assert.equal(concursoOuDataEhPassado('#3075', '30/12/2099', baseSimulada), false, 'Concurso futuro 3075 em 2099 não deve ser passado');
+
+  // 2. Detector de Jogos Repetidos na Carteira
+  const carteiraMock = [
+    { concursoAlvo: '#3074', data: '24/10/2026', dezenas: [2, 5, 18, 27, 44, 59] },
+    { concursoAlvo: '#3070', data: '15/10/2026', dezenas: [1, 2, 3, 4, 5, 6] }
+  ];
+
+  function verificarSobreposicao(jogo, carteira) {
+    const jogoSet = new Set(jogo.map(Number));
+    let matchExato = false;
+    let maxOverlap = 0;
+
+    for (const b of carteira) {
+      const inter = (b.dezenas || []).filter(d => jogoSet.has(Number(d))).length;
+      if (inter === jogo.length && b.dezenas.length === jogo.length) {
+        matchExato = true;
+        break;
+      }
+      if (inter > maxOverlap) maxOverlap = inter;
+    }
+
+    if (matchExato) return 'exato';
+    if (maxOverlap >= 5) return 'alta_afinidade';
+    return 'inedito';
+  }
+
+  assert.equal(verificarSobreposicao([2, 5, 18, 27, 44, 59], carteiraMock), 'exato', 'Deve detectar jogo idêntico já jogado');
+  assert.equal(verificarSobreposicao([2, 5, 18, 27, 44, 60], carteiraMock), 'alta_afinidade', '5 acertos deve detectar alta afinidade');
+  assert.equal(verificarSobreposicao([10, 20, 30, 40, 50, 60], carteiraMock), 'inedito', 'Jogo sem sobreposição deve ser inédito');
+});

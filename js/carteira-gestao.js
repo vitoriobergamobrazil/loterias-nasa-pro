@@ -9,8 +9,50 @@
     modalidade: 'todas', // 'todas', 'megasena', 'lotofacil'
     status: 'todos',     // 'todos', 'pendente', 'premiado'
     modo: 'agrupado',    // 'agrupado' (por concurso) ou 'lista' (plano)
+    tempo: 'todos',      // 'todos', 'proximo', 'historico'
     busca: '',
     gruposAbertos: {}
+  };
+
+  window.concursoOuDataEhPassado = function (concurso, data, modalidade) {
+    const mod = modalidade || 'megasena';
+    const base = mod === 'megasena' ? (window.baseConcursosMega || []) : (window.baseConcursosLoto || []);
+    const numConc = concurso ? Number(String(concurso).replace(/\D/g, '')) : null;
+    
+    // 1. Se concurso existe na base ou é menor/igual ao último apurado conhecido
+    if (numConc && base.length > 0) {
+      const ultimo = Number(base[0].concurso);
+      if (numConc <= ultimo || base.some(c => Number(c.concurso) === numConc)) {
+        return true;
+      }
+    }
+
+    // 2. Se a data é passada (antes de agora ou passou das 20h)
+    if (data) {
+      const partes = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(data).trim());
+      if (partes) {
+        const [, dia, mes, ano] = partes;
+        const alvo = new Date(Number(ano), Number(mes) - 1, Number(dia), 20, 0, 0);
+        return alvo.getTime() <= Date.now();
+      }
+    }
+    return false;
+  };
+
+  window.setFiltroTempoCarteira = function (tempo) {
+    window.carteiraFiltros.tempo = tempo;
+    ['todos', 'proximo', 'historico'].forEach(t => {
+      const btn = document.getElementById(`btn-filtro-tempo-${t}`);
+      if (btn) {
+        if (t === tempo) {
+          btn.className = 'px-2 py-0.5 rounded-lg bg-slate-800 text-cyan-300 border border-slate-700 transition font-bold';
+        } else {
+          btn.className = 'px-2 py-0.5 rounded-lg bg-slate-950 text-slate-400 hover:text-white border border-slate-800 transition font-medium';
+        }
+      }
+    });
+    if (typeof window.tocarBeep === 'function') window.tocarBeep('click');
+    window.atualizarPainelCarteira();
   };
 
   window.alternarModoCarteira = function (novoModo) {
@@ -163,9 +205,25 @@
             const enc = base.find(c => Number(c.concurso) === numConc);
             if (enc && Array.isArray(enc.dezenas) && enc.dezenas.length > 0) {
               grupos[grupoChave].dezenasSorteadas = enc.dezenas.map(Number);
+              if (enc.data && (!grupos[grupoChave].data || grupos[grupoChave].data === 'Sem data' || grupos[grupoChave].data.includes('undefined'))) {
+                grupos[grupoChave].data = enc.data;
+              }
             }
           }
         }
+      }
+    });
+
+    Object.values(grupos).forEach(g => {
+      if (g.dezenasSorteadas && g.dezenasSorteadas.length > 0) {
+        g.bilhetes.forEach(b => {
+          if (!b.conferido || b.acertos === undefined) {
+            const ac = (b.dezenas || []).filter(d => g.dezenasSorteadas.includes(Number(d))).length;
+            b.acertos = ac;
+            b.conferido = true;
+            b.dezenasSorteadas = g.dezenasSorteadas;
+          }
+        });
       }
     });
 
@@ -270,6 +328,12 @@
       filtrados = filtrados.filter(b => (b.modalidade || 'megasena') === window.carteiraFiltros.modalidade);
     }
 
+    if (window.carteiraFiltros.tempo === 'proximo') {
+      filtrados = filtrados.filter(b => !window.concursoOuDataEhPassado(b.concursoAlvo || b.concurso, b.data, b.modalidade));
+    } else if (window.carteiraFiltros.tempo === 'historico') {
+      filtrados = filtrados.filter(b => window.concursoOuDataEhPassado(b.concursoAlvo || b.concurso, b.data, b.modalidade));
+    }
+
     if (window.carteiraFiltros.status === 'pendente') {
       filtrados = filtrados.filter(b => !b.conferido || Number(b.premioGanho || 0) === 0);
     } else if (window.carteiraFiltros.status === 'premiado') {
@@ -294,7 +358,7 @@
         btnConferir.innerHTML = '<span>⚡</span> <span>CONFERIR TUDO</span>';
       } else {
         const todosConferidos = listaOriginal.every(b => b.conferido);
-        const temPendentesPassados = listaOriginal.some(b => !b.conferido && (typeof dataBRNoFuturo === 'function' ? !dataBRNoFuturo(b.data) : true));
+        const temPendentesPassados = listaOriginal.some(b => !b.conferido && window.concursoOuDataEhPassado(b.concursoAlvo || b.concurso, b.data, b.modalidade));
         if (todosConferidos) {
           btnConferir.className = 'px-3 py-1.5 bg-slate-900 text-emerald-400 border border-emerald-500/40 font-black text-xs rounded-xl shadow transition flex items-center gap-1.5';
           btnConferir.innerHTML = '<span>✓</span> <span>CONFERIDO</span>';
@@ -354,7 +418,7 @@
         const isMega = g.modalidade === 'megasena';
         const todosConferidos = g.bilhetes.every(b => b.conferido);
         const algumConferido = g.bilhetes.some(b => b.conferido);
-        const ehPassado = g.data ? (typeof dataBRNoFuturo === 'function' ? !dataBRNoFuturo(g.data) : true) : false;
+        const ehPassado = window.concursoOuDataEhPassado(g.concurso, g.data, g.modalidade);
 
         let statusBadge = '';
         if (g.totalPremio > 0) {
@@ -362,9 +426,9 @@
         } else if (todosConferidos || algumConferido) {
           const maxAcertos = Math.max(0, ...g.bilhetes.map(b => b.acertos || 0));
           const rotulo = maxAcertos > 0 ? `${maxAcertos} acerto${maxAcertos > 1 ? 's' : ''}` : '0 acertos';
-          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700 text-[10px] font-bold">Conferido • ${rotulo}</span>`;
+          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-slate-800/90 text-emerald-300 border border-slate-700 text-[10px] font-bold">✅ Apurado • ${rotulo}</span>`;
         } else if (ehPassado) {
-          statusBadge = `<button type="button" onclick="event.stopPropagation(); conferirTodosBilhetesSalvos()" class="px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 text-[10px] font-black transition flex items-center gap-1 shadow">⚡ Sorteio Realizado • Conferir</button>`;
+          statusBadge = `<button type="button" onclick="event.stopPropagation(); conferirTodosBilhetesSalvos()" class="px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 text-[10px] font-black transition flex items-center gap-1 shadow">⚡ Concurso Apurado • Conferir</button>`;
         } else {
           statusBadge = `<span class="px-2.5 py-1 rounded-full bg-slate-900 text-slate-400 border border-slate-800 text-[10px] font-medium">⏳ Aguardando Sorteio</span>`;
         }
