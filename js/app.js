@@ -1133,36 +1133,122 @@ function gerarPalpiteInteligente() {
 
     function executarAnaliseVitorio() {
       const jogo = getJogoAtual();
-      if (modalidadeAtual !== 'megasena' || jogo.length < 6) return;
-
-      const linhasSet = new Set(jogo.map(n => Math.floor((n - 1) / 10) + 1));
-      const colunasSet = new Set(jogo.map(n => ((n - 1) % 10) + 1));
-      
-      const r = linhasSet.size;
-      const c = colunasSet.size;
-      const area = r * c;
-
       const elLinhas = document.getElementById('vit-linhas');
       const elColunas = document.getElementById('vit-colunas');
       const elArea = document.getElementById('vit-area');
       const elVazios = document.getElementById('vit-quad-vazios');
+      const elBadge = document.getElementById('vit-badge-matriz');
+      const elStatus = document.getElementById('vit-status-calibracao');
 
-      if (elLinhas) elLinhas.innerText = `${r} Linhas`;
-      if (elColunas) elColunas.innerText = `${c} Colunas`;
-      if (elArea) {
-        elArea.innerText = `${area} dezenas`;
-        elArea.className = area <= 20 ? 'text-emerald-400 text-sm block mt-0.5 font-bold' : 'text-amber-400 text-sm block mt-0.5 font-bold';
+      if (!jogo || jogo.length < (modalidadeAtual === 'megasena' ? 6 : 15)) {
+        if (elLinhas) elLinhas.innerText = '-';
+        if (elColunas) elColunas.innerText = '-';
+        if (elArea) elArea.innerText = '-';
+        if (elVazios) elVazios.innerText = '-';
+        if (elBadge) {
+          elBadge.innerText = 'Aguardando Jogo';
+          elBadge.className = 'text-[9px] px-2 py-0.5 rounded bg-slate-950 text-slate-400 border border-slate-800 font-bold ml-1';
+        }
+        if (elStatus) {
+          elStatus.innerText = 'Preencha o volante para calibrar a matriz';
+          elStatus.className = 'text-slate-400 font-mono text-[10px]';
+        }
+        return;
       }
 
-      const qCount = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
-      jogo.forEach(num => {
-        const l = Math.floor((num - 1) / 10);
-        const col = (num - 1) % 10;
-        qCount[l <= 2 ? (col <= 4 ? 'Q1' : 'Q2') : (col <= 4 ? 'Q3' : 'Q4')]++;
-      });
-      const vazios = Object.entries(qCount).filter(([_, count]) => count === 0).map(([q]) => q);
-      if (elVazios) {
-        elVazios.innerText = vazios.length > 0 ? `${vazios.join(', ')} (Ficou de fora)` : 'Nenhum (cobre os 4)';
+      if (modalidadeAtual === 'megasena') {
+        const linhasSet = new Set(jogo.map((n) => Math.floor((n - 1) / 10) + 1));
+        const colunasSet = new Set(jogo.map((n) => ((n - 1) % 10) + 1));
+        
+        const r = linhasSet.size;
+        const c = colunasSet.size;
+        const area = r * c;
+
+        if (elLinhas) {
+          elLinhas.innerText = `${r} Linhas`;
+          elLinhas.className = (r >= 3 && r <= 5)
+            ? 'text-emerald-400 text-xs block mt-0.5 font-bold'
+            : (r <= 2 ? 'text-rose-400 text-xs block mt-0.5 font-bold' : 'text-cyan-400 text-xs block mt-0.5 font-bold');
+        }
+        if (elColunas) {
+          elColunas.innerText = `${c} Colunas`;
+          elColunas.className = (c >= 3 && c <= 6)
+            ? 'text-teal-400 text-xs block mt-0.5 font-bold'
+            : 'text-rose-400 text-xs block mt-0.5 font-bold';
+        }
+        if (elArea) {
+          elArea.innerText = `${area} posições`;
+          elArea.className = area <= 24 ? 'text-emerald-400 text-xs block mt-0.5 font-bold' : 'text-amber-400 text-xs block mt-0.5 font-bold';
+        }
+
+        const qCount = { Q1: 0, Q2: 0, Q3: 0, Q4: 0 };
+        jogo.forEach((num) => {
+          const l = Math.floor((num - 1) / 10);
+          const col = (num - 1) % 10;
+          qCount[l <= 2 ? (col <= 4 ? 'Q1' : 'Q2') : (col <= 4 ? 'Q3' : 'Q4')]++;
+        });
+        const vazios = Object.entries(qCount).filter(([_, count]) => count === 0).map(([q]) => q);
+        if (elVazios) {
+          if (vazios.length === 0) {
+            elVazios.innerText = 'Nenhum (cobre os 4 quadrantes)';
+            elVazios.className = 'text-emerald-400 text-xs font-bold';
+          } else if (vazios.length === 1) {
+            elVazios.innerText = `${vazios[0]} livre (Zona de Escape NASA)`;
+            elVazios.className = 'text-cyan-400 text-xs font-bold';
+          } else {
+            elVazios.innerText = `⚠️ ${vazios.join(', ')} vazios (Aglomeração)`;
+            elVazios.className = 'text-rose-400 text-xs font-bold';
+          }
+        }
+
+        // Calibração Ativa da Regra de 79.4%
+        const dentroPadrao79 = (r >= 3 && r <= 5) && (c >= 3 && c <= 6) && (vazios.length <= 1);
+        const aglomerado = r <= 2 || c <= 2 || vazios.length >= 2;
+
+        if (elBadge) {
+          if (dentroPadrao79) {
+            elBadge.innerText = '✅ 79.4% Calibrado';
+            elBadge.className = 'text-[9px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 font-bold ml-1';
+          } else if (aglomerado) {
+            elBadge.innerText = '⚠️ Fora dos 79.4% (Aglomeração)';
+            elBadge.className = 'text-[9px] px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold ml-1';
+          } else {
+            elBadge.innerText = '⚖️ Dispersão Atípica';
+            elBadge.className = 'text-[9px] px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold ml-1';
+          }
+        }
+
+        if (elStatus) {
+          if (dentroPadrao79) {
+            elStatus.innerHTML = `<span class="text-emerald-300 font-bold">🎯 Calibrado no envelope ideal (${r}L x ${c}C)</span>`;
+          } else if (aglomerado) {
+            elStatus.innerHTML = `<span class="text-rose-400 font-bold">⚠️ Risco: Aglomeração em poucas linhas/colunas</span>`;
+          } else {
+            elStatus.innerHTML = `<span class="text-amber-300 font-bold">⚖️ Dispersão máxima (1 dezena por linha/coluna)</span>`;
+          }
+        }
+      } else {
+        // Lotofácil 5x5
+        const linhasSet = new Set(jogo.map((n) => Math.floor((n - 1) / 5) + 1));
+        const colunasSet = new Set(jogo.map((n) => ((n - 1) % 5) + 1));
+        const moldura = jogo.filter((x) => LOTO_CONFIG.moldura.includes(x)).length;
+        const miolo = jogo.length - moldura;
+
+        if (elLinhas) elLinhas.innerText = `${linhasSet.size} de 5 Linhas`;
+        if (elColunas) elColunas.innerText = `${colunasSet.size} de 5 Colunas`;
+        if (elArea) elArea.innerText = `${moldura} Moldura / ${miolo} Miolo`;
+        if (elVazios) elVazios.innerText = (moldura >= 9 && moldura <= 11) ? '✅ Proporção Áurea (10/5 ou 9/6)' : '⚠️ Proporção Desbalanceada';
+
+        if (elBadge) {
+          const ideal = moldura >= 9 && moldura <= 11 && linhasSet.size === 5 && colunasSet.size === 5;
+          elBadge.innerText = ideal ? '✅ 82% Padrão Ouro' : '⚠️ Fora do Padrão';
+          elBadge.className = ideal 
+            ? 'text-[9px] px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-700 font-bold ml-1'
+            : 'text-[9px] px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold ml-1';
+        }
+        if (elStatus) {
+          elStatus.innerHTML = `<span class="text-purple-300 font-bold">🎯 Matriz 5x5: ${moldura} na Moldura / ${miolo} no Miolo</span>`;
+        }
       }
     }
 
@@ -5439,10 +5525,17 @@ function abrirModalDialog(msg, callback) {
       }
 
       const elBateria = document.getElementById('conteudo-bateria-testes');
-      if (elBateria && elBateria.classList.contains('hidden')) {
+      if (elBateria) {
         elBateria.classList.remove('hidden');
         const setaBateria = document.getElementById('seta-bateria-testes');
         if (setaBateria) setaBateria.innerText = '⯆';
+      }
+
+      const elMatriz = document.getElementById('conteudo-matriz-vitorio');
+      if (elMatriz) {
+        elMatriz.classList.remove('hidden');
+        const setaMatriz = document.getElementById('seta-matriz-vitorio');
+        if (setaMatriz) setaMatriz.innerText = '⯆';
       }
 
       tocarBeep('success');

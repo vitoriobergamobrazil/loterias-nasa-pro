@@ -830,8 +830,13 @@ function aplicarVisibilidadeSubAbaGerar() {
     mostrar(cardScore, true);
     mostrar(cardSugestao, true);
     mostrar(cardMatriz, true);
-    mostrar(cardTestes, false);
+    mostrar(cardTestes, true);
     mostrar(cardRetro, false);
+    // Garante que a bateria dos 6 testes e a matriz comecem abertas
+    const elBat = document.getElementById('conteudo-bateria-testes');
+    if (elBat) elBat.classList.remove('hidden');
+    const elMat = document.getElementById('conteudo-matriz-vitorio');
+    if (elMat) elMat.classList.remove('hidden');
   } else if (subAbaGerarAtiva === 'testes') {
     mostrar(cardGerador, false);
     mostrar(cardVolante, false);
@@ -1570,18 +1575,24 @@ function carregarConcursoHistoricoNoVolante(numConcurso, modDesejada) {
     alternarSubAbaGerar(window.innerWidth <= 640 ? 'volante' : 'todos');
   }
 
-  // Garante que o painel de testes esteja visível
+  // Garante que o painel de testes e matriz estejam visíveis e expandidos
   const elBateria = document.getElementById('conteudo-bateria-testes');
-  if (elBateria && elBateria.classList.contains('hidden')) {
+  if (elBateria) {
     elBateria.classList.remove('hidden');
     const setaBateria = document.getElementById('seta-bateria-testes');
     if (setaBateria) setaBateria.innerText = '⯆';
+  }
+  const elMatriz = document.getElementById('conteudo-matriz-vitorio');
+  if (elMatriz) {
+    elMatriz.classList.remove('hidden');
+    const setaMatriz = document.getElementById('seta-matriz-vitorio');
+    if (setaMatriz) setaMatriz.innerText = '⯆';
   }
 
   if (typeof tocarBeep === 'function') tocarBeep('sucesso');
   if (typeof vibrarHaptico === 'function') vibrarHaptico(25);
   if (typeof toast === 'function') {
-    toast(`🎯 Concurso #${conc.concurso} (${conc.data || ''}) carregado no Volante! Telemetria calculada.`, '🔬');
+    toast(`🎯 Concurso #${conc.concurso} (${conc.data || ''}) carregado no Volante! Telemetria e 6 testes calculados.`, '🔬');
   }
 
   setTimeout(() => {
