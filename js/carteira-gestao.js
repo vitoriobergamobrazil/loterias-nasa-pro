@@ -167,18 +167,37 @@
 
   function agruparBilhetes(bilhetes) {
     const grupos = {};
+    let houveCorrecaoData = false;
 
     bilhetes.forEach((b) => {
       const mod = b.modalidade || 'megasena';
-      const conc = b.concursoAlvo || b.concurso || 'Próximo';
-      const data = b.data || 'Sem data';
-      const grupoChave = `${mod}_${conc}_${data}`;
+      let conc = b.concursoAlvo || b.concurso || 'Próximo';
+      let data = b.data || 'Sem data';
+
+      // REGRA MESTRA: A data de um sorteio é única por concurso na Caixa!
+      // Se o concurso existe na base oficial (ex: #3077 é 28/10/2026),
+      // a data de qualquer aposta desse concurso DEVE ser a data oficial dele!
+      const numConc = Number(String(conc).replace(/\D/g, ''));
+      const base = mod === 'megasena' ? (window.baseConcursosMega || []) : (window.baseConcursosLoto || []);
+      const enc = numConc > 0 ? base.find(c => Number(c.concurso) === numConc) : null;
+      if (enc && enc.data) {
+        if (data !== enc.data || b.data !== enc.data) {
+          data = enc.data;
+          b.data = enc.data;
+          houveCorrecaoData = true;
+        }
+      }
+
+      // Agrupa estritamente por MODALIDADE + CONCURSO (ex: megasena_#3077)
+      // Dois bilhetes do mesmo concurso NUNCA mais serão divididos em cartões separados!
+      const concNorm = String(conc).trim().startsWith('#') ? String(conc).trim() : `#${String(conc).trim()}`;
+      const grupoChave = `${mod}_${concNorm}`;
 
       if (!grupos[grupoChave]) {
         grupos[grupoChave] = {
           id: grupoChave,
           modalidade: mod,
-          concurso: conc,
+          concurso: concNorm,
           data: data,
           bilhetes: [],
           totalCusto: 0,
@@ -199,20 +218,17 @@
         if (Array.isArray(b.dezenasSorteadas) && b.dezenasSorteadas.length > 0) {
           grupos[grupoChave].dezenasSorteadas = b.dezenasSorteadas.map(Number);
         } else {
-          const numConc = Number(String(conc).replace(/\D/g, ''));
-          const base = mod === 'megasena' ? (window.baseConcursosMega || []) : (window.baseConcursosLoto || []);
-          if (numConc > 0) {
-            const enc = base.find(c => Number(c.concurso) === numConc);
-            if (enc && Array.isArray(enc.dezenas) && enc.dezenas.length > 0) {
-              grupos[grupoChave].dezenasSorteadas = enc.dezenas.map(Number);
-              if (enc.data && (!grupos[grupoChave].data || grupos[grupoChave].data === 'Sem data' || grupos[grupoChave].data.includes('undefined'))) {
-                grupos[grupoChave].data = enc.data;
-              }
-            }
+          if (enc && Array.isArray(enc.dezenas) && enc.dezenas.length > 0) {
+            grupos[grupoChave].dezenasSorteadas = enc.dezenas.map(Number);
+            if (enc.data) grupos[grupoChave].data = enc.data;
           }
         }
       }
     });
+
+    if (houveCorrecaoData && typeof window.salvarCarteiraStorage === 'function') {
+      window.salvarCarteiraStorage();
+    }
 
     Object.values(grupos).forEach(g => {
       if (g.dezenasSorteadas && g.dezenasSorteadas.length > 0) {
