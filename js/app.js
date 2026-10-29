@@ -3390,6 +3390,13 @@ function executarDesdobramento() {
 
         if (!jaTemos) {
           base.unshift(montarRegistroConcurso(resultado));
+          if (typeof salvarCacheHistorico === 'function') {
+            salvarCacheHistorico({ megasena: baseConcursosMega, lotofacil: baseConcursosLoto });
+          }
+          if (typeof atualizarUltimoResultadoHome === 'function') atualizarUltimoResultadoHome();
+          if (typeof atualizarProvaDosFatosRedesign === 'function') atualizarProvaDosFatosRedesign();
+          if (typeof renderizarCockpitInicioApostador === 'function') renderizarCockpitInicioApostador();
+          if (typeof rerenderizarAnalises === 'function') rerenderizarAnalises();
         }
 
         await conferirTodosBilhetesSalvos();

@@ -284,6 +284,56 @@
     }
   };
 
+  window.reatribuirConcursoLote = function (grupoId, concursoAlvoDesejado) {
+    const bilhetes = obterListaCarteira();
+    const grupos = agruparBilhetes(bilhetes);
+    const grupo = grupos.find(g => g.id === grupoId);
+    if (!grupo) return;
+
+    const base = grupo.modalidade === 'megasena' ? (window.baseConcursosMega || []) : (window.baseConcursosLoto || []);
+    let concursoDestino = concursoAlvoDesejado;
+
+    if (!concursoDestino) {
+      const ultimosConc = base.slice(0, 4).map(c => `#${c.concurso}`);
+      const sugestao = ultimosConc[0] || '#3077';
+      const digitado = prompt(
+        `Para qual concurso você deseja mover esta(s) ${grupo.bilhetes.length} aposta(s)?\nSugestões: ${ultimosConc.join(', ')}`,
+        sugestao
+      );
+      if (!digitado || !digitado.trim()) return;
+      concursoDestino = digitado.trim();
+    }
+
+    const concFormatado = concursoDestino.startsWith('#') ? concursoDestino : `#${concursoDestino}`;
+    const numConc = Number(concFormatado.replace(/\D/g, ''));
+    const achado = base.find(c => Number(c.concurso) === numConc);
+    const novaData = achado?.data || grupo.data;
+
+    const idsGrupo = new Set(grupo.bilhetes.map(b => String(b.id)));
+    (window.carteiraJogos || []).forEach(b => {
+      if (idsGrupo.has(String(b.id))) {
+        b.concursoAlvo = concFormatado;
+        b.concurso = concFormatado;
+        if (novaData) b.data = novaData;
+        b.conferido = false;
+        b.status = 'Aguardando conferência';
+        b.premioGanho = 0;
+        b.acertos = undefined;
+      }
+    });
+
+    if (typeof window.salvarCarteiraStorage === 'function') window.salvarCarteiraStorage();
+    window.atualizarPainelCarteira();
+
+    if (typeof window.conferirSorteiosPassadosAutomatico === 'function') {
+      window.conferirSorteiosPassadosAutomatico();
+    }
+
+    if (typeof window.toast === 'function') {
+      window.toast(`Aposta(s) movida(s) para o Concurso ${concFormatado}!`, '✅');
+    }
+  };
+
   // Substitui a renderização padrão da carteira por uma interface de alta escalabilidade
   window.renderizarCarteiraInteligente = function () {
     const container = document.getElementById('container-bilhetes-salvos');
@@ -430,7 +480,16 @@
         } else if (ehPassado) {
           statusBadge = `<button type="button" onclick="event.stopPropagation(); conferirTodosBilhetesSalvos()" class="px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 text-[10px] font-black transition flex items-center gap-1 shadow">⚡ Concurso Apurado • Conferir</button>`;
         } else {
-          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-slate-900 text-slate-400 border border-slate-800 text-[10px] font-medium">⏳ Aguardando Sorteio</span>`;
+          const modBase = g.modalidade === 'megasena' ? (window.baseConcursosMega || []) : (window.baseConcursosLoto || []);
+          const ultimoNum = modBase.length > 0 ? `#${modBase[0].concurso}` : '#3077';
+          statusBadge = `
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="px-2.5 py-1 rounded-full bg-slate-900 text-slate-400 border border-slate-800 text-[10px] font-medium">⏳ Aguardando Sorteio</span>
+              <button type="button" onclick="event.stopPropagation(); window.reatribuirConcursoLote('${g.id}', '${ultimoNum}')" class="px-2 py-0.5 rounded-full bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-700 text-[10px] font-bold transition flex items-center gap-1 shadow active:scale-95" title="Se você jogou este bilhete no concurso anterior, toque para conferir">
+                <span>⚡</span> Conferir com ${ultimoNum}
+              </button>
+            </div>
+          `;
         }
 
         return `
@@ -439,17 +498,17 @@
             <div class="h-1 bg-gradient-to-r ${isMega ? 'from-emerald-500 via-teal-400 to-cyan-500' : 'from-purple-500 via-fuchsia-400 to-pink-500'}"></div>
 
             <!-- Cabeçalho do Concurso (Estilo Bilhete Oficial Coeso) -->
-            <div class="p-3 sm:p-4 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 flex items-center justify-between border-b border-dashed border-slate-800/90 cursor-pointer select-none" onclick="alternarGrupoCarteira('${g.id}')">
-              <div class="flex items-center gap-3 min-w-0">
+            <div class="p-3 sm:p-4 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-dashed border-slate-800/90 cursor-pointer select-none" onclick="alternarGrupoCarteira('${g.id}')">
+              <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl ${isMega ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-purple-500/10 border-purple-500/30 text-purple-400'} border flex items-center justify-center text-base flex-shrink-0">
                   ${isMega ? '🍀' : '🟣'}
                 </div>
-                <div class="min-w-0">
+                <div>
                   <div class="flex items-center gap-2 flex-wrap">
-                    <h4 class="text-xs sm:text-sm font-black text-white font-mono truncate">
+                    <h4 class="text-xs sm:text-sm font-black text-white font-mono whitespace-nowrap">
                       ${isMega ? 'Mega-Sena' : 'Lotofácil'} ${g.concurso.startsWith('#') ? g.concurso : `#${g.concurso}`}
                     </h4>
-                    <span class="text-[10px] text-slate-400 font-mono">• ${g.data}</span>
+                    <span class="text-[10px] text-cyan-300 font-mono bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 whitespace-nowrap">📅 ${g.data}</span>
                   </div>
                   <p class="text-[11px] text-slate-400 font-sans mt-0.5">
                     ${g.bilhetes.length} aposta${g.bilhetes.length > 1 ? 's' : ''} • <strong class="text-slate-300 font-mono">${fmtBRL(g.totalCusto)}</strong>
@@ -457,7 +516,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center gap-2 flex-shrink-0">
+              <div class="flex items-center gap-2 justify-between sm:justify-end flex-wrap">
                 ${statusBadge}
                 <button type="button" class="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition border border-slate-700" title="${aberto ? 'Recolher' : 'Ver Jogos'}">
                   ${aberto ? '▴' : '▾'}
@@ -524,14 +583,18 @@
               </div>
 
               <!-- Rodapé de Ações do Bilhete (Discreto e Elegante) -->
-              <div class="px-3.5 py-2 bg-slate-900/40 border-t border-slate-900 flex justify-between items-center text-[11px] text-slate-400 font-sans">
-                <div class="flex items-center gap-3">
+              <div class="px-3.5 py-2 bg-slate-900/40 border-t border-slate-900 flex justify-between items-center text-[11px] text-slate-400 font-sans flex-wrap gap-2">
+                <div class="flex items-center gap-2.5 flex-wrap">
                   <button type="button" onclick="compartilharWhatsAppGrupoCarteira('${g.id}')" class="hover:text-emerald-300 font-bold transition flex items-center gap-1">
                     <span>📱</span> WhatsApp
                   </button>
                   <span class="text-slate-800">•</span>
                   <button type="button" onclick="imprimirLoteGrupoCarteira('${g.id}')" class="hover:text-amber-300 font-bold transition flex items-center gap-1">
                     <span>🖨️</span> Imprimir A4
+                  </button>
+                  <span class="text-slate-800">•</span>
+                  <button type="button" onclick="reatribuirConcursoLote('${g.id}')" class="hover:text-cyan-300 font-bold transition flex items-center gap-1" title="Corrigir o número do concurso deste lote">
+                    <span>✏️</span> Mudar Concurso
                   </button>
                 </div>
                 <button type="button" onclick="removerLoteGrupoCarteira('${g.id}')" class="text-slate-500 hover:text-rose-400 text-[10px] font-bold transition">

@@ -1447,16 +1447,36 @@ function atualizarProvaDosFatosRedesign() {
   // 1. Atualizar resumo de apostas ativas da carteira
   if (apostasAtivasEl) {
     const bilhetes = Array.isArray(carteiraJogos) ? carteiraJogos : [];
-    const ativos = bilhetes.filter(b => b.modalidade === mod);
+    const ehPassadoFn = typeof window.concursoOuDataEhPassado === 'function'
+      ? window.concursoOuDataEhPassado
+      : () => false;
+
+    const ativos = bilhetes.filter(b => {
+      if (b.modalidade !== mod) return false;
+      if (b.conferido) return false;
+      if (ehPassadoFn(b.concursoAlvo || b.concurso, b.data, b.modalidade)) return false;
+      return true;
+    });
+
     if (ativos.length > 0) {
       apostasAtivasEl.innerHTML = `
         <div class="p-2 rounded-xl bg-emerald-950/40 border border-emerald-800/60 flex items-center justify-between">
           <span class="text-emerald-300 font-bold font-mono text-[11px]">🎯 ${ativos.length} aposta${ativos.length > 1 ? 's' : ''} ativa${ativos.length > 1 ? 's' : ''} em monitoramento</span>
-          <span class="text-[10px] text-slate-400 font-mono">${ativos[0].concursoAlvo || 'Próximo'}</span>
+          <span class="text-[10px] text-cyan-300 font-mono font-bold">${ativos[0].concursoAlvo || 'Próximo'}</span>
         </div>
       `;
     } else {
-      apostasAtivasEl.innerHTML = `<span class="text-[11px] text-slate-400">Nenhuma aposta ativa registrada ainda. Gere seu jogo e toque em <b>✅ JOGUEI ESTE JOGO!</b></span>`;
+      const totalMod = bilhetes.filter(b => b.modalidade === mod).length;
+      if (totalMod > 0) {
+        apostasAtivasEl.innerHTML = `
+          <div class="p-2 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-between">
+            <span class="text-[11px] text-slate-400 font-mono">0 ativas • ${totalMod} aposta(s) apurada(s) no histórico</span>
+            <button type="button" onclick="irParaCarteiraSubAba('bilhetes')" class="text-cyan-400 text-[10px] font-bold hover:underline">Ver Histórico →</button>
+          </div>
+        `;
+      } else {
+        apostasAtivasEl.innerHTML = `<span class="text-[11px] text-slate-400">Nenhuma aposta ativa registrada ainda. Gere seu jogo e toque em <b>✅ JOGUEI ESTE JOGO!</b></span>`;
+      }
     }
   }
 

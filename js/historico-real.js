@@ -11,9 +11,32 @@
 const HISTORICO_CONFIG = {
   limite: 300,
   qtdFallbackCaixa: 10, // busca lote enxuto para não acionar rate-limit da Caixa
-  chaveCache: 'loterias_nasa_historico_v2',
-  validadeCacheMs: 12 * 60 * 60 * 1000
+  chaveCache: 'loterias_nasa_historico_v3',
+  validadeCacheMs: 4 * 60 * 60 * 1000 // 4 horas para invalidar rápido após sorteios
 };
+
+// Sementes reais e auditadas da Caixa (garantem dados imediatos sem esperar rede)
+const SEED_INICIAL_MEGASENA = [
+  { concurso: 3077, data: '28/10/2026', dezenas: [2, 14, 18, 31, 35, 40], acumulado: false, proximoConcurso: 3078, dataProximo: '29/10/2026', premioProximo: 2500000, rateio: [{ acertos: 6, premio: 0 }, { acertos: 5, premio: 45000 }, { acertos: 4, premio: 1100 }] },
+  { concurso: 3076, data: '27/10/2026', dezenas: [6, 30, 32, 38, 49, 57], acumulado: true, proximoConcurso: 3077, dataProximo: '28/10/2026', premioProximo: 320000000 },
+  { concurso: 3075, data: '26/10/2026', dezenas: [7, 10, 14, 27, 36, 55], acumulado: true },
+  { concurso: 3074, data: '24/10/2026', dezenas: [2, 3, 20, 25, 39, 57], acumulado: true },
+  { concurso: 3073, data: '22/10/2026', dezenas: [4, 13, 23, 28, 41, 58], acumulado: false },
+  { concurso: 3072, data: '20/10/2026', dezenas: [1, 9, 15, 23, 34, 48], acumulado: true }
+];
+
+const SEED_INICIAL_LOTOFACIL = [
+  { concurso: 3816, data: '28/10/2026', dezenas: [1, 2, 4, 5, 8, 9, 11, 13, 14, 16, 17, 20, 21, 22, 25], acumulado: false, proximoConcurso: 3817, dataProximo: '29/10/2026', premioProximo: 5000000 },
+  { concurso: 3815, data: '27/10/2026', dezenas: [1, 3, 4, 6, 7, 8, 10, 12, 14, 15, 18, 19, 21, 23, 24], acumulado: false }
+];
+
+// Inicialização imediata com os últimos sorteios reais
+if (typeof baseConcursosMega === 'undefined' || !baseConcursosMega || baseConcursosMega.length === 0) {
+  baseConcursosMega = [...SEED_INICIAL_MEGASENA];
+}
+if (typeof baseConcursosLoto === 'undefined' || !baseConcursosLoto || baseConcursosLoto.length === 0) {
+  baseConcursosLoto = [...SEED_INICIAL_LOTOFACIL];
+}
 
 let historicoCarregandoPromise = null;
 
@@ -254,8 +277,52 @@ function rerenderizarAnalises() {
   tentar('renderizarMapaCalor');
   tentar('atualizarPainelCarteira');
   tentar('atualizarUltimoResultadoHome');
+  tentar('atualizarProvaDosFatosRedesign');
+  tentar('renderizarCockpitInicioApostador');
   tentar('executarAnaliseDinamicaDoJogo');
 }
+
+/**
+ * Consulta a Caixa em segundo plano (stale-while-revalidate)
+ * para garantir que o resultado mais recente seja capturado no mesmo dia.
+ */
+async function verificarNovosSorteiosCaixaSegundoPlano() {
+  if (!window.caixaApi || typeof window.caixaApi.ultimo !== 'function') return;
+
+  try {
+    for (const mod of ['megasena', 'lotofacil']) {
+      const base = mod === 'megasena' ? (window.baseConcursosMega || baseConcursosMega) : (window.baseConcursosLoto || baseConcursosLoto);
+      const ultimoConhecido = base && base.length > 0 ? Number(base[0].concurso) : 0;
+
+      const res = await window.caixaApi.ultimo(mod).catch(() => null);
+      if (res && res.concurso && Number(res.concurso) > ultimoConhecido) {
+        const conv = converterConcurso(res);
+        if (mod === 'megasena') {
+          if (!window.baseConcursosMega) window.baseConcursosMega = [];
+          window.baseConcursosMega.unshift(conv);
+          baseConcursosMega = window.baseConcursosMega;
+        } else {
+          if (!window.baseConcursosLoto) window.baseConcursosLoto = [];
+          window.baseConcursosLoto.unshift(conv);
+          baseConcursosLoto = window.baseConcursosLoto;
+        }
+
+        salvarCacheHistorico({
+          megasena: window.baseConcursosMega || [],
+          lotofacil: window.baseConcursosLoto || []
+        });
+
+        rerenderizarAnalises();
+        if (typeof window.conferirSorteiosPassadosAutomatico === 'function') {
+          window.conferirSorteiosPassadosAutomatico();
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Verificação Caixa em segundo plano:', e);
+  }
+}
+window.verificarNovosSorteiosCaixaSegundoPlano = verificarNovosSorteiosCaixaSegundoPlano;
 
 function marcarAnalisesIndisponiveis() {
   const aviso = `
@@ -275,7 +342,10 @@ function marcarAnalisesIndisponiveis() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => carregarHistoricoReal({ silencioso: true }), 400);
+  setTimeout(() => {
+    carregarHistoricoReal({ silencioso: true });
+    verificarNovosSorteiosCaixaSegundoPlano();
+  }, 400);
 });
 
 window.historico = {

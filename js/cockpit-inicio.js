@@ -50,7 +50,16 @@ function renderizarCockpitInicioApostador() {
 
   // 2. Bilhetes Ativos do Usuário
   const bilhetesCarteira = Array.isArray(carteiraJogos) ? carteiraJogos : [];
-  const bilhetesAtivos = bilhetesCarteira.filter(b => b.modalidade === mod);
+  const ehPassadoFn = typeof window.concursoOuDataEhPassado === 'function'
+    ? window.concursoOuDataEhPassado
+    : () => false;
+
+  const bilhetesAtivos = bilhetesCarteira.filter(b => {
+    if (b.modalidade !== mod) return false;
+    if (b.conferido) return false;
+    if (ehPassadoFn(b.concursoAlvo || b.concurso, b.data, b.modalidade)) return false;
+    return true;
+  });
 
   // 3. Execução do Backtest dos Últimos 10 Sorteios
   const ultimos10 = listaConcursos.slice(0, 10);
