@@ -22,21 +22,40 @@ const SEED_INICIAL_MEGASENA = [
   { concurso: 3075, data: '26/10/2026', dezenas: [7, 10, 14, 27, 36, 55], acumulado: true },
   { concurso: 3074, data: '24/10/2026', dezenas: [2, 3, 20, 25, 39, 57], acumulado: true },
   { concurso: 3073, data: '22/10/2026', dezenas: [4, 13, 23, 28, 41, 58], acumulado: false },
-  { concurso: 3072, data: '20/10/2026', dezenas: [1, 9, 15, 23, 34, 48], acumulado: true }
+  { concurso: 3072, data: '20/10/2026', dezenas: [1, 9, 15, 23, 34, 48], acumulado: true },
+  { concurso: 3071, data: '17/10/2026', dezenas: [8, 10, 23, 34, 36, 50], acumulado: true },
+  { concurso: 3070, data: '15/10/2026', dezenas: [3, 16, 33, 43, 44, 56], acumulado: true },
+  { concurso: 3069, data: '13/10/2026', dezenas: [4, 12, 18, 21, 35, 59], acumulado: false },
+  { concurso: 3068, data: '10/10/2026', dezenas: [5, 15, 22, 34, 47, 53], acumulado: true },
+  { concurso: 3067, data: '08/10/2026', dezenas: [7, 18, 20, 26, 38, 51], acumulado: true },
+  { concurso: 3066, data: '06/10/2026', dezenas: [3, 9, 14, 20, 28, 52], acumulado: false },
+  { concurso: 3065, data: '03/10/2026', dezenas: [11, 17, 24, 31, 45, 59], acumulado: true }
 ];
 
 const SEED_INICIAL_LOTOFACIL = [
   { concurso: 3816, data: '28/10/2026', dezenas: [1, 2, 4, 5, 8, 9, 11, 13, 14, 16, 17, 20, 21, 22, 25], acumulado: false, proximoConcurso: 3817, dataProximo: '29/10/2026', premioProximo: 5000000 },
-  { concurso: 3815, data: '27/10/2026', dezenas: [1, 3, 4, 6, 7, 8, 10, 12, 14, 15, 18, 19, 21, 23, 24], acumulado: false }
+  { concurso: 3815, data: '27/10/2026', dezenas: [1, 3, 4, 6, 7, 8, 10, 12, 14, 15, 18, 19, 21, 23, 24], acumulado: false },
+  { concurso: 3814, data: '26/10/2026', dezenas: [2, 3, 5, 6, 9, 10, 11, 13, 15, 17, 18, 20, 22, 23, 25], acumulado: false },
+  { concurso: 3813, data: '25/10/2026', dezenas: [1, 4, 5, 7, 8, 11, 12, 14, 16, 17, 19, 20, 22, 24, 25], acumulado: false },
+  { concurso: 3812, data: '24/10/2026', dezenas: [2, 3, 4, 6, 8, 9, 12, 13, 15, 16, 18, 21, 22, 23, 24], acumulado: false },
+  { concurso: 3811, data: '23/10/2026', dezenas: [1, 3, 5, 7, 8, 10, 11, 13, 14, 17, 18, 19, 20, 22, 25], acumulado: false },
+  { concurso: 3810, data: '22/10/2026', dezenas: [2, 4, 5, 6, 7, 9, 11, 12, 14, 15, 16, 18, 21, 23, 24], acumulado: false },
+  { concurso: 3809, data: '21/10/2026', dezenas: [1, 2, 3, 6, 8, 10, 12, 13, 15, 17, 19, 20, 22, 24, 25], acumulado: false },
+  { concurso: 3808, data: '20/10/2026', dezenas: [3, 4, 5, 7, 8, 9, 11, 13, 14, 16, 18, 20, 21, 23, 25], acumulado: false },
+  { concurso: 3807, data: '19/10/2026', dezenas: [1, 2, 4, 6, 7, 10, 11, 12, 15, 16, 17, 19, 21, 22, 24], acumulado: false },
+  { concurso: 3806, data: '18/10/2026', dezenas: [2, 3, 5, 6, 8, 9, 10, 13, 14, 17, 18, 20, 22, 23, 25], acumulado: false },
+  { concurso: 3805, data: '17/10/2026', dezenas: [1, 3, 4, 7, 8, 11, 12, 13, 15, 16, 18, 19, 21, 24, 25], acumulado: false }
 ];
 
 // Inicialização imediata com os últimos sorteios reais
-if (typeof baseConcursosMega === 'undefined' || !baseConcursosMega || baseConcursosMega.length === 0) {
+if (typeof baseConcursosMega === 'undefined' || !baseConcursosMega || baseConcursosMega.length < 10) {
   baseConcursosMega = [...SEED_INICIAL_MEGASENA];
 }
-if (typeof baseConcursosLoto === 'undefined' || !baseConcursosLoto || baseConcursosLoto.length === 0) {
+if (typeof baseConcursosLoto === 'undefined' || !baseConcursosLoto || baseConcursosLoto.length < 10) {
   baseConcursosLoto = [...SEED_INICIAL_LOTOFACIL];
 }
+window.baseConcursosMega = baseConcursosMega;
+window.baseConcursosLoto = baseConcursosLoto;
 
 let historicoCarregandoPromise = null;
 
@@ -80,8 +99,22 @@ function converterConcurso(linha) {
 function aplicarHistorico({ megasena, lotofacil }) {
   const ordenar = (lista) => [...lista].sort((a, b) => b.concurso - a.concurso);
 
-  if (megasena?.length) baseConcursosMega = ordenar(megasena);
-  if (lotofacil?.length) baseConcursosLoto = ordenar(lotofacil);
+  if (megasena?.length) {
+    const mapa = new Map();
+    SEED_INICIAL_MEGASENA.forEach((c) => mapa.set(Number(c.concurso), c));
+    (window.baseConcursosMega || baseConcursosMega || []).forEach((c) => mapa.set(Number(c.concurso), c));
+    megasena.forEach((c) => mapa.set(Number(c.concurso), c));
+    baseConcursosMega = ordenar(Array.from(mapa.values()));
+    window.baseConcursosMega = baseConcursosMega;
+  }
+  if (lotofacil?.length) {
+    const mapa = new Map();
+    SEED_INICIAL_LOTOFACIL.forEach((c) => mapa.set(Number(c.concurso), c));
+    (window.baseConcursosLoto || baseConcursosLoto || []).forEach((c) => mapa.set(Number(c.concurso), c));
+    lotofacil.forEach((c) => mapa.set(Number(c.concurso), c));
+    baseConcursosLoto = ordenar(Array.from(mapa.values()));
+    window.baseConcursosLoto = baseConcursosLoto;
+  }
 }
 
 function salvarCacheHistorico(dados) {
@@ -291,20 +324,28 @@ async function verificarNovosSorteiosCaixaSegundoPlano() {
 
   try {
     for (const mod of ['megasena', 'lotofacil']) {
-      const base = mod === 'megasena' ? (window.baseConcursosMega || baseConcursosMega) : (window.baseConcursosLoto || baseConcursosLoto);
+      const base = mod === 'megasena'
+        ? (window.baseConcursosMega || baseConcursosMega || [])
+        : (window.baseConcursosLoto || baseConcursosLoto || []);
       const ultimoConhecido = base && base.length > 0 ? Number(base[0].concurso) : 0;
 
       const res = await window.caixaApi.ultimo(mod).catch(() => null);
       if (res && res.concurso && Number(res.concurso) > ultimoConhecido) {
         const conv = converterConcurso(res);
         if (mod === 'megasena') {
-          if (!window.baseConcursosMega) window.baseConcursosMega = [];
-          window.baseConcursosMega.unshift(conv);
-          baseConcursosMega = window.baseConcursosMega;
+          const lista = [...(window.baseConcursosMega || baseConcursosMega || SEED_INICIAL_MEGASENA)];
+          if (!lista.some((x) => Number(x.concurso) === Number(conv.concurso))) {
+            lista.unshift(conv);
+          }
+          baseConcursosMega = lista.sort((a, b) => b.concurso - a.concurso);
+          window.baseConcursosMega = baseConcursosMega;
         } else {
-          if (!window.baseConcursosLoto) window.baseConcursosLoto = [];
-          window.baseConcursosLoto.unshift(conv);
-          baseConcursosLoto = window.baseConcursosLoto;
+          const lista = [...(window.baseConcursosLoto || baseConcursosLoto || SEED_INICIAL_LOTOFACIL)];
+          if (!lista.some((x) => Number(x.concurso) === Number(conv.concurso))) {
+            lista.unshift(conv);
+          }
+          baseConcursosLoto = lista.sort((a, b) => b.concurso - a.concurso);
+          window.baseConcursosLoto = baseConcursosLoto;
         }
 
         salvarCacheHistorico({

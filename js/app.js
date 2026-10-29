@@ -5409,6 +5409,52 @@ function abrirModalDialog(msg, callback) {
       toast('📥 Base de clientes exportada em CSV com sucesso!', '📊');
     }
 
+    function carregarConcursoHistoricoNoVolante(numConcurso, mod = modalidadeAtual) {
+      if (mod && mod !== modalidadeAtual && typeof trocarModalidade === 'function') {
+        trocarModalidade(mod);
+      }
+      const base = mod === 'megasena'
+        ? (window.baseConcursosMega || baseConcursosMega || [])
+        : (window.baseConcursosLoto || baseConcursosLoto || []);
+      const conc = base.find((c) => Number(c.concurso) === Number(numConcurso));
+      if (!conc) {
+        toast(`Concurso #${numConcurso} não encontrado no histórico.`, '⚠️');
+        return;
+      }
+
+      setJogoAtual([...conc.dezenas].sort((a, b) => a - b));
+      atualizarDisplayJogo();
+      renderizarVolante();
+      executarAnaliseDinamicaDoJogo();
+      executarAnaliseVitorio();
+
+      if (typeof activateTab === 'function') {
+        activateTab('gerar');
+      } else {
+        mudarAba('volante');
+      }
+
+      if (typeof alternarSubAbaGerar === 'function') {
+        alternarSubAbaGerar(window.innerWidth <= 640 ? 'volante' : 'todos');
+      }
+
+      const elBateria = document.getElementById('conteudo-bateria-testes');
+      if (elBateria && elBateria.classList.contains('hidden')) {
+        elBateria.classList.remove('hidden');
+        const setaBateria = document.getElementById('seta-bateria-testes');
+        if (setaBateria) setaBateria.innerText = '⯆';
+      }
+
+      tocarBeep('success');
+      vibrarHaptico(20);
+      toast(`🎯 Concurso #${conc.concurso} (${conc.data || ''}) carregado no Volante!`, '🔬');
+
+      setTimeout(() => {
+        const display = document.getElementById('display-meu-jogo') || document.getElementById('volante-grid');
+        if (display) display.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+    }
+
     // ===================================================================
     // EXPOSIÇÃO GLOBAL CONTROLADA PARA MÓDULOS E UI (NASA PRO WINDOW BRIDGE)
     // ===================================================================
@@ -5433,6 +5479,7 @@ function abrirModalDialog(msg, callback) {
     window.importarBilheteTexto = importarBilheteTexto;
     window.salvarApostasNaCarteiraAPartirDeTexto = salvarApostasNaCarteiraAPartirDeTexto;
     window.importarJogosDoScannerLote = importarJogosDoScannerLote;
+    window.carregarConcursoHistoricoNoVolante = carregarConcursoHistoricoNoVolante;
 
 
 

@@ -657,7 +657,7 @@ function createSimplifiedHome() {
         </div>
 
         <p class="text-[11px] text-slate-300 leading-relaxed" id="home-prova-fatos-resumo">
-          Veja como os últimos resultados reais divulgados pela Caixa obedecem com rigor aos 6 filtros estatísticos:
+          Toque em qualquer sorteio abaixo para carregá-lo no Volante e auditar seu comportamento nos 6 testes estatísticos:
         </p>
 
         <div id="home-lista-ultimos-sorteios-avaliados" class="space-y-1.5 max-h-[280px] overflow-y-auto pr-1 no-scrollbar">
@@ -1501,17 +1501,22 @@ function atualizarProvaDosFatosRedesign() {
     `).join('');
 
     return `
-      <div class="p-2 rounded-xl bg-slate-950 border border-slate-800/80 flex items-center justify-between gap-1.5">
-        <div class="space-y-0.5">
-          <div class="flex items-center gap-1.5">
+      <div class="group p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800/80 hover:border-cyan-500/60 cursor-pointer active:scale-[0.98] transition flex items-center justify-between gap-2 shadow-sm"
+           onclick="carregarConcursoHistoricoNoVolante(${c.concurso}, '${mod}')"
+           title="Toque para carregar o Concurso #${c.concurso} no Volante e ver os 6 testes">
+        <div class="space-y-1">
+          <div class="flex items-center gap-1.5 flex-wrap">
             <span class="font-bold text-white text-[11px] font-mono">#${c.concurso}</span>
             <span class="text-[9px] text-slate-400 font-mono">${c.data || ''}</span>
+            <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-950/70 text-cyan-300 border border-cyan-800/60 group-hover:bg-cyan-500 group-hover:text-slate-950 transition">
+              🎯 Testar no Volante ↗
+            </span>
           </div>
           <div class="flex flex-wrap gap-0.5">
             ${bolinhasHtml}
           </div>
         </div>
-        <div class="text-right">
+        <div class="text-right shrink-0">
           <div class="text-[10px] font-black text-cyan-400 font-mono">Nota ${avaliacao.score}/100</div>
           <span class="text-[9px] font-bold text-emerald-400">✓ ${avaliacao.aprovadosCount}/6 OK</span>
         </div>
@@ -1522,7 +1527,66 @@ function atualizarProvaDosFatosRedesign() {
   const pct = Math.round((aprovadosCount / ultimos10.length) * 100);
   if (badgePct) badgePct.innerText = `${pct}% APROVADO`;
   if (resumoEl) {
-    resumoEl.innerText = `${pct}% dos últimos 10 sorteios oficiais da Caixa atenderam aos 6 filtros orbitais de calibração estatística:`;
+    resumoEl.innerText = `${pct}% dos últimos 10 sorteios oficiais da Caixa atenderam aos 6 filtros orbitais de calibração estatística (toque em qualquer um para auditar no Volante):`;
   }
   containerLista.innerHTML = cardsHtml;
 }
+
+/**
+ * Carrega qualquer concurso do histórico diretamente no Volante e aciona a bateria de 6 testes
+ */
+function carregarConcursoHistoricoNoVolante(numConcurso, modDesejada) {
+  const mod = modDesejada || (typeof modalidadeAtual !== 'undefined' ? modalidadeAtual : 'megasena');
+  if (typeof trocarModalidade === 'function' && typeof modalidadeAtual !== 'undefined' && modalidadeAtual !== mod) {
+    trocarModalidade(mod);
+  }
+
+  const base = mod === 'megasena'
+    ? (window.baseConcursosMega || (typeof baseConcursosMega !== 'undefined' ? baseConcursosMega : []))
+    : (window.baseConcursosLoto || (typeof baseConcursosLoto !== 'undefined' ? baseConcursosLoto : []));
+
+  const conc = base.find((c) => Number(c.concurso) === Number(numConcurso));
+  if (!conc) {
+    if (typeof toast === 'function') toast(`Concurso #${numConcurso} não localizado.`, '⚠️');
+    return;
+  }
+
+  const dezenas = [...conc.dezenas].sort((a, b) => a - b);
+  if (typeof setJogoAtual === 'function') setJogoAtual(dezenas);
+  if (typeof atualizarDisplayJogo === 'function') atualizarDisplayJogo();
+  if (typeof renderizarVolante === 'function') renderizarVolante();
+  if (typeof executarAnaliseDinamicaDoJogo === 'function') executarAnaliseDinamicaDoJogo();
+  if (typeof executarAnaliseVitorio === 'function') executarAnaliseVitorio();
+
+  // Navega para a tela 'Gerar' (Volante)
+  if (typeof activateTab === 'function') {
+    activateTab('gerar');
+  } else if (typeof mudarAba === 'function') {
+    mudarAba('volante');
+  }
+
+  // Ativa a sub-aba adequada para mostrar volante e telemetria
+  if (typeof alternarSubAbaGerar === 'function') {
+    alternarSubAbaGerar(window.innerWidth <= 640 ? 'volante' : 'todos');
+  }
+
+  // Garante que o painel de testes esteja visível
+  const elBateria = document.getElementById('conteudo-bateria-testes');
+  if (elBateria && elBateria.classList.contains('hidden')) {
+    elBateria.classList.remove('hidden');
+    const setaBateria = document.getElementById('seta-bateria-testes');
+    if (setaBateria) setaBateria.innerText = '⯆';
+  }
+
+  if (typeof tocarBeep === 'function') tocarBeep('sucesso');
+  if (typeof vibrarHaptico === 'function') vibrarHaptico(25);
+  if (typeof toast === 'function') {
+    toast(`🎯 Concurso #${conc.concurso} (${conc.data || ''}) carregado no Volante! Telemetria calculada.`, '🔬');
+  }
+
+  setTimeout(() => {
+    const alvo = document.getElementById('display-meu-jogo') || document.getElementById('volante-grid');
+    if (alvo) alvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 120);
+}
+window.carregarConcursoHistoricoNoVolante = carregarConcursoHistoricoNoVolante;
