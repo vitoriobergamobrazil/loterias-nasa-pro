@@ -5573,6 +5573,8 @@ function abrirModalDialog(msg, callback) {
     window.salvarApostasNaCarteiraAPartirDeTexto = salvarApostasNaCarteiraAPartirDeTexto;
     window.importarJogosDoScannerLote = importarJogosDoScannerLote;
     window.carregarConcursoHistoricoNoVolante = carregarConcursoHistoricoNoVolante;
+    window.gerarJogoCalibradoUnico = gerarJogoCalibradoUnico;
+    window.avaliarJogo = avaliarJogo;
 
 
 

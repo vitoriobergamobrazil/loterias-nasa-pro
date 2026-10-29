@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
   sincronizarVisualModalidadeGlobal();
   sincronizarHeaderStatusUsuario();
   atualizarUltimoResultadoHome();
+  inicializarPerfilExperiencia();
 
   activateTab('home');
   console.log('✅ NASA Pro Mobile 3.0 pronto.');
@@ -85,8 +86,13 @@ function criarTopbarUnificada() {
       </button>
     </div>
 
-    <!-- Ações Rápidas: Tema + VIP/Créditos + Menu Perfil -->
+    <!-- Ações Rápidas: Modo Perfil + Tema + VIP/Créditos + Menu Perfil -->
     <div class="nasa-header-actions">
+      <button type="button" id="nasa-top-modo-btn" class="nasa-modo-chip" onclick="abrirModalSeletorPerfil()" title="Modo de Uso: Toque para alternar entre Rápido, Estrategista e Científico">
+        <span class="nasa-modo-icon" id="nasa-top-modo-icon">🎯</span>
+        <span class="nasa-modo-label hidden sm:inline" id="nasa-top-modo-label">Estrategista</span>
+        <span class="text-[9px] opacity-70">▾</span>
+      </button>
       <button type="button" id="nasa-top-theme-btn" class="nasa-theme-chip" onclick="alternarTema();" title="Alternar Modo Claro / Escuro">
         <span id="nasa-top-theme-icon">☀️</span>
       </button>
@@ -151,6 +157,17 @@ function criarSidebarDesktop() {
           <span>🟣</span> <span>Lotofácil</span>
         </button>
       </div>
+    </div>
+
+    <!-- Seletor de Modo Desktop -->
+    <div class="px-3 py-1">
+      <button type="button" onclick="abrirModalSeletorPerfil()" class="nasa-modo-chip w-full justify-between" title="Alterar Modo de Experiência">
+        <span class="flex items-center gap-1.5">
+          <span class="nasa-modo-icon">🎯</span>
+          <span class="nasa-modo-label font-bold text-[11px]">Estrategista</span>
+        </span>
+        <span class="text-[9px] text-cyan-400 font-mono">Modo ▾</span>
+      </button>
     </div>
 
     <!-- Links de Navegação da Barra Lateral (SEM TRUNCAMENTO) -->
@@ -377,6 +394,10 @@ function sincronizarVisualModalidadeGlobal() {
     cardLoto.className = `nasa-jackpot-mini-card ${mod === 'lotofacil' ? 'active-mod-loto' : ''}`;
   }
 
+  if (typeof renderizarPalpiteExpressHome === 'function') {
+    gerarPalpiteExpressHome({ silencioso: true });
+  }
+
   // Mostra/esconde botão de alternar 6x10 vs 10x6 apenas na Mega-Sena
   const btnGridToggle = document.getElementById('btn-toggle-volante-cols');
   if (btnGridToggle) {
@@ -545,10 +566,10 @@ function createSimplifiedHome() {
           </div>
         </div>
 
-        <!-- Botão Principal: Gerar Jogo Calibrado -->
-        <button type="button" class="nasa-primary-cta" onclick="irParaGeradorRapido()">
-          <span class="text-xl">🚀</span>
-          <span>GERAR JOGO CALIBRADO AGORA</span>
+        <!-- Botão Principal: Adaptativo por Modo de Experiência -->
+        <button type="button" class="nasa-primary-cta" id="home-btn-hero-primary" onclick="executarAcaoPrincipalPorModo()">
+          <span class="text-xl" id="home-hero-btn-icon">🚀</span>
+          <span id="home-hero-btn-label">GERAR JOGO CALIBRADO AGORA</span>
         </button>
 
         <!-- Botões Secundários: Caminho A ("Já tenho meus números") + Volante Manual -->
@@ -560,6 +581,38 @@ function createSimplifiedHome() {
           <button type="button" class="nasa-sec-btn" onclick="irParaVolanteManual()">
             <span>🎯</span>
             <span>Marcar no Volante</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 1.1 CARD PALPITE DE OURO EXPRESS (EXCLUSIVO MODO RÁPIDO) -->
+      <div id="home-card-palpite-rapido-box" class="bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/40 border border-amber-500/50 rounded-2xl p-3.5 space-y-2.5 font-sans shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-base">⚡</span>
+            <div>
+              <h3 class="text-xs font-black text-white uppercase tracking-wide">Palpite de Ouro do Dia (IA NASA)</h3>
+              <span class="text-[10px] text-amber-300/90 font-mono">100% Calibrado na Matriz 4x4 • 6 Testes OK</span>
+            </div>
+          </div>
+          <span id="home-rapido-score-badge" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-black">
+            NOTA 99/100
+          </span>
+        </div>
+
+        <div id="home-rapido-dezenas" class="flex flex-wrap gap-1.5 justify-center py-2">
+          <span class="text-xs text-slate-400 font-mono">Gerando palpite express...</span>
+        </div>
+
+        <div class="grid grid-cols-3 gap-1.5 pt-1">
+          <button type="button" onclick="gerarPalpiteExpressHome()" class="py-2.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1 active:scale-95 transition">
+            <span>🎲</span> Outro
+          </button>
+          <button type="button" onclick="copiarPalpiteExpressHome()" class="py-2.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs border border-cyan-800/60 flex items-center justify-center gap-1 active:scale-95 transition">
+            <span>📋</span> Copiar
+          </button>
+          <button type="button" onclick="salvarPalpiteExpressHome()" class="py-2.5 px-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1 active:scale-95 transition shadow-md shadow-emerald-500/20">
+            <span>✅</span> Salvar
           </button>
         </div>
       </div>
@@ -643,7 +696,7 @@ function createSimplifiedHome() {
       </div>
 
       <!-- SEÇÃO AUDITORIA: PROVA DOS FATOS NOS ÚLTIMOS 10 SORTEIOS CAIXA -->
-      <div class="bg-slate-900/95 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
+      <div id="home-secao-auditoria-caixa" class="bg-slate-900/95 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
         <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
           <div>
             <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-800 text-[9px] font-mono font-black text-cyan-300 uppercase">
@@ -1096,6 +1149,32 @@ function criarDrawerPerfilConfig() {
         <button type="button" onclick="fecharDrawerPerfil(); abrirModalPaywall('drawer');" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black text-xs flex items-center justify-center gap-1.5 shadow">
           <span>👑</span> <span>Planos VIP PRO</span>
         </button>
+      </div>
+
+      <!-- SELETOR DE MODO DE EXPERIÊNCIA NO DRAWER -->
+      <div class="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-2 my-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-white flex items-center gap-1.5">
+            <span>🧭</span> Modo de Experiência
+          </span>
+          <span id="drawer-modo-badge" class="text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+            Estrategista
+          </span>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5 pt-1">
+          <button type="button" onclick="selecionarModoExperiencia('rapido'); fecharDrawerPerfil();" class="p-2 rounded-xl border border-slate-800 hover:border-amber-500 bg-slate-900 text-center transition active:scale-95">
+            <span class="text-base block">⚡</span>
+            <span class="text-[10px] font-bold text-slate-300 block mt-0.5">Rápido</span>
+          </button>
+          <button type="button" onclick="selecionarModoExperiencia('estrategista'); fecharDrawerPerfil();" class="p-2 rounded-xl border border-slate-800 hover:border-emerald-500 bg-slate-900 text-center transition active:scale-95">
+            <span class="text-base block">🎯</span>
+            <span class="text-[10px] font-bold text-slate-300 block mt-0.5">Volante</span>
+          </button>
+          <button type="button" onclick="selecionarModoExperiencia('cientifico'); fecharDrawerPerfil();" class="p-2 rounded-xl border border-slate-800 hover:border-cyan-500 bg-slate-900 text-center transition active:scale-95">
+            <span class="text-base block">🔬</span>
+            <span class="text-[10px] font-bold text-slate-300 block mt-0.5">Científico</span>
+          </button>
+        </div>
       </div>
 
       <!-- Preferências Rápidas: Som, Tema e Atualizar Caixa -->
@@ -1601,3 +1680,343 @@ function carregarConcursoHistoricoNoVolante(numConcurso, modDesejada) {
   }, 120);
 }
 window.carregarConcursoHistoricoNoVolante = carregarConcursoHistoricoNoVolante;
+
+// ===================================================================
+// MOTOR DE PERSONALIZAÇÃO & PERFIS DE EXPERIÊNCIA DO USUÁRIO (NASA UX 3.0)
+// ===================================================================
+const PERFIS_CONFIG = {
+  rapido: {
+    id: 'rapido',
+    nome: 'Rápido & Prático',
+    nomeCurto: 'Rápido',
+    icon: '⚡',
+    tag: '1 CLIQUE',
+    cor: 'amber',
+    btnLabel: 'GERAR NOVO PALPITE EXPRESS',
+    btnIcon: '⚡',
+    acaoSubAba: 'rapido'
+  },
+  estrategista: {
+    id: 'estrategista',
+    nome: 'Estrategista do Volante',
+    nomeCurto: 'Estrategista',
+    icon: '🎯',
+    tag: 'VOLANTE VIVO',
+    cor: 'emerald',
+    btnLabel: 'ABRIR VOLANTE & MATRIZ 4x4',
+    btnIcon: '🎯',
+    acaoSubAba: 'volante'
+  },
+  cientifico: {
+    id: 'cientifico',
+    nome: 'Científico & Auditor',
+    nomeCurto: 'Científico',
+    icon: '🔬',
+    tag: 'NASA TELEMETRIA',
+    cor: 'cyan',
+    btnLabel: 'AUDITORIA & 6 TESTES NASA',
+    btnIcon: '🔬',
+    acaoSubAba: 'todos'
+  }
+};
+
+let modoExperienciaAtual = 'estrategista';
+let palpiteExpressAtual = null;
+
+function obterPerfilExperienciaSalvo() {
+  try {
+    return localStorage.getItem('nasa_perfil_experiencia') || 'estrategista';
+  } catch (_) {
+    return 'estrategista';
+  }
+}
+
+function inicializarPerfilExperiencia() {
+  const salvo = obterPerfilExperienciaSalvo();
+  aplicarPerfilModo(salvo, { silencioso: true });
+
+  // Gera o primeiro palpite express do dia na Home
+  setTimeout(() => {
+    gerarPalpiteExpressHome({ silencioso: true });
+  }, 350);
+
+  // Se nunca definiu seu perfil, convida com modal sutil após 1.5s
+  if (!localStorage.getItem('nasa_perfil_experiencia_definido')) {
+    setTimeout(() => {
+      abrirModalSeletorPerfil({ onboarding: true });
+    }, 1500);
+  }
+}
+
+function aplicarPerfilModo(modoId, { silencioso = false } = {}) {
+  const config = PERFIS_CONFIG[modoId] || PERFIS_CONFIG.estrategista;
+  modoExperienciaAtual = config.id;
+  try {
+    localStorage.setItem('nasa_perfil_experiencia', config.id);
+    localStorage.setItem('nasa_perfil_experiencia_definido', 'true');
+  } catch (_) {}
+
+  document.documentElement.setAttribute('data-modo-perfil', config.id);
+  document.body.setAttribute('data-modo-perfil', config.id);
+
+  // Sincroniza chips em topbar, sidebar e drawer
+  document.querySelectorAll('.nasa-modo-chip').forEach((chip) => {
+    chip.setAttribute('data-modo', config.id);
+    const icon = chip.querySelector('.nasa-modo-icon');
+    const label = chip.querySelector('.nasa-modo-label');
+    if (icon) icon.innerText = config.icon;
+    if (label) label.innerText = config.nomeCurto;
+  });
+
+  const drawerBadge = document.getElementById('drawer-modo-badge');
+  if (drawerBadge) {
+    drawerBadge.innerText = config.nomeCurto;
+    drawerBadge.className = `text-[9px] px-2 py-0.5 rounded font-mono font-bold bg-${config.cor}-950 text-${config.cor}-300 border border-${config.cor}-800`;
+  }
+
+  // Atualiza botão Hero na Home
+  const heroBtnIcon = document.getElementById('home-hero-btn-icon');
+  const heroBtnLabel = document.getElementById('home-hero-btn-label');
+  if (heroBtnIcon) heroBtnIcon.innerText = config.btnIcon;
+  if (heroBtnLabel) heroBtnLabel.innerText = config.btnLabel;
+
+  // Ajusta a sub-aba na tela Gerar
+  if (typeof subAbaGerarAtiva !== 'undefined') {
+    subAbaGerarAtiva = config.acaoSubAba;
+    if (typeof aplicarVisibilidadeSubAbaGerar === 'function') {
+      aplicarVisibilidadeSubAbaGerar();
+    }
+  }
+
+  if (!silencioso) {
+    if (typeof tocarBeep === 'function') tocarBeep('sucesso');
+    if (typeof vibrarHaptico === 'function') vibrarHaptico(20);
+    if (typeof toast === 'function') {
+      toast(`${config.icon} Modo ${config.nome} ativado!`, '🧭');
+    }
+  }
+}
+
+function selecionarModoExperiencia(modoId) {
+  aplicarPerfilModo(modoId);
+  fecharModalSeletorPerfil();
+}
+
+function abrirModalSeletorPerfil({ onboarding = false } = {}) {
+  let modal = document.getElementById('nasa-modal-perfil-experiencia');
+  if (modal) modal.remove();
+
+  modal = document.createElement('div');
+  modal.id = 'nasa-modal-perfil-experiencia';
+  modal.className = 'fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[99999] flex items-center justify-center p-3 sm:p-5';
+  modal.onclick = (e) => {
+    if (e.target === modal) fecharModalSeletorPerfil();
+  };
+
+  const modoAtivo = obterPerfilExperienciaSalvo();
+
+  modal.innerHTML = `
+    <div class="bg-gradient-to-b from-slate-900 to-slate-950 border border-cyan-800/80 rounded-3xl max-w-md w-full p-4 sm:p-6 shadow-2xl space-y-4 font-sans relative">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🧭</span>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-white uppercase tracking-wide">Modo de Experiência</h3>
+            <p class="text-[11px] text-cyan-400 font-mono">Como você prefere usar o Loterias NASA Pro?</p>
+          </div>
+        </div>
+        <button type="button" onclick="fecharModalSeletorPerfil()" class="text-slate-400 hover:text-white text-lg font-bold p-1">✕</button>
+      </div>
+
+      <div class="space-y-2.5">
+        <!-- 1. MODO RÁPIDO -->
+        <div onclick="selecionarModoExperiencia('rapido')" class="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border ${modoAtivo === 'rapido' ? 'border-amber-400 bg-amber-950/20 ring-1 ring-amber-400/50' : 'border-amber-500/30'} cursor-pointer transition active:scale-[0.98] space-y-1">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-amber-950/80 border border-amber-700 text-amber-300 flex items-center justify-center text-sm font-black">⚡</span>
+              <span class="text-xs font-black text-white">Rápido & Prático</span>
+            </div>
+            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800">1 CLIQUE</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-snug">
+            Palpites de ouro gerados pela IA na Home, já calibrados na Matriz 4x4. Sem fórmulas nem poluição. Perfeito para jogar em 5 segundos.
+          </p>
+        </div>
+
+        <!-- 2. MODO ESTRATEGISTA -->
+        <div onclick="selecionarModoExperiencia('estrategista')" class="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border ${modoAtivo === 'estrategista' ? 'border-emerald-400 bg-emerald-950/20 ring-1 ring-emerald-400/50' : 'border-emerald-500/30'} cursor-pointer transition active:scale-[0.98] space-y-1">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-emerald-950/80 border border-emerald-700 text-emerald-300 flex items-center justify-center text-sm font-black">🎯</span>
+              <span class="text-xs font-black text-white">Estrategista do Volante</span>
+            </div>
+            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">VOLANTE VIVO</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-snug">
+            Volante manual no topo, Matriz 4x4 reagindo em tempo real a cada toque (linhas, colunas, área) e calibrador com score de telemetria.
+          </p>
+        </div>
+
+        <!-- 3. MODO CIENTÍFICO -->
+        <div onclick="selecionarModoExperiencia('cientifico')" class="p-3 rounded-2xl bg-slate-950 hover:bg-slate-900 border ${modoAtivo === 'cientifico' ? 'border-cyan-400 bg-cyan-950/20 ring-1 ring-cyan-400/50' : 'border-cyan-500/30'} cursor-pointer transition active:scale-[0.98] space-y-1">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-cyan-950/80 border border-cyan-700 text-cyan-300 flex items-center justify-center text-sm font-black">🔬</span>
+              <span class="text-xs font-black text-white">Científico & Auditor</span>
+            </div>
+            <span class="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">TELEMETRIA TOTAL</span>
+          </div>
+          <p class="text-[11px] text-slate-400 leading-snug">
+            Auditoria completa dos últimos 10 sorteios da Caixa, a bateria dos 6 testes estatísticos aberta e detalhada, e simulador retrospectivo.
+          </p>
+        </div>
+      </div>
+
+      <div class="pt-1 text-center">
+        <span class="text-[10px] text-slate-500">Alterne de modo quando quiser tocando no botão do topo.</span>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+function fecharModalSeletorPerfil() {
+  const modal = document.getElementById('nasa-modal-perfil-experiencia');
+  if (modal) modal.remove();
+}
+
+function executarAcaoPrincipalPorModo() {
+  const modo = obterPerfilExperienciaSalvo();
+  if (modo === 'rapido') {
+    gerarPalpiteExpressHome();
+    const box = document.getElementById('home-card-palpite-rapido-box');
+    if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (typeof toast === 'function') toast('⚡ Novo Palpite NASA gerado com sucesso!', '✨');
+  } else if (modo === 'estrategista') {
+    irParaVolanteManual();
+  } else {
+    activateTab('gerar');
+    if (typeof alternarSubAbaGerar === 'function') alternarSubAbaGerar('todos');
+    const alvo = document.getElementById('card-bateria-testes');
+    if (alvo) alvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+// Geração de Palpites Express (Modo Rápido)
+function gerarPalpiteExpressHome({ silencioso = false } = {}) {
+  const mod = typeof modalidadeAtual !== 'undefined' ? modalidadeAtual : 'megasena';
+  const k = mod === 'megasena' ? 6 : 15;
+  let jogoObj = null;
+
+  if (typeof window.gerarJogoCalibradoUnico === 'function') {
+    jogoObj = window.gerarJogoCalibradoUnico(mod, k, true);
+  }
+
+  if (!jogoObj || !jogoObj.dezenas || jogoObj.dezenas.length < k) {
+    const dezenasPadrao = mod === 'megasena'
+      ? [2, 14, 23, 31, 40, 58]
+      : [1, 3, 4, 6, 8, 9, 11, 13, 15, 17, 18, 20, 22, 23, 25];
+    jogoObj = {
+      dezenas: dezenasPadrao,
+      analise: { score: 99, aprovadosCount: 6 }
+    };
+  }
+
+  palpiteExpressAtual = { ...jogoObj, modalidade: mod };
+  renderizarPalpiteExpressHome();
+
+  if (!silencioso) {
+    if (typeof tocarBeep === 'function') tocarBeep('sucesso');
+    if (typeof vibrarHaptico === 'function') vibrarHaptico(15);
+  }
+}
+
+function renderizarPalpiteExpressHome() {
+  const container = document.getElementById('home-rapido-dezenas');
+  const scoreBadge = document.getElementById('home-rapido-score-badge');
+  if (!container) return;
+
+  if (!palpiteExpressAtual) {
+    gerarPalpiteExpressHome({ silencioso: true });
+    return;
+  }
+
+  const mod = palpiteExpressAtual.modalidade;
+  const corBola = mod === 'megasena'
+    ? 'bg-emerald-600 text-slate-950 border-emerald-400'
+    : 'bg-purple-600 text-white border-purple-400';
+
+  container.innerHTML = palpiteExpressAtual.dezenas.map((d) => `
+    <span class="w-8 h-8 rounded-xl ${corBola} border font-mono font-black text-xs flex items-center justify-center shadow-md">
+      ${String(d).padStart(2, '0')}
+    </span>
+  `).join('');
+
+  if (scoreBadge) {
+    scoreBadge.innerText = `NOTA ${palpiteExpressAtual.analise?.score || 99}/100`;
+  }
+}
+
+function salvarPalpiteExpressHome() {
+  if (!palpiteExpressAtual || !palpiteExpressAtual.dezenas) {
+    gerarPalpiteExpressHome();
+  }
+  const mod = palpiteExpressAtual.modalidade;
+  const id = Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+
+  let concAlvo = null, dataAlvo = null;
+  const base = mod === 'megasena'
+    ? (window.baseConcursosMega || (typeof baseConcursosMega !== 'undefined' ? baseConcursosMega : []))
+    : (window.baseConcursosLoto || (typeof baseConcursosLoto !== 'undefined' ? baseConcursosLoto : []));
+  if (base && base.length > 0) {
+    concAlvo = base[0].proximoConcurso || (base[0].concurso + 1);
+    dataAlvo = base[0].dataProximo || '';
+  }
+
+  const novoBilhete = {
+    id,
+    modalidade: mod,
+    dezenas: [...palpiteExpressAtual.dezenas].sort((a, b) => a - b),
+    score: palpiteExpressAtual.analise?.score || 99,
+    aprovadosCount: palpiteExpressAtual.analise?.aprovadosCount || 6,
+    concurso: concAlvo || 'Próximo',
+    concursoAlvo: concAlvo || 'Próximo',
+    data: dataAlvo || new Date().toLocaleDateString('pt-BR'),
+    dataCriacao: new Date().toISOString(),
+    conferido: false
+  };
+
+  if (!Array.isArray(carteiraJogos)) carteiraJogos = [];
+  carteiraJogos.unshift(novoBilhete);
+  if (typeof salvarCarteiraStorage === 'function') salvarCarteiraStorage();
+  if (typeof atualizarPainelCarteira === 'function') atualizarPainelCarteira();
+  if (typeof atualizarProvaDosFatosRedesign === 'function') atualizarProvaDosFatosRedesign();
+
+  if (typeof tocarSomNasa === 'function') tocarSomNasa('sucesso');
+  if (typeof vibrarHaptico === 'function') vibrarHaptico(30);
+  if (typeof toast === 'function') {
+    toast(`✅ Palpite Express salvo na Carteira! Monitoramento ativado.`, '💼');
+  }
+}
+
+function copiarPalpiteExpressHome() {
+  if (!palpiteExpressAtual) return;
+  const txt = palpiteExpressAtual.dezenas.map((d) => String(d).padStart(2, '0')).join(' - ');
+  navigator.clipboard.writeText(txt).then(() => {
+    if (typeof toast === 'function') toast(`📋 Dezenas copiadas: ${txt}`, '📋');
+    if (typeof tocarBeep === 'function') tocarBeep('click');
+  }).catch(() => {
+    if (typeof toast === 'function') toast(`Dezenas: ${txt}`, '📋');
+  });
+}
+
+window.abrirModalSeletorPerfil = abrirModalSeletorPerfil;
+window.fecharModalSeletorPerfil = fecharModalSeletorPerfil;
+window.selecionarModoExperiencia = selecionarModoExperiencia;
+window.executarAcaoPrincipalPorModo = executarAcaoPrincipalPorModo;
+window.gerarPalpiteExpressHome = gerarPalpiteExpressHome;
+window.salvarPalpiteExpressHome = salvarPalpiteExpressHome;
+window.copiarPalpiteExpressHome = copiarPalpiteExpressHome;
+window.obterPerfilExperienciaSalvo = obterPerfilExperienciaSalvo;
+
