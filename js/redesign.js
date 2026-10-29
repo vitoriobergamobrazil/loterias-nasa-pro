@@ -86,16 +86,8 @@ function criarTopbarUnificada() {
       </button>
     </div>
 
-    <!-- Ações Rápidas: Modo Perfil + Tema + VIP/Créditos + Menu Perfil -->
+    <!-- Ações Rápidas: VIP/Créditos + Menu Drawer -->
     <div class="nasa-header-actions">
-      <button type="button" id="nasa-top-modo-btn" class="nasa-modo-chip" onclick="abrirModalSeletorPerfil()" title="Modo de Uso: Toque para alternar entre Rápido, Estrategista e Científico">
-        <span class="nasa-modo-icon" id="nasa-top-modo-icon">🎯</span>
-        <span class="nasa-modo-label hidden sm:inline" id="nasa-top-modo-label">Estrategista</span>
-        <span class="text-[9px] opacity-70">▾</span>
-      </button>
-      <button type="button" id="nasa-top-theme-btn" class="nasa-theme-chip" onclick="alternarTema();" title="Alternar Modo Claro / Escuro">
-        <span id="nasa-top-theme-icon">☀️</span>
-      </button>
       <button type="button" id="nasa-top-vip-btn" class="nasa-vip-chip" onclick="abrirModalPaywall('header')" title="Status do Plano e Créditos">
         <span id="nasa-top-vip-icon">⚡</span>
         <span id="nasa-top-vip-label">PRO</span>
@@ -564,6 +556,22 @@ function createSimplifiedHome() {
             <div class="nasa-mini-prize js-loto-premio">Carregando...</div>
             <div class="nasa-mini-sub">⏱️ <span class="js-lotofacil-countdown">—</span></div>
           </div>
+        </div>
+
+        <!-- Seletor Segmentado de Modo de Experiência no Hero Card (Mobile-First, Confortável e sem Sobreposição) -->
+        <div class="nasa-hero-modo-bar" id="home-modo-segmented-bar" role="tablist" aria-label="Escolha seu estilo de jogo">
+          <button type="button" id="home-modo-btn-rapido" onclick="selecionarModoExperiencia('rapido')" class="nasa-hero-modo-pill" title="Modo Rápido: 1 clique, gera palpite express com filtros">
+            <span class="nasa-hero-modo-icon">⚡</span>
+            <span class="nasa-hero-modo-text">Rápido</span>
+          </button>
+          <button type="button" id="home-modo-btn-estrategista" onclick="selecionarModoExperiencia('estrategista')" class="nasa-hero-modo-pill" title="Modo Volante: Volante interativo e matriz 4x4">
+            <span class="nasa-hero-modo-icon">🎯</span>
+            <span class="nasa-hero-modo-text">Volante</span>
+          </button>
+          <button type="button" id="home-modo-btn-cientifico" onclick="selecionarModoExperiencia('cientifico')" class="nasa-hero-modo-pill" title="Modo Científico: Auditoria matemática e 6 testes NASA">
+            <span class="nasa-hero-modo-icon">🔬</span>
+            <span class="nasa-hero-modo-text">Científico</span>
+          </button>
         </div>
 
         <!-- Botão Principal: Adaptativo por Modo de Experiência -->
@@ -1767,6 +1775,16 @@ function aplicarPerfilModo(modoId, { silencioso = false } = {}) {
     if (icon) icon.innerText = config.icon;
     if (label) label.innerText = config.nomeCurto;
   });
+
+  // Sincroniza botões do seletor segmentado no Hero Card da Home
+  const btnRapido = document.getElementById('home-modo-btn-rapido');
+  const btnEstrategista = document.getElementById('home-modo-btn-estrategista');
+  const btnCientifico = document.getElementById('home-modo-btn-cientifico');
+  if (btnRapido && btnEstrategista && btnCientifico) {
+    btnRapido.className = `nasa-hero-modo-pill ${config.id === 'rapido' ? 'active-modo-rapido active' : ''}`;
+    btnEstrategista.className = `nasa-hero-modo-pill ${config.id === 'estrategista' ? 'active-modo-estrategista active' : ''}`;
+    btnCientifico.className = `nasa-hero-modo-pill ${config.id === 'cientifico' ? 'active-modo-cientifico active' : ''}`;
+  }
 
   const drawerBadge = document.getElementById('drawer-modo-badge');
   if (drawerBadge) {

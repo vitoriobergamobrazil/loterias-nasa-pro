@@ -238,6 +238,65 @@ nav.nasa-desktop-nav {
   color: #38bdf8;
 }
 
+/* Seletor Segmentado de Modo de Experiência no Hero Card da Home */
+.nasa-hero-modo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  background: rgba(3, 7, 18, 0.75);
+  border: 1px solid rgba(30, 41, 59, 0.9);
+  padding: 0.25rem;
+  border-radius: 14px;
+  margin: 0.65rem 0 0.5rem 0;
+  width: 100%;
+}
+
+.nasa-hero-modo-pill {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.25rem !important;
+  min-height: 34px !important;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.74rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.nasa-hero-modo-pill:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nasa-hero-modo-pill.active-modo-rapido {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.15));
+  border-color: rgba(245, 158, 11, 0.6);
+  color: #fbbf24;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.nasa-hero-modo-pill.active-modo-estrategista {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.15));
+  border-color: rgba(16, 185, 129, 0.6);
+  color: #34d399;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+}
+
+.nasa-hero-modo-pill.active-modo-cientifico {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(14, 116, 144, 0.15));
+  border-color: rgba(6, 182, 212, 0.6);
+  color: #38bdf8;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.2);
+}
+
 /* Regras de Adaptação de Interface por Modo de Experiência */
 html[data-modo-perfil="rapido"] #home-card-palpite-rapido-box {
   display: block !important;
