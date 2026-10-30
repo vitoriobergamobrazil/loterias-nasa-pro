@@ -21,6 +21,7 @@ const ASSETS_TO_CACHE = [
   './js/volante-impressao.js',
   './js/testadores-vip.js',
   './js/carteira-gestao.js',
+  './js/admin-telemetria.js',
   './js/cockpit-inicio.js',
   './js/whatsapp-share.js',
   './js/upgrade-modal.js',

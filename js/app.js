@@ -5360,12 +5360,12 @@ function abrirModalDialog(msg, callback) {
     }
 
     function alternarSubAbaAdmin(subaba) {
-      ['usuarios', 'feedbacks', 'planos', 'gateways', 'relatorio'].forEach(s => {
+      ['usuarios', 'feedbacks', 'telemetria', 'planos', 'gateways', 'relatorio'].forEach(s => {
         const sec = document.getElementById(`subsecao-admin-${s}`);
         const tab = document.getElementById(`subtab-admin-${s}`);
         if (sec) sec.classList.add('hidden');
         if (tab) {
-          tab.className = 'pb-2.5 px-3 font-bold text-xs border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5';
+          tab.className = 'pb-2.5 px-3 font-bold text-xs border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap';
         }
       });
 
@@ -5373,11 +5373,15 @@ function abrirModalDialog(msg, callback) {
       const tabAtiva = document.getElementById(`subtab-admin-${subaba}`);
       if (secAtiva) secAtiva.classList.remove('hidden');
       if (tabAtiva) {
-        tabAtiva.className = 'pb-2.5 px-3 font-bold text-xs border-b-2 border-amber-400 text-amber-300 transition flex items-center gap-1.5';
+        tabAtiva.className = 'pb-2.5 px-3 font-bold text-xs border-b-2 border-amber-400 text-amber-300 transition flex items-center gap-1.5 whitespace-nowrap';
       }
 
       if (subaba === 'feedbacks' && typeof window.renderizarFeedbacksAdmin === 'function') {
         window.renderizarFeedbacksAdmin();
+      }
+
+      if (subaba === 'telemetria' && typeof window.renderizarPainelTelemetriaAdmin === 'function') {
+        window.renderizarPainelTelemetriaAdmin();
       }
     }
 

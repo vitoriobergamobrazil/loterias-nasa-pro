@@ -62,6 +62,8 @@
   <script src="./js/testadores-vip.js?v=20261030.3" defer></script>
   <!-- Gestão de Carteira em Lotes (High-Capacity UX) -->
   <script src="./js/carteira-gestao.js?v=20261030.3" defer></script>
+  <!-- Telemetria & Calibração Global de Jogos dos Usuários -->
+  <script src="./js/admin-telemetria.js?v=20261030.3" defer></script>
   <link rel="apple-touch-icon" href="./icon-192.png" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -1726,6 +1728,9 @@
         <button onclick="alternarSubAbaAdmin('usuarios')" id="subtab-admin-usuarios" class="pb-2.5 px-3 font-bold text-xs border-b-2 border-amber-400 text-amber-300 transition flex items-center gap-1.5 whitespace-nowrap">
           <span>👥</span> Gestão de Usuários & VIPs
         </button>
+        <button onclick="alternarSubAbaAdmin('telemetria')" id="subtab-admin-telemetria" class="pb-2.5 px-3 font-bold text-xs border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+          <span>📡</span> Telemetria & Jogos Globais
+        </button>
         <button onclick="alternarSubAbaAdmin('feedbacks')" id="subtab-admin-feedbacks" class="pb-2.5 px-3 font-bold text-xs border-b-2 border-transparent text-slate-400 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
           <span>💬</span> Feedbacks & Sugestões (<span id="kpi-total-feedbacks-badge">0</span>)
         </button>
@@ -1857,6 +1862,9 @@
           </div>
         </div>
       </div>
+
+      <!-- SUB-SEÇÃO TELEMETRIA & JOGOS GLOBAIS DOS USUÁRIOS -->
+      <div id="subsecao-admin-telemetria" class="space-y-4 hidden font-sans"></div>
 
       <!-- SUB-SEÇÃO 2: REGRAS E MATRIZ DE PLANOS (A, B, C, D) -->
       <div id="subsecao-admin-planos" class="space-y-4 hidden">

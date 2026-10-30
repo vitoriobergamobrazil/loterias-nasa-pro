@@ -1620,14 +1620,14 @@ function atualizarProvaDosFatosRedesign() {
     `).join('');
 
     return `
-      <div class="group p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800/80 hover:border-cyan-500/60 cursor-pointer active:scale-[0.98] transition flex items-center justify-between gap-2 shadow-sm"
+      <div class="group p-2.5 rounded-2xl bg-white dark:bg-slate-950 hover:bg-slate-50 dark:hover:bg-slate-900 border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 cursor-pointer active:scale-[0.98] transition flex items-center justify-between gap-2 shadow-sm"
            onclick="carregarConcursoHistoricoNoVolante(${c.concurso}, '${mod}')"
            title="Toque para carregar o Concurso #${c.concurso} no Volante e ver os 6 testes">
         <div class="space-y-1">
           <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="font-bold text-white text-[11px] font-mono">#${c.concurso}</span>
-            <span class="text-[9px] text-slate-400 font-mono">${c.data || ''}</span>
-            <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded bg-cyan-950/70 text-cyan-300 border border-cyan-800/60 group-hover:bg-cyan-500 group-hover:text-slate-950 transition">
+            <span class="font-bold text-slate-900 dark:text-white text-[11px] font-mono">#${c.concurso}</span>
+            <span class="text-[9px] text-slate-500 dark:text-slate-400 font-mono">${c.data || ''}</span>
+            <span class="text-[8px] font-mono font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-cyan-950/70 dark:text-cyan-300 dark:border-cyan-800/60 group-hover:bg-cyan-500 group-hover:text-slate-950 transition">
               🎯 Testar no Volante ↗
             </span>
           </div>
@@ -1636,8 +1636,10 @@ function atualizarProvaDosFatosRedesign() {
           </div>
         </div>
         <div class="text-right shrink-0">
-          <div class="text-[10px] font-black text-cyan-400 font-mono">Nota ${avaliacao.score}/100</div>
-          <span class="text-[9px] font-bold text-emerald-400">✓ ${avaliacao.aprovadosCount}/6 OK</span>
+          <div class="text-[10px] font-black text-cyan-600 dark:text-cyan-400 font-mono">Nota ${avaliacao.score}/100</div>
+          <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">✓ ${avaliacao.aprovadosCount}/6 OK</span>
+        </div>
+      </div>
         </div>
       </div>
     `;

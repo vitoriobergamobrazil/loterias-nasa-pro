@@ -952,15 +952,94 @@ html:not(.dark) .nasa-segmented-bar,
 html:not(.dark) .nasa-tool-tile,
 html:not(.dark) .nasa-jackpot-mini-card,
 html:not(.dark) .nasa-drawer-trigger {
-  background: #f8fafc !important;
-  border-color: #cbd5e1 !important;
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
   color: #0f172a !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
 }
 
 html:not(.dark) .nasa-jackpot-hero {
-  background: linear-gradient(145deg, #ffffff 0%, #f1f5f9 100%) !important;
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05) !important;
+}
+
+html:not(.dark) .nasa-hero-modo-bar {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+html:not(.dark) .nasa-hero-modo-pill {
+  color: #64748b !important;
+}
+
+html:not(.dark) .nasa-hero-modo-pill:hover {
+  color: #0f172a !important;
+  background: #e2e8f0 !important;
+}
+
+html:not(.dark) .nasa-hero-modo-pill.active-modo-rapido {
+  background: #ffffff !important;
+  border-color: #fcd34d !important;
+  color: #b45309 !important;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15) !important;
+}
+
+html:not(.dark) .nasa-hero-modo-pill.active-modo-estrategista {
+  background: #ffffff !important;
+  border-color: #86efac !important;
+  color: #047857 !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15) !important;
+}
+
+html:not(.dark) .nasa-hero-modo-pill.active-modo-cientifico {
+  background: #ffffff !important;
+  border-color: #7dd3fc !important;
+  color: #0369a1 !important;
+  box-shadow: 0 2px 6px rgba(6, 182, 212, 0.15) !important;
+}
+
+html:not(.dark) .nasa-sec-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+}
+
+html:not(.dark) .nasa-sec-btn:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+html:not(.dark) .nasa-primary-cta {
+  background: linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 20px -3px rgba(5, 150, 105, 0.4) !important;
+}
+
+html:not(.dark) .nasa-primary-cta * {
+  color: #ffffff !important;
+}
+
+/* DRAWER DE PERFIL NO TEMA CLARO */
+html:not(.dark) #drawer-perfil-novo,
+html:not(.dark) #drawer-perfil-overlay > div {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #drawer-perfil-novo .bg-slate-950,
+html:not(.dark) #drawer-perfil-novo .bg-slate-900 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) #drawer-perfil-novo button:not([class*="from-"]):not([class*="bg-amber"]) {
+  background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08) !important;
+  color: #1e293b !important;
 }
 
 /* ========== DESKTOP / TABLET GRANDE (ACIMA DE 1024PX - CENTRO DE COMANDO NASA) ========== */
