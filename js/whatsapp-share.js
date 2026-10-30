@@ -110,6 +110,9 @@ function obterInfoProximoSorteio(modalidade) {
  * Permite que o apostador aperte "JOGUEI ESTE JOGO!" na hora que apostou na lotérica/app
  */
 function marcarComoJogadoProximoConcurso() {
+  if (typeof window.exigirLeadAntesDeSalvar === 'function' && !window.exigirLeadAntesDeSalvar()) {
+    return;
+  }
   const mod = typeof modalidadeAtual !== 'undefined' ? modalidadeAtual : 'megasena';
   const nomeMod = mod === 'megasena' ? 'Mega-Sena' : 'Lotofácil';
   const score = document.getElementById('score-numero')?.innerText || '98';
@@ -189,6 +192,9 @@ function marcarComoJogadoProximoConcurso() {
 }
 
 function salvarJogoAtivoNaCarteira() {
+  if (typeof window.exigirLeadAntesDeSalvar === 'function' && !window.exigirLeadAntesDeSalvar()) {
+    return;
+  }
   const mod = typeof modalidadeAtual !== 'undefined' ? modalidadeAtual : 'megasena';
   const nomeMod = mod === 'megasena' ? 'Mega-Sena' : 'Lotofácil';
   const score = document.getElementById('score-numero')?.innerText || '98';

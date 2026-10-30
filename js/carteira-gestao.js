@@ -146,15 +146,31 @@
     }
   };
 
-  function obterListaCarteira() {
-    if (Array.isArray(window.carteiraJogos) && window.carteiraJogos.length > 0) {
-      return window.carteiraJogos;
+  function obterChaveCarteiraAtiva() {
+    if (typeof window.obterChaveStorageCarteira === 'function') {
+      return window.obterChaveStorageCarteira();
     }
+    const sessao = (typeof usuarioSessao !== 'undefined' && usuarioSessao) ? usuarioSessao : null;
+    const email = sessao?.email ? sessao.email.toLowerCase().trim() : (sessao?.cupomAtivo ? `vip_${sessao.cupomAtivo}` : 'visitante_anonimo');
+    return `loterias_carteira_${email}`;
+  }
+
+  function obterListaCarteira() {
+    // Se o usuário estiver desconectado/visitante e a lista em memória estiver vazia, não busca dados de outro usuário
+    const sessao = (typeof usuarioSessao !== 'undefined' && usuarioSessao) ? usuarioSessao : null;
+    const isVisitante = !sessao || sessao.tipo === 'visitante' || !sessao.email;
+
+    if (Array.isArray(window.carteiraJogos)) {
+      if (isVisitante && window.carteiraJogos.length === 0) return [];
+      if (window.carteiraJogos.length > 0) return window.carteiraJogos;
+    }
+
     try {
-      const bruto = localStorage.getItem('loterias_carteira_db');
+      const chave = obterChaveCarteiraAtiva();
+      const bruto = localStorage.getItem(chave);
       if (bruto) {
         const dados = JSON.parse(bruto);
-        if (Array.isArray(dados) && dados.length > 0) {
+        if (Array.isArray(dados)) {
           window.carteiraJogos = dados;
           return dados;
         }
@@ -162,7 +178,8 @@
     } catch (e) {
       console.warn('Erro ao ler carteira:', e);
     }
-    return Array.isArray(window.carteiraJogos) ? window.carteiraJogos : [];
+    window.carteiraJogos = [];
+    return [];
   }
 
   function agruparBilhetes(bilhetes) {
@@ -496,7 +513,7 @@
         } else if (todosConferidos || algumConferido) {
           const maxAcertos = Math.max(0, ...g.bilhetes.map(b => b.acertos || 0));
           const rotulo = maxAcertos > 0 ? `${maxAcertos} acerto${maxAcertos > 1 ? 's' : ''}` : '0 acertos';
-          statusBadge = `<span class="px-2.5 py-1 rounded-full bg-slate-800/90 text-emerald-300 border border-slate-700 text-[10px] font-bold">✅ Apurado • ${rotulo}</span>`;
+          statusBadge = `<span class="status-badge-apurado px-2.5 py-1 rounded-full text-[10px] font-bold">✅ Apurado • ${rotulo}</span>`;
         } else if (ehPassado) {
           statusBadge = `<button type="button" onclick="event.stopPropagation(); conferirTodosBilhetesSalvos()" class="px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/50 text-[10px] font-black transition flex items-center gap-1 shadow">⚡ Concurso Apurado • Conferir</button>`;
         } else {
@@ -504,8 +521,8 @@
           const ultimoNum = modBase.length > 0 ? `#${modBase[0].concurso}` : '#3077';
           statusBadge = `
             <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="px-2.5 py-1 rounded-full bg-slate-900 text-slate-400 border border-slate-800 text-[10px] font-medium">⏳ Aguardando Sorteio</span>
-              <button type="button" onclick="event.stopPropagation(); window.reatribuirConcursoLote('${g.id}', '${ultimoNum}')" class="px-2 py-0.5 rounded-full bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-700 text-[10px] font-bold transition flex items-center gap-1 shadow active:scale-95" title="Se você jogou este bilhete no concurso anterior, toque para conferir">
+              <span class="status-badge-aguardando px-2.5 py-1 rounded-full text-[10px] font-medium">⏳ Aguardando Sorteio</span>
+              <button type="button" onclick="event.stopPropagation(); window.reatribuirConcursoLote('${g.id}', '${ultimoNum}')" class="btn-conferir-anterior px-2.5 py-1 rounded-full text-[10px] font-bold transition flex items-center gap-1 shadow-sm active:scale-95" title="Se você jogou este bilhete no concurso anterior, toque para conferir">
                 <span>⚡</span> Conferir com ${ultimoNum}
               </button>
             </div>
@@ -513,32 +530,32 @@
         }
 
         return `
-          <div class="bg-slate-950 rounded-2xl border border-slate-800/90 hover:border-slate-700/80 overflow-hidden shadow-xl transition">
+          <div class="card-concurso-grupo rounded-2xl border overflow-hidden shadow-sm transition">
             <!-- Barra Colorida de Topo (Identidade da Modalidade) -->
             <div class="h-1 bg-gradient-to-r ${isMega ? 'from-emerald-500 via-teal-400 to-cyan-500' : 'from-purple-500 via-fuchsia-400 to-pink-500'}"></div>
 
             <!-- Cabeçalho do Concurso (Estilo Bilhete Oficial Coeso) -->
-            <div class="p-3 sm:p-4 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-dashed border-slate-800/90 cursor-pointer select-none" onclick="alternarGrupoCarteira('${g.id}')">
+            <div class="header-concurso-grupo p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-dashed cursor-pointer select-none" onclick="alternarGrupoCarteira('${g.id}')">
               <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl ${isMega ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' : 'bg-purple-500/10 border-purple-500/30 text-purple-400'} border flex items-center justify-center text-base flex-shrink-0">
                   ${isMega ? '🍀' : '🟣'}
                 </div>
                 <div>
                   <div class="flex items-center gap-2 flex-wrap">
-                    <h4 class="text-xs sm:text-sm font-black text-white font-mono whitespace-nowrap">
+                    <h4 class="text-xs sm:text-sm font-black font-mono whitespace-nowrap">
                       ${isMega ? 'Mega-Sena' : 'Lotofácil'} ${g.concurso.startsWith('#') ? g.concurso : `#${g.concurso}`}
                     </h4>
-                    <span class="text-[10px] text-cyan-300 font-mono bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 whitespace-nowrap">📅 ${g.data}</span>
+                    <span class="data-pill-concurso text-[10px] font-mono px-2 py-0.5 rounded border whitespace-nowrap">📅 ${g.data}</span>
                   </div>
-                  <p class="text-[11px] text-slate-400 font-sans mt-0.5">
-                    ${g.bilhetes.length} aposta${g.bilhetes.length > 1 ? 's' : ''} • <strong class="text-slate-300 font-mono">${fmtBRL(g.totalCusto)}</strong>
+                  <p class="text-[11px] font-sans mt-0.5 text-concurso-sub">
+                    ${g.bilhetes.length} aposta${g.bilhetes.length > 1 ? 's' : ''} • <strong class="font-mono text-concurso-custo">${fmtBRL(g.totalCusto)}</strong>
                   </p>
                 </div>
               </div>
 
               <div class="flex items-center gap-2 justify-between sm:justify-end flex-wrap">
                 ${statusBadge}
-                <button type="button" class="w-7 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition border border-slate-700" title="${aberto ? 'Recolher' : 'Ver Jogos'}">
+                <button type="button" class="btn-toggle-grupo w-7 h-7 rounded-lg text-xs font-bold transition flex items-center justify-center border" title="${aberto ? 'Recolher' : 'Ver Jogos'}">
                   ${aberto ? '▴' : '▾'}
                 </button>
               </div>
@@ -546,19 +563,19 @@
 
             <!-- Faixa do Resultado Oficial da Caixa (Quando Sorteado) -->
             ${aberto && g.dezenasSorteadas && g.dezenasSorteadas.length > 0 ? `
-              <div class="px-3 py-2 bg-emerald-950/25 border-b border-emerald-900/40 flex items-center justify-between gap-2 flex-wrap">
-                <span class="text-[10px] font-mono font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+              <div class="sorteio-oficial-faixa px-3 py-2 flex items-center justify-between gap-2 flex-wrap border-b">
+                <span class="sorteio-oficial-rotulo text-[10px] font-mono font-black uppercase tracking-wider flex items-center gap-1.5">
                   <span>🎯</span> Sorteio Oficial Caixa:
                 </span>
                 <div class="flex items-center gap-1 flex-wrap">
-                  ${g.dezenasSorteadas.map(d => `<span class="w-6 h-6 rounded-md bg-emerald-500 text-slate-950 font-black text-[10px] font-mono flex items-center justify-center border border-white shadow-sm">${String(d).padStart(2,'0')}</span>`).join('')}
+                  ${g.dezenasSorteadas.map(d => `<span class="sorteio-bola-dezena w-6 h-6 rounded-md font-black text-[10px] font-mono flex items-center justify-center border shadow-sm">${String(d).padStart(2,'0')}</span>`).join('')}
                 </div>
               </div>
             ` : ''}
 
             <!-- Lista de Bilhetes do Concurso -->
             ${aberto ? `
-              <div class="p-2 sm:p-3 space-y-1.5 bg-slate-950/60 divide-y divide-slate-900">
+              <div class="corpo-bilhetes-grupo p-2 sm:p-3 space-y-1.5 divide-y">
                 ${g.bilhetes.map((b, idx) => {
                   const dezenasSorteadas = (b.dezenasSorteadas || g.dezenasSorteadas || []).map(Number);
                   const foiConferido = Boolean(b.conferido || b.acertos !== undefined);
@@ -566,16 +583,16 @@
                   const acertouAlgum = (acertos || 0) > 0;
                   const isLoto = (b.dezenas || []).length > 10;
                   return `
-                    <div class="py-2.5 px-2.5 sm:px-3 rounded-xl flex items-center justify-between gap-2 text-xs transition ${b.premioGanho > 0 ? 'bg-emerald-950/20 border border-emerald-500/40' : 'hover:bg-slate-900/60'}">
+                    <div class="linha-bilhete-item py-2.5 px-2.5 sm:px-3 rounded-xl flex items-center justify-between gap-2 text-xs transition ${b.premioGanho > 0 ? 'linha-premiada' : ''}">
                       <div class="flex items-center gap-2.5 min-w-0">
-                        <span class="font-mono font-bold text-slate-500 text-[10px] w-4 flex-shrink-0">#${idx + 1}</span>
+                        <span class="linha-num-ordem font-mono font-bold text-[10px] w-4 flex-shrink-0">#${idx + 1}</span>
                         <div class="${isLoto ? 'grid grid-cols-5 sm:grid-cols-8 gap-1 items-center' : 'flex flex-wrap gap-1 sm:gap-1.5 items-center'}">
                           ${b.dezenas.map(d => {
                             const acertou = dezenasSorteadas.includes(Number(d));
                             return `<span class="${isLoto ? 'w-5 h-5 sm:w-6 sm:h-6 text-[9px] sm:text-[10px]' : 'w-6 h-6 sm:w-7 sm:h-7 text-[10px] sm:text-xs'} rounded-lg font-mono font-bold flex items-center justify-center transition ${
                               acertou
-                                ? 'bg-emerald-500 text-slate-950 font-black shadow-md shadow-emerald-500/50 scale-105 border border-white ring-1 ring-emerald-300'
-                                : 'bg-slate-800 text-slate-200 border border-slate-700/80'
+                                ? 'sorteio-bola-acerto'
+                                : 'sorteio-bola-padrao'
                             }">${String(d).padStart(2,'0')}</span>`;
                           }).join('')}
                         </div>
@@ -583,17 +600,17 @@
 
                       <div class="flex items-center gap-2 sm:gap-2.5 flex-shrink-0 font-mono">
                         ${b.premioGanho > 0 ? `
-                          <span class="px-2 py-0.5 rounded-md bg-emerald-500 text-slate-950 font-black text-[10px] shadow">
+                          <span class="status-badge-premiado px-2 py-0.5 rounded-md font-black text-[10px] shadow">
                             🏆 ${fmtBRL(b.premioGanho)}
                           </span>
                         ` : foiConferido && acertos !== null ? `
-                          <span class="text-[11px] font-bold ${acertouAlgum ? 'text-emerald-400 font-black' : 'text-slate-500'}">
+                          <span class="linha-acertos-rotulo text-[11px] font-bold ${acertouAlgum ? 'linha-acertou' : 'linha-sem-acerto'}">
                             ${acertos} ${acertos === 1 ? 'acerto' : 'acertos'}
                           </span>
                         ` : `
-                          <span class="text-[10px] text-slate-500">Pendente</span>
+                          <span class="text-[10px] linha-sem-acerto">Pendente</span>
                         `}
-                        <button type="button" onclick="event.stopPropagation(); removerBilheteCarteira('${b.id}')" class="w-6 h-6 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 flex items-center justify-center text-xs transition" title="Excluir este jogo">
+                        <button type="button" onclick="event.stopPropagation(); removerBilheteCarteira('${b.id}')" class="btn-remover-bilhete w-6 h-6 rounded-lg flex items-center justify-center text-xs transition" title="Excluir este jogo">
                           ✕
                         </button>
                       </div>
@@ -603,21 +620,21 @@
               </div>
 
               <!-- Rodapé de Ações do Bilhete (Discreto e Elegante) -->
-              <div class="px-3.5 py-2 bg-slate-900/40 border-t border-slate-900 flex justify-between items-center text-[11px] text-slate-400 font-sans flex-wrap gap-2">
+              <div class="rodape-acoes-grupo px-3.5 py-2 border-t flex justify-between items-center text-[11px] font-sans flex-wrap gap-2">
                 <div class="flex items-center gap-2.5 flex-wrap">
-                  <button type="button" onclick="compartilharWhatsAppGrupoCarteira('${g.id}')" class="hover:text-emerald-300 font-bold transition flex items-center gap-1">
+                  <button type="button" onclick="compartilharWhatsAppGrupoCarteira('${g.id}')" class="btn-acao-grupo-whats hover:opacity-80 font-bold transition flex items-center gap-1">
                     <span>📱</span> WhatsApp
                   </button>
-                  <span class="text-slate-800">•</span>
-                  <button type="button" onclick="imprimirLoteGrupoCarteira('${g.id}')" class="hover:text-amber-300 font-bold transition flex items-center gap-1">
+                  <span class="divisor-acoes-ponto">•</span>
+                  <button type="button" onclick="imprimirLoteGrupoCarteira('${g.id}')" class="btn-acao-grupo-print hover:opacity-80 font-bold transition flex items-center gap-1">
                     <span>🖨️</span> Imprimir A4
                   </button>
-                  <span class="text-slate-800">•</span>
-                  <button type="button" onclick="reatribuirConcursoLote('${g.id}')" class="hover:text-cyan-300 font-bold transition flex items-center gap-1" title="Corrigir o número do concurso deste lote">
+                  <span class="divisor-acoes-ponto">•</span>
+                  <button type="button" onclick="reatribuirConcursoLote('${g.id}')" class="btn-acao-grupo-mudar hover:opacity-80 font-bold transition flex items-center gap-1" title="Corrigir o número do concurso deste lote">
                     <span>✏️</span> Mudar Concurso
                   </button>
                 </div>
-                <button type="button" onclick="removerLoteGrupoCarteira('${g.id}')" class="text-slate-500 hover:text-rose-400 text-[10px] font-bold transition">
+                <button type="button" onclick="removerLoteGrupoCarteira('${g.id}')" class="btn-acao-grupo-excluir text-[10px] font-bold transition">
                   Excluir lote
                 </button>
               </div>
@@ -635,24 +652,24 @@
       const foiConferido = Boolean(b.conferido || b.acertos !== undefined);
       const acertos = b.acertos !== undefined ? b.acertos : (dezenasSorteadas.length > 0 ? (b.dezenas || []).filter(d => dezenasSorteadas.includes(Number(d))).length : null);
       return `
-        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800/90 shadow-md flex items-center justify-between gap-2 text-xs font-mono">
+        <div class="card-bilhete-individual p-3 rounded-2xl border shadow-sm flex items-center justify-between gap-2 text-xs font-mono">
           <div class="space-y-1.5 min-w-0">
             <div class="flex items-center gap-1.5 flex-wrap">
-              <span class="px-1.5 py-0.5 rounded text-[9px] font-black ${isMega ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-purple-950 text-purple-400 border border-purple-800'}">${(b.modalidade || 'megasena').toUpperCase()}</span>
-              ${b.concursoAlvo ? `<span class="text-white text-[10px] font-bold">${b.concursoAlvo}</span>` : ''}
-              <span class="text-slate-400 text-[10px]">📅 ${b.data || 'Oficial'}</span>
-              ${b.premioGanho > 0 ? `<span class="text-emerald-400 font-black text-[10px] bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-800">🏆 +${fmtBRL(b.premioGanho)}</span>` : foiConferido ? `<span class="text-slate-400 text-[10px]">${acertos || 0} acertos</span>` : '<span class="text-slate-500 text-[9px]">Pendente</span>'}
+              <span class="px-1.5 py-0.5 rounded text-[9px] font-black ${isMega ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'}">${(b.modalidade || 'megasena').toUpperCase()}</span>
+              ${b.concursoAlvo ? `<span class="linha-acertos-rotulo text-[10px] font-bold">${b.concursoAlvo}</span>` : ''}
+              <span class="linha-sem-acerto text-[10px]">📅 ${b.data || 'Oficial'}</span>
+              ${b.premioGanho > 0 ? `<span class="status-badge-premiado text-[10px] px-1.5 py-0.5 rounded font-black">🏆 +${fmtBRL(b.premioGanho)}</span>` : foiConferido ? `<span class="linha-sem-acerto text-[10px]">${acertos || 0} acertos</span>` : '<span class="linha-sem-acerto text-[9px]">Pendente</span>'}
             </div>
             <div class="flex flex-wrap gap-1">
               ${b.dezenas.map(d => {
                 const acertou = dezenasSorteadas.includes(Number(d));
-                return `<span class="w-6 h-6 rounded text-[9px] font-bold flex items-center justify-center ${
-                  acertou ? 'bg-emerald-500 text-slate-950 font-black scale-105 border border-white' : 'bg-slate-800 text-slate-200'
+                return `<span class="w-6 h-6 rounded text-[9px] font-bold flex items-center justify-center transition ${
+                  acertou ? 'sorteio-bola-acerto' : 'sorteio-bola-padrao'
                 }">${String(d).padStart(2,'0')}</span>`;
               }).join('')}
             </div>
           </div>
-          <button type="button" onclick="removerBilheteCarteira('${b.id}')" class="w-7 h-7 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-950/40 flex items-center justify-center text-xs transition flex-shrink-0" title="Remover aposta">
+          <button type="button" onclick="removerBilheteCarteira('${b.id}')" class="btn-remover-bilhete w-7 h-7 rounded-lg flex items-center justify-center text-xs transition flex-shrink-0" title="Remover aposta">
             🗑️
           </button>
         </div>

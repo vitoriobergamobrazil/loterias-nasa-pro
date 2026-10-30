@@ -218,6 +218,9 @@
 
     let syncNuvemTimeout = null;
     function salvarCarteiraStorage() {
+      if (typeof window.usuarioEstaIdentificado === 'function' && !window.usuarioEstaIdentificado()) {
+        return; // Nunca persiste bilhetes para visitante não identificado
+      }
       if (window.carteiraJogos && Array.isArray(window.carteiraJogos)) {
         carteiraJogos = window.carteiraJogos;
       } else {
@@ -2010,6 +2013,9 @@ function gerarPalpiteInteligente() {
     }
 
     function salvarTodasApostasLote() {
+      if (typeof window.exigirLeadAntesDeSalvar === 'function' && !window.exigirLeadAntesDeSalvar()) {
+        return;
+      }
       if (planoUsuario !== 'pro') {
         abrirModalPaywall('lote_salvar');
         return;
@@ -2285,16 +2291,31 @@ function gerarPalpiteInteligente() {
       window.abrirWhatsApp({ texto: txt });
     }
 
+    window.usuarioEstaIdentificado = function () {
+      const sessao = (typeof usuarioSessao !== 'undefined' && usuarioSessao) ? usuarioSessao : (window.usuarioSessao || null);
+      if (!sessao) return false;
+      if (sessao.tipo === 'master_founder' || sessao.tipo === 'vip_convidado') return true;
+      if (sessao.tipo !== 'visitante' && Boolean(sessao.email || sessao.telefone)) return true;
+      const lead = JSON.parse(localStorage.getItem('loterias_nasa_visitor_lead') || 'null');
+      if (lead && (lead.email || lead.telefone)) return true;
+      return false;
+    };
+
+    window.exigirLeadAntesDeSalvar = function (mensagem = 'Identifique-se com seu E-mail ou WhatsApp para salvar seus bilhetes!') {
+      if (window.usuarioEstaIdentificado()) return true;
+
+      toast(mensagem, '📋');
+      tocarBeep('alert');
+      setTimeout(() => {
+        if (typeof abrirModalAuth === 'function') abrirModalAuth();
+        else if (typeof abrirModalAuthOuPerfil === 'function') abrirModalAuthOuPerfil();
+      }, 300);
+      return false;
+    };
+
     function salvarJogoNaCarteira() {
       // 1. TRAVA DE CAPTURA DE LEAD / LOGIN: O usuário precisa se cadastrar para salvar jogos
-      const naoLogado = !usuarioSessao || usuarioSessao.tipo === 'visitante' || !usuarioSessao.email;
-      if (naoLogado) {
-        toast('Identifique-se com seu E-mail ou WhatsApp para salvar seus bilhetes!', '📋');
-        tocarBeep('alert');
-        setTimeout(() => {
-          if (typeof abrirModalAuth === 'function') abrirModalAuth();
-          else if (typeof abrirModalAuthOuPerfil === 'function') abrirModalAuthOuPerfil();
-        }, 300);
+      if (!window.exigirLeadAntesDeSalvar()) {
         return;
       }
 
@@ -3567,6 +3588,9 @@ function executarDesdobramento() {
     }
 
     function salvarTodosFechamento() {
+      if (typeof window.exigirLeadAntesDeSalvar === 'function' && !window.exigirLeadAntesDeSalvar()) {
+        return;
+      }
       if (jogosFechamentoGerados.length === 0) return;
       const config = getConfigAtual();
       jogosFechamentoGerados.forEach(j => {
@@ -4494,6 +4518,9 @@ function abrirModalDialog(msg, callback) {
     }
 
     function salvarApostasNaCarteiraAPartirDeTexto(texto) {
+      if (typeof window.exigirLeadAntesDeSalvar === 'function' && !window.exigirLeadAntesDeSalvar()) {
+        return 0;
+      }
       if (!texto || !texto.trim()) {
         toast("Cole ou informe o texto das apostas.", "⚠️");
         return 0;
@@ -4724,6 +4751,12 @@ function abrirModalDialog(msg, callback) {
     function verificarParametrosVipUrl() {
       try {
         const params = new URLSearchParams(window.location.search);
+        if (params.get('logout')) {
+          try {
+            window.history.replaceState({}, document.title, window.location.pathname);
+          } catch (_) {}
+          return;
+        }
         const cupom = params.get('cupom') || params.get('vip') || params.get('master');
         if (cupom) {
           const cod = cupom.toUpperCase().trim();

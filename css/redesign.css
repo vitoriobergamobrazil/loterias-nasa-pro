@@ -1161,47 +1161,273 @@ html:not(.dark) #carteira-subview-bilhetes .bg-slate-950 button.bg-slate-800 {
   color: #ffffff !important;
 }
 
-/* Cards dos Concursos Agrupados na Carteira */
-html:not(.dark) #lista-grupos-carteira > div,
-html:not(.dark) #lista-apostas-carteira > div {
-  background-color: #ffffff !important;
-  border: 1px solid #e2e8f0 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+/* ========== CARTEIRA DE APOSTAS INTELIGENTE: SEMÂNTICA MULTI-TEMA ========== */
+.card-concurso-grupo {
+  background: #020617;
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+}
+.header-concurso-grupo {
+  background: linear-gradient(to right, #0f172a, #0b1324);
+  border-bottom: 1px dashed rgba(51, 65, 85, 0.8);
+  color: #f8fafc;
+}
+.header-concurso-grupo h4 {
+  color: #ffffff;
+}
+.data-pill-concurso {
+  background: #0f172a;
+  color: #67e8f9;
+  border: 1px solid #1e293b;
+}
+.text-concurso-sub {
+  color: #94a3b8;
+}
+.text-concurso-custo {
+  color: #e2e8f0;
+}
+.status-badge-apurado {
+  background: rgba(6, 78, 59, 0.4);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+.status-badge-aguardando {
+  background: #0f172a;
+  color: #94a3b8;
+  border: 1px solid #1e293b;
+}
+.status-badge-premiado {
+  background: rgba(180, 83, 9, 0.3);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.5);
+}
+.btn-conferir-anterior {
+  background: rgba(12, 74, 110, 0.4);
+  color: #67e8f9;
+  border: 1px solid rgba(14, 165, 233, 0.4);
+}
+.btn-conferir-anterior:hover {
+  background: rgba(12, 74, 110, 0.7);
+}
+.btn-toggle-grupo {
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid #334155;
+}
+.btn-toggle-grupo:hover {
+  background: #334155;
+  color: #ffffff;
+}
+.sorteio-oficial-faixa {
+  background: rgba(6, 78, 59, 0.25);
+  border-color: rgba(5, 150, 105, 0.3);
+}
+.sorteio-oficial-rotulo {
+  color: #34d399;
+}
+.sorteio-bola-dezena {
+  background: #10b981;
+  color: #020617;
+  border-color: #ffffff;
+}
+.corpo-bilhetes-grupo {
+  background: rgba(2, 6, 23, 0.6);
+  border-color: #0f172a;
+}
+.linha-bilhete-item {
+  background: transparent;
+  border: 1px solid transparent;
+}
+.linha-bilhete-item:hover {
+  background: rgba(15, 23, 42, 0.6);
+}
+.linha-bilhete-item.linha-premiada {
+  background: rgba(6, 78, 59, 0.2);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+.linha-num-ordem {
+  color: #64748b;
+}
+.sorteio-bola-padrao {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid rgba(51, 65, 85, 0.8);
+}
+.sorteio-bola-acerto {
+  background: #10b981;
+  color: #020617;
+  border: 1px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.5);
+}
+.linha-acertou {
+  color: #34d399;
+  font-weight: 800;
+}
+.linha-sem-acerto {
+  color: #64748b;
+}
+.btn-remover-bilhete {
+  color: #64748b;
+}
+.btn-remover-bilhete:hover {
+  color: #f43f5e;
+  background: rgba(244, 63, 94, 0.15);
+}
+.rodape-acoes-grupo {
+  background: rgba(15, 23, 42, 0.4);
+  border-color: #0f172a;
+  color: #94a3b8;
+}
+.btn-acao-grupo-whats { color: #34d399; }
+.btn-acao-grupo-print { color: #f59e0b; }
+.btn-acao-grupo-mudar { color: #38bdf8; }
+.btn-acao-grupo-excluir { color: #64748b; }
+.btn-acao-grupo-excluir:hover { color: #f43f5e; }
+.divisor-acoes-ponto { color: #334155; }
+.card-bilhete-individual {
+  background: #020617;
+  border: 1px solid #1e293b;
+  color: #e2e8f0;
 }
 
-html:not(.dark) #lista-grupos-carteira > div > div:first-child {
+/* CARTEIRA NO TEMA CLARO (FINTECH CLEAN & HIGH CONTRAST) */
+html:not(.dark) .card-concurso-grupo {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05) !important;
+}
+html:not(.dark) .header-concurso-grupo {
   background: #f8fafc !important;
   border-bottom: 1px dashed #e2e8f0 !important;
-}
-
-html:not(.dark) #lista-grupos-carteira h4 {
   color: #0f172a !important;
 }
-
-/* Faixa do Resultado Oficial da Caixa na Carteira */
-html:not(.dark) #lista-grupos-carteira .bg-emerald-950\/25 {
-  background-color: #ecfdf5 !important;
-  border-color: #a7f3d0 !important;
+html:not(.dark) .header-concurso-grupo h4 {
+  color: #0f172a !important;
 }
-
-html:not(.dark) #lista-grupos-carteira .bg-emerald-950\/25 span {
-  color: #065f46 !important;
+html:not(.dark) .data-pill-concurso {
+  background: #f1f5f9 !important;
+  color: #0284c7 !important;
+  border: 1px solid #bae6fd !important;
+  font-weight: 700 !important;
 }
-
-/* Bolas de Dezenas da Carteira no Modo Claro */
-html:not(.dark) #lista-grupos-carteira .bg-slate-800 {
-  background-color: #f1f5f9 !important;
-  border-color: #cbd5e1 !important;
+html:not(.dark) .text-concurso-sub {
+  color: #64748b !important;
+}
+html:not(.dark) .text-concurso-custo {
   color: #0f172a !important;
   font-weight: 700 !important;
 }
-
-html:not(.dark) #lista-grupos-carteira .bg-slate-950\/60 {
-  background-color: #ffffff !important;
+html:not(.dark) .status-badge-apurado {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border: 1px solid #a7f3d0 !important;
+  font-weight: 800 !important;
 }
-
-html:not(.dark) #lista-grupos-carteira .hover\:bg-slate-900\/60:hover {
-  background-color: #f8fafc !important;
+html:not(.dark) .status-badge-aguardando {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 700 !important;
+}
+html:not(.dark) .status-badge-premiado {
+  background: #fef3c7 !important;
+  color: #92400e !important;
+  border: 1px solid #fcd34d !important;
+  font-weight: 900 !important;
+}
+html:not(.dark) .btn-conferir-anterior {
+  background: #f0fdf4 !important;
+  color: #047857 !important;
+  border: 1px solid #bbf7d0 !important;
+  font-weight: 700 !important;
+}
+html:not(.dark) .btn-conferir-anterior:hover {
+  background: #dcfce7 !important;
+}
+html:not(.dark) .btn-toggle-grupo {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+html:not(.dark) .btn-toggle-grupo:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+html:not(.dark) .sorteio-oficial-faixa {
+  background: #f0fdf4 !important;
+  border-color: #bbf7d0 !important;
+}
+html:not(.dark) .sorteio-oficial-rotulo {
+  color: #166534 !important;
+}
+html:not(.dark) .sorteio-bola-dezena {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #047857 !important;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.3) !important;
+}
+html:not(.dark) .corpo-bilhetes-grupo {
+  background: #ffffff !important;
+  border-color: #f1f5f9 !important;
+}
+html:not(.dark) .linha-bilhete-item {
+  background: #f8fafc !important;
+  border: 1px solid #f1f5f9 !important;
+}
+html:not(.dark) .linha-bilhete-item:hover {
+  background: #f1f5f9 !important;
+}
+html:not(.dark) .linha-bilhete-item.linha-premiada {
+  background: #fef9c3 !important;
+  border-color: #fef08a !important;
+}
+html:not(.dark) .linha-num-ordem {
+  color: #64748b !important;
+}
+html:not(.dark) .sorteio-bola-padrao {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  font-weight: 700 !important;
+}
+html:not(.dark) .sorteio-bola-acerto {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border: 1px solid #047857 !important;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4) !important;
+  font-weight: 900 !important;
+}
+html:not(.dark) .linha-acertou {
+  color: #047857 !important;
+  font-weight: 800 !important;
+}
+html:not(.dark) .linha-sem-acerto {
+  color: #64748b !important;
+}
+html:not(.dark) .btn-remover-bilhete {
+  color: #94a3b8 !important;
+}
+html:not(.dark) .btn-remover-bilhete:hover {
+  color: #e11d48 !important;
+  background: #ffe4e6 !important;
+}
+html:not(.dark) .rodape-acoes-grupo {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+html:not(.dark) .btn-acao-grupo-whats { color: #047857 !important; }
+html:not(.dark) .btn-acao-grupo-print { color: #b45309 !important; }
+html:not(.dark) .btn-acao-grupo-mudar { color: #0369a1 !important; }
+html:not(.dark) .btn-acao-grupo-excluir { color: #94a3b8 !important; }
+html:not(.dark) .btn-acao-grupo-excluir:hover { color: #e11d48 !important; }
+html:not(.dark) .divisor-acoes-ponto { color: #cbd5e1 !important; }
+html:not(.dark) .card-bilhete-individual {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
 }
 
 /* DRAWER DE PERFIL NO TEMA CLARO */
