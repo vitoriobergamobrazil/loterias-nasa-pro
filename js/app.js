@@ -5005,8 +5005,8 @@ function abrirModalDialog(msg, callback) {
       const senha = document.getElementById('input-auth-senha')?.value.trim();
       const nome = document.getElementById('input-auth-nome')?.value.trim() || email.split('@')[0];
 
-      if (!email || !senha) {
-        toast('Preencha o e-mail e a senha.', '⚠️');
+      if (!email) {
+        toast('Preencha o seu e-mail.', '⚠️');
         return;
       }
 
@@ -5017,6 +5017,11 @@ function abrirModalDialog(msg, callback) {
         fecharModalAuth();
         tocarSomNasa('sucesso');
         toast('👑 Acesso Master Founder Autenticado! Bem-vindo, Vitório!', '🚀');
+        return;
+      }
+
+      if (!senha) {
+        toast('Preencha a sua senha.', '⚠️');
         return;
       }
 

@@ -1022,24 +1022,61 @@ html:not(.dark) .nasa-primary-cta * {
 }
 
 /* DRAWER DE PERFIL NO TEMA CLARO */
-html:not(.dark) #drawer-perfil-novo,
-html:not(.dark) #drawer-perfil-overlay > div {
+html:not(.dark) .nasa-profile-sheet,
+html:not(.dark) #nasa-profile-drawer-backdrop > div {
   background-color: #ffffff !important;
   color: #0f172a !important;
+  border-top-color: #cbd5e1 !important;
+  box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.15) !important;
+}
+
+html:not(.dark) .nasa-sheet-handle {
+  background-color: #94a3b8 !important;
+}
+
+html:not(.dark) .nasa-profile-sheet .text-white {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .nasa-profile-sheet .text-slate-400,
+html:not(.dark) .nasa-profile-sheet .text-slate-300 {
+  color: #475569 !important;
+}
+
+html:not(.dark) .nasa-profile-sheet .border-slate-800,
+html:not(.dark) .nasa-profile-sheet .border-slate-700 {
   border-color: #e2e8f0 !important;
 }
 
-html:not(.dark) #drawer-perfil-novo .bg-slate-950,
-html:not(.dark) #drawer-perfil-novo .bg-slate-900 {
+html:not(.dark) .nasa-profile-sheet .bg-slate-950,
+html:not(.dark) .nasa-profile-sheet .bg-slate-900 {
   background-color: #f8fafc !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
 }
 
-html:not(.dark) #drawer-perfil-novo button:not([class*="from-"]):not([class*="bg-amber"]) {
+html:not(.dark) .nasa-profile-sheet button:not([class*="from-"]):not([class*="bg-amber"]):not([class*="bg-cyan"]):not(#drawer-btn-auth):not(.nasa-primary-cta) {
   background-color: #ffffff !important;
   border-color: #cbd5e1 !important;
   color: #1e293b !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+html:not(.dark) .nasa-profile-sheet #drawer-btn-auth {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) .nasa-profile-sheet #drawer-admin-row button {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+  border: 1px solid #f59e0b !important;
+  color: #78350f !important;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25) !important;
+}
+
+html:not(.dark) .nasa-profile-sheet #drawer-admin-row button span {
+  color: #78350f !important;
 }
 
 /* ========== DESKTOP / TABLET GRANDE (ACIMA DE 1024PX - CENTRO DE COMANDO NASA) ========== */

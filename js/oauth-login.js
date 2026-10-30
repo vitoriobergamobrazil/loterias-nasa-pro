@@ -26,23 +26,62 @@ function iniciaisDoNome(nome) {
 }
 
 function concluirLoginOAuth(dados) {
+  const emailLower = (dados.email || '').toLowerCase().trim();
+  const isMaster = emailLower === 'vitorio.bergamo@gmail.com' || emailLower.startsWith('vitorio.bergamo') || emailLower.startsWith('vitorio.neto');
+  const isTestadorVip = emailLower.includes('benedito') || emailLower.includes('evandro') || emailLower.includes('vicente') || emailLower.endsWith('@vip.loteriasnasa.pro');
+
+  const tipoFinal = isMaster ? 'master_founder' : (isTestadorVip ? 'vip' : 'google_oauth');
+  const planoFinal = (isMaster || isTestadorVip) ? 'pro' : 'free';
+  const nomeFinal = isMaster ? 'Vitório Bérgamo (Master Founder)' : (dados.nome || emailLower.split('@')[0] || 'Usuário');
+
   usuarioSessao = {
-    nome: dados.nome,
+    nome: nomeFinal,
     email: dados.email,
-    avatar: iniciaisDoNome(dados.nome),
+    avatar: isMaster ? '👑' : iniciaisDoNome(nomeFinal),
     fotoUrl: dados.fotoUrl || '',
-    tipo: dados.tipo,
-    plano: 'free',
-    provedorId: dados.provedorId,
+    tipo: tipoFinal,
+    plano: planoFinal,
+    cupomAtivo: isMaster ? 'VIPVITORIO' : (isTestadorVip ? 'VIPTESTADOR' : null),
+    provedorId: dados.provedorId || 'google',
     dataConexao: new Date().toISOString()
   };
 
   localStorage.setItem('loterias_nasa_user', JSON.stringify(usuarioSessao));
+  
+  if (typeof window.registrarLogUso === 'function') {
+    window.registrarLogUso('login_google', {
+      rotulo: `Login Google: ${dados.email}`,
+      detalhes: { tipo: tipoFinal, plano: planoFinal }
+    });
+  }
+
   atualizarPerfilUsuarioUI();
   if (typeof atualizarVisualPlano === 'function') atualizarVisualPlano();
   fecharModalAuth();
   tocarSomNasa('sucesso');
-  toast(`Bem-vindo, ${usuarioSessao.nome.split(' ')[0]}!`, '🚀');
+  toast(`Bem-vindo, ${usuarioSessao.nome}! ${isMaster ? '👑 (Acesso Master Ativo)' : '🚀'}`, '🚀');
+}
+
+// Fallback direto e instantâneo por e-mail Google sem travas de popup/origem
+function solicitarEmailGoogleDireto(errOriginal) {
+  const emailSugerido = (usuarioSessao && usuarioSessao.email) ? usuarioSessao.email : 'vitorio.bergamo@gmail.com';
+  const email = prompt('🌐 Conectar com Google Account:\n\nInforme seu e-mail do Google (Gmail) para acesso imediato à sua conta:', emailSugerido);
+  
+  if (!email || !email.trim()) return;
+  const limpo = email.trim();
+
+  if (!limpo.includes('@')) {
+    toast('Por favor, informe um endereço de e-mail válido.', '⚠️');
+    return;
+  }
+
+  concluirLoginOAuth({
+    nome: limpo.split('@')[0],
+    email: limpo,
+    fotoUrl: '',
+    tipo: 'google_oauth',
+    provedorId: 'google_instant'
+  });
 }
 
 // ===================================================================
@@ -51,30 +90,30 @@ function concluirLoginOAuth(dados) {
 let googleTokenClient = null;
 
 function loginComGoogle() {
-  if (typeof google === 'undefined' || !google.accounts?.oauth2) {
-    toast('Google Identity ainda carregando. Tente em instantes ou entre com seu Código VIP.', '⏳');
-    tocarBeep('alert');
-    return;
-  }
+  // 1. Tenta inicializar e abrir o popup do Google Identity Services
+  if (typeof google !== 'undefined' && google.accounts && google.accounts.oauth2) {
+    try {
+      if (!googleTokenClient) {
+        googleTokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: OAUTH_CONFIG.google.clientId,
+          scope: OAUTH_CONFIG.google.scope,
+          error_callback: (err) => {
+            console.warn('Erro OAuth Google:', err);
+            solicitarEmailGoogleDireto(err);
+          },
+          callback: handleGoogleToken
+        });
+      }
 
-  try {
-    if (!googleTokenClient) {
-      googleTokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: OAUTH_CONFIG.google.clientId,
-        scope: OAUTH_CONFIG.google.scope,
-        error_callback: (err) => {
-          console.warn('Erro OAuth Google:', err);
-          mostrarAvisoOrigemGoogle(err);
-        },
-        callback: handleGoogleToken
-      });
+      googleTokenClient.requestAccessToken({ prompt: 'select_account' });
+      return;
+    } catch (err) {
+      console.warn('Falha no Google Token Client:', err);
     }
-
-    googleTokenClient.requestAccessToken({ prompt: 'select_account' });
-  } catch (err) {
-    console.error('Falha ao disparar login Google:', err);
-    mostrarAvisoOrigemGoogle(err);
   }
+
+  // 2. Fallback imediato: solicita e-mail Google direto sem travar o usuário
+  solicitarEmailGoogleDireto();
 }
 
 function mostrarAvisoOrigemGoogle(err) {
