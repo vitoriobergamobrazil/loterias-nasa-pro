@@ -11,7 +11,7 @@
 //   SUPABASE_ACCESS_TOKEN=sbp_... node scripts/carregar-historico.mjs [quantidade]
 
 const TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
-const PROJETO_REF = 'cuqjmzkdwtfiicflksfs';
+const PROJETO_REF = 'kwiagspkzrnculrvtrmp';
 const API = `https://api.supabase.com/v1/projects/${PROJETO_REF}/database/query`;
 const CAIXA = 'https://servicebus2.caixa.gov.br/portaldeloterias/api';
 

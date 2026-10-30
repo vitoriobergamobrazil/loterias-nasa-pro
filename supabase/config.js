@@ -3,10 +3,10 @@
 // Preencha somente depois de criar o projeto Supabase.
 window.NASA_SUPABASE_CONFIG = {
   businessName: 'Loterias Nasa',
-  url: 'https://cuqjmzkdwtfiicflksfs.supabase.co',
-  anonKey: 'sb_publishable_5-Wy7W0EMaQeyMC_jSuKBQ_oQIokT-4',
+  url: 'https://kwiagspkzrnculrvtrmp.supabase.co',
+  anonKey: 'sb_publishable_afUKxEsidmT7QAWT4OI9Rw_kKAxXyYH',
   googleEnabled: true,
-  supportEmail: '',
+  supportEmail: 'contato@profitdata.com.br',
   supportPhone: '',
   googleRedirectUrl: 'https://loterias.pd.dev.br/'
 };

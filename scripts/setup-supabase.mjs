@@ -17,7 +17,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..');
-const PROJETO_REF = 'cuqjmzkdwtfiicflksfs';
+const PROJETO_REF = 'kwiagspkzrnculrvtrmp';
 const API = 'https://api.supabase.com/v1';
 const FUNCOES = `https://${PROJETO_REF}.supabase.co/functions/v1`;
 

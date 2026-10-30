@@ -35,7 +35,7 @@ Se o banco já existe, pule o `schema.sql` e rode só os outros quatro.
 ```bash
 npm install -g supabase
 supabase login
-supabase link --project-ref cuqjmzkdwtfiicflksfs
+supabase link --project-ref kwiagspkzrnculrvtrmp
 
 supabase functions deploy fetch-sorteios
 supabase functions deploy fetch-resultado
@@ -63,7 +63,7 @@ Nenhuma chave precisa ser colocada no código do app.
 nem o rate limit da Caixa. Rode repetidamente até `faltam` chegar a zero:
 
 ```bash
-BASE="https://cuqjmzkdwtfiicflksfs.supabase.co/functions/v1"
+BASE="https://kwiagspkzrnculrvtrmp.supabase.co/functions/v1"
 
 curl "$BASE/sync-historico?modalidade=megasena&quantidade=50&alvo=200"
 curl "$BASE/sync-historico?modalidade=lotofacil&quantidade=50&alvo=200"
@@ -128,7 +128,7 @@ supabase functions deploy asaas-webhook
 
 Configurações → Integrações → Webhooks:
 
-- **URL:** `https://cuqjmzkdwtfiicflksfs.supabase.co/functions/v1/asaas-webhook`
+- **URL:** `https://kwiagspkzrnculrvtrmp.supabase.co/functions/v1/asaas-webhook`
 - **Token de autenticação:** o mesmo valor de `ASAAS_WEBHOOK_TOKEN`
 - **Eventos:** todos os de `PAYMENT_*`
 
