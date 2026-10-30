@@ -1214,6 +1214,33 @@ function criarDrawerPerfilConfig() {
         </button>
       </div>
 
+      <!-- Canal dos Testadores e Atendimento -->
+      <div class="space-y-1.5 pt-3 mt-3 border-t border-slate-800">
+        <span class="text-[10px] font-mono uppercase tracking-wider text-cyan-400 font-bold block">Canal dos Testadores & Suporte</span>
+
+        <button type="button" onclick="fecharDrawerPerfil(); if (typeof window.abrirModalFeedbackTestador === 'function') { window.abrirModalFeedbackTestador(); } else { toast('Abrindo...', '⭐'); }" class="w-full p-2.5 rounded-xl bg-gradient-to-r from-amber-950/40 via-slate-950 to-amber-950/30 hover:bg-slate-900 border border-amber-500/40 text-xs font-bold text-amber-300 flex items-center justify-between text-left transition shadow">
+          <div class="flex items-center gap-2">
+            <span>⭐</span>
+            <div>
+              <div class="text-white font-black text-xs">Avaliar App & Sugerir Melhorias</div>
+              <div class="text-[10px] text-amber-400/90 font-sans font-normal">Sua opinião como testador é fundamental</div>
+            </div>
+          </div>
+          <span class="text-amber-400 text-xs font-bold">Avaliar →</span>
+        </button>
+
+        <button type="button" onclick="fecharDrawerPerfil(); const t = encodeURIComponent('🛰️ Olá NASA PRO! Gostaria de registrar números na minha carteira / tirar uma dúvida:'); window.open('https://api.whatsapp.com/send?text=' + t, '_blank');" class="w-full p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-emerald-500/40 text-xs font-bold text-white flex items-center justify-between text-left transition">
+          <div class="flex items-center gap-2">
+            <span>💬</span>
+            <div>
+              <div class="text-emerald-400 font-black text-xs">Assistente Concierge no WhatsApp</div>
+              <div class="text-[10px] text-slate-400 font-sans font-normal">Envie seus números ou fotos de bilhetes</div>
+            </div>
+          </div>
+          <span class="text-emerald-400 text-[10px] font-bold">Abrir ↗</span>
+        </button>
+      </div>
+
       <!-- Links Institucionais: Mestres da Loteria, Jurídico & LGPD -->
       <div class="space-y-1.5 pt-3 mt-3 border-t border-slate-800">
         <span class="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block">Conhecimento & Legal</span>

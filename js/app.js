@@ -2927,18 +2927,33 @@ function gerarPalpiteInteligente() {
 
     async function sincronizarCarteiraNuvem(notificar = false) {
       const cliente = typeof obterClienteSupabase === 'function' ? obterClienteSupabase() : null;
+      let accountId = null;
+
+      if (cliente) {
+        try {
+          const { data: sessaoData } = await cliente.auth.getSession();
+          if (sessaoData?.session?.user?.id) {
+            accountId = sessaoData.session.user.id;
+          }
+        } catch (_) {}
+      }
+
+      // Fallback para usuários autenticados via Código VIP, Master Founder ou Identidade NASA
+      if (!accountId && typeof usuarioSessao !== 'undefined' && usuarioSessao) {
+        accountId = usuarioSessao.email || (usuarioSessao.cupomAtivo ? `vip_${usuarioSessao.cupomAtivo}` : null);
+      }
+
+      // Se for apenas visitante sem nenhuma conta ou VIP definido, mantém local
+      if (!accountId) return;
+
       if (!cliente) return;
 
       try {
-        const { data: sessaoData } = await cliente.auth.getSession();
-        const user = sessaoData?.session?.user;
-        if (!user) return; // Visitante: mantém seguro em localStorage
-
-        // 1. Busca apostas salvas na nuvem para este usuário
+        // 1. Busca apostas salvas na nuvem para este usuário / conta
         const { data: apostasNuvem, error } = await cliente
           .from('carteira_apostas')
           .select('*')
-          .eq('user_id', user.id);
+          .eq('user_id', accountId);
 
         if (error) {
           // Se tabela ainda não foi criada, não trava a experiência
@@ -2978,7 +2993,7 @@ function gerarPalpiteInteligente() {
 
         if (pendentesNuvem.length > 0) {
           const payload = pendentesNuvem.map(b => ({
-            user_id: user.id,
+            user_id: accountId,
             bilhete_id: String(b.id),
             modalidade: b.modalidade || 'megasena',
             nome: b.nome || 'Aposta',
@@ -4543,23 +4558,63 @@ function abrirModalDialog(msg, callback) {
     }
 
     const CUPONS_HASH_MAP = {
-      [calcularHashCupom('BENEDITOVIP')]: { nome: 'Benedito Dalcin (Co-Fundador)', email: 'benedito.dalcin@vip.loteriasnasa.pro', tipo: 'master_founder' },
-      [calcularHashCupom('DALCINVIP')]: { nome: 'Benedito Dalcin (Co-Fundador)', email: 'benedito.dalcin@vip.loteriasnasa.pro', tipo: 'master_founder' },
-      [calcularHashCupom('VIPDALCIN')]: { nome: 'Benedito Dalcin (Co-Fundador)', email: 'benedito.dalcin@vip.loteriasnasa.pro', tipo: 'master_founder' },
-      [calcularHashCupom('VIPVITORIO')]: { nome: 'Vitório Bérgamo (Master Founder)', email: 'vitorio.bergamo@gmail.com', tipo: 'master_founder' },
-      [calcularHashCupom('MASTER2026')]: { nome: 'Vitório Bérgamo (Master Founder)', email: 'vitorio.bergamo@gmail.com', tipo: 'master_founder' },
-      [calcularHashCupom('FUNDADOR2026')]: { nome: 'Membro Fundador VIP', email: 'vip@loteriasnasa.pro', tipo: 'vip_convidado' }
+      [calcularHashCupom('BENEDITOVIP')]: { nome: 'Benedito Dalcin (Co-Fundador)', email: 'benedito.dalcin@vip.loteriasnasa.pro', tipo: 'master_founder', plano: 'pro' },
+      [calcularHashCupom('BENEDITODALCIN')]: { nome: 'Benedito Dalcin (Co-Fundador)', email: 'benedito.dalcin@vip.loteriasnasa.pro', tipo: 'master_founder', plano: 'pro' },
+      [calcularHashCupom('DALCINVIP')]: { nome: 'Benedito Dalcin (Co-Fundador)', email: 'benedito.dalcin@vip.loteriasnasa.pro', tipo: 'master_founder', plano: 'pro' },
+      [calcularHashCupom('VIPDALCIN')]: { nome: 'Benedito Dalcin (Co-Fundador)', email: 'benedito.dalcin@vip.loteriasnasa.pro', tipo: 'master_founder', plano: 'pro' },
+      [calcularHashCupom('EVANDROSERVAT')]: { nome: 'Evandro Servat (Testador VIP de Elite)', email: 'evandro.servat@vip.loteriasnasa.pro', tipo: 'vip_convidado', plano: 'pro' },
+      [calcularHashCupom('SERVATVIP')]: { nome: 'Evandro Servat (Testador VIP de Elite)', email: 'evandro.servat@vip.loteriasnasa.pro', tipo: 'vip_convidado', plano: 'pro' },
+      [calcularHashCupom('VICENTENETO')]: { nome: 'Vicente Neto (Testador VIP de Elite)', email: 'vicente.neto@vip.loteriasnasa.pro', tipo: 'vip_convidado', plano: 'pro' },
+      [calcularHashCupom('VICENTEVIP')]: { nome: 'Vicente Neto (Testador VIP de Elite)', email: 'vicente.neto@vip.loteriasnasa.pro', tipo: 'vip_convidado', plano: 'pro' },
+      [calcularHashCupom('VIPVITORIO')]: { nome: 'Vitório Bérgamo (Master Founder)', email: 'vitorio.bergamo@gmail.com', tipo: 'master_founder', plano: 'pro' },
+      [calcularHashCupom('MASTER2026')]: { nome: 'Vitório Bérgamo (Master Founder)', email: 'vitorio.bergamo@gmail.com', tipo: 'master_founder', plano: 'pro' },
+      [calcularHashCupom('FUNDADOR2026')]: { nome: 'Membro Fundador VIP', email: 'vip@loteriasnasa.pro', tipo: 'vip_convidado', plano: 'pro' }
     };
+
+    function obterConfiguracaoCupom(codigo) {
+      const cod = String(codigo || '').toUpperCase().trim();
+      if (!cod) return null;
+
+      // 1. Dicionário estático
+      const h = calcularHashCupom(cod);
+      if (CUPONS_HASH_MAP[h]) {
+        return { ...CUPONS_HASH_MAP[h], codigo: cod };
+      }
+
+      // 2. Consulta à base de usuários admin (cupons criados dinamicamente)
+      try {
+        const adminUsers = JSON.parse(localStorage.getItem('loterias_nasa_admin_users') || '[]');
+        const match = adminUsers.find(u => {
+          const cupomUser = (u.codigoVip || u.cupom || '').toUpperCase().trim();
+          return cupomUser && cupomUser === cod;
+        });
+        if (match) {
+          return {
+            nome: match.nome,
+            email: match.email || `${match.nome.toLowerCase().replace(/\s+/g, '.')}@vip.loteriasnasa.pro`,
+            telefone: match.telefone || '',
+            tipo: match.plano === 'master' ? 'master_founder' : 'vip_convidado',
+            plano: match.plano || 'pro',
+            codigo: cod
+          };
+        }
+      } catch (_) {}
+
+      return null;
+    }
 
     function verificarParametrosVipUrl() {
       try {
         const params = new URLSearchParams(window.location.search);
         const cupom = params.get('cupom') || params.get('vip') || params.get('master');
         if (cupom) {
-          const h = calcularHashCupom(cupom);
-          if (CUPONS_HASH_MAP[h]) {
-            const cfg = CUPONS_HASH_MAP[h];
-            ativarSessaoVipPermanente(cfg.nome, cupom.toUpperCase().trim(), cfg.email, cfg.tipo);
+          const cod = cupom.toUpperCase().trim();
+          const cfg = obterConfiguracaoCupom(cod);
+          if (cfg) {
+            ativarSessaoVipPermanente(cfg.nome, cod, cfg.email, cfg.tipo, cfg.telefone);
+            if (typeof sincronizarCarteiraNuvem === 'function') {
+              sincronizarCarteiraNuvem(true);
+            }
           }
         }
       } catch (e) {
@@ -4567,17 +4622,20 @@ function abrirModalDialog(msg, callback) {
       }
     }
 
-    function ativarSessaoVipPermanente(nome = 'Convidado VIP', codigo = 'BENEDITOVIP', email = '', tipo = 'vip_convidado') {
+    function ativarSessaoVipPermanente(nome = 'Convidado VIP', codigo = 'BENEDITOVIP', email = '', tipo = 'vip_convidado', telefone = '') {
       localStorage.setItem('loterias_nasa_vip_cupom', codigo);
       planoUsuario = 'pro';
       const isMaster = tipo === 'master_founder' ||
                        codigo.toUpperCase().includes('VITORIO') ||
                        codigo.toUpperCase().includes('MASTER') ||
+                       codigo.toUpperCase().includes('BENEDITO') ||
+                       codigo.toUpperCase().includes('DALCIN') ||
                        (email && email.toLowerCase().includes('vitorio.bergamo'));
       usuarioSessao = {
         nome: nome,
         email: email || 'convidado.vip@loteriasnasa.pro',
-        avatar: '👑',
+        telefone: telefone || '',
+        avatar: isMaster ? '👑' : '⭐',
         tipo: isMaster ? 'master_founder' : 'vip_convidado',
         plano: 'pro',
         cupomAtivo: codigo
@@ -4588,29 +4646,29 @@ function abrirModalDialog(msg, callback) {
       if (typeof sincronizarHeaderStatusUsuario === 'function') sincronizarHeaderStatusUsuario();
       if (typeof fecharModalUpgrade === 'function') fecharModalUpgrade();
       if (typeof fecharModalAuth === 'function') fecharModalAuth();
+      if (typeof tocarSomNasa === 'function') tocarSomNasa('sucesso');
+      if (typeof toast === 'function') {
+        toast(`👑 Bem-vindo(a), ${nome.split(' ')[0]}! Acesso VIP Vitalício Ativado!`, '🚀');
+      }
     }
 
     function resgatarCupomVip(codigoInformado) {
       const codigo = (codigoInformado || '').toUpperCase().trim();
       if (!codigo) {
-        if (typeof toast === 'function') toast('Digite o código do cupom VIP', '⚠️');
+        if (typeof toast === 'function') toast('Digite o código do convite VIP', '⚠️');
         return false;
       }
 
-      const h = calcularHashCupom(codigo);
-      if (CUPONS_HASH_MAP[h]) {
-        const cfg = CUPONS_HASH_MAP[h];
-        ativarSessaoVipPermanente(cfg.nome, codigo, cfg.email, cfg.tipo);
-        if (typeof tocarSomNasa === 'function') tocarSomNasa('sucesso');
-        if (typeof toast === 'function') {
-          toast(cfg.tipo === 'master_founder'
-            ? `👑 Acesso MASTER FOUNDER Liberado! Bem-vindo, ${cfg.nome}!`
-            : `👑 VIP Vitalício Ativado! Bem-vindo, ${cfg.nome}!`, '🎉');
+      const cfg = obterConfiguracaoCupom(codigo);
+      if (cfg) {
+        ativarSessaoVipPermanente(cfg.nome, codigo, cfg.email, cfg.tipo, cfg.telefone);
+        if (typeof sincronizarCarteiraNuvem === 'function') {
+          sincronizarCarteiraNuvem(true);
         }
         return true;
       } else {
         if (typeof tocarSomNasa === 'function') tocarSomNasa('erro');
-        if (typeof toast === 'function') toast('Código ou Cupom VIP inválido.', '⚠️');
+        if (typeof toast === 'function') toast('Código ou Cupom VIP inválido ou não cadastrado.', '⚠️');
         return false;
       }
     }
@@ -5089,26 +5147,102 @@ function abrirModalDialog(msg, callback) {
       }
     }
 
-    // Base de Clientes Oficial - Dados 100% Reais
+    // Base de Clientes Oficial - Dados 100% Reais com Semente dos Testadores VIP
+    function gerarSementeTestadoresIniciais() {
+      const hoje = new Date().toISOString().split('T')[0];
+      return [
+        {
+          id: 'usr-vitorio',
+          nome: 'Vitório Bérgamo (Master Founder)',
+          email: 'vitorio.bergamo@gmail.com',
+          telefone: '(11) 99999-9999',
+          avatar: '👑',
+          plano: 'master',
+          planoNome: 'Master Founder Vitalício',
+          codigoVip: 'VIPVITORIO',
+          dataCadastro: '2026-01-01',
+          dataExpiracao: 'Vitalício',
+          status: 'ativo',
+          valorPago: 0,
+          obs: 'Proprietário & Desenvolvedor Chefe'
+        },
+        {
+          id: 'usr-benedito',
+          nome: 'Benedito Dalcin (Tio / Co-Fundador)',
+          email: 'benedito.dalcin@vip.loteriasnasa.pro',
+          telefone: '',
+          avatar: '👑',
+          plano: 'master',
+          planoNome: 'Co-Fundador VIP Vitalício',
+          codigoVip: 'BENEDITODALCIN',
+          dataCadastro: hoje,
+          dataExpiracao: 'Vitalício',
+          status: 'ativo',
+          valorPago: 0,
+          obs: 'Co-fundador de honra e testador prioritário'
+        },
+        {
+          id: 'usr-evandro',
+          nome: 'Evandro Servat (Testador VIP de Elite)',
+          email: 'evandro.servat@vip.loteriasnasa.pro',
+          telefone: '',
+          avatar: '💎',
+          plano: 'anual',
+          planoNome: 'VIP Anual Apollo Elite (Testador)',
+          codigoVip: 'EVANDROSERVAT',
+          dataCadastro: hoje,
+          dataExpiracao: '2027-12-31',
+          status: 'ativo',
+          valorPago: 197.00,
+          obs: 'Primeiro grupo de testadores pioneiros'
+        },
+        {
+          id: 'usr-vicente',
+          nome: 'Vicente Neto (Testador VIP de Elite)',
+          email: 'vicente.neto@vip.loteriasnasa.pro',
+          telefone: '',
+          avatar: '💎',
+          plano: 'anual',
+          planoNome: 'VIP Anual Apollo Elite (Testador)',
+          codigoVip: 'VICENTENETO',
+          dataCadastro: hoje,
+          dataExpiracao: '2027-12-31',
+          status: 'ativo',
+          valorPago: 197.00,
+          obs: 'Primeiro grupo de testadores pioneiros'
+        }
+      ];
+    }
+
     function carregarBaseUsuariosAdmin() {
-      if (usuariosAdminRemotos && Array.isArray(usuariosAdminRemotos)) {
+      if (usuariosAdminRemotos && Array.isArray(usuariosAdminRemotos) && usuariosAdminRemotos.length > 0) {
         return usuariosAdminRemotos;
       }
       try {
         const salvo = localStorage.getItem('loterias_nasa_admin_users');
         if (salvo) {
-          const lista = JSON.parse(salvo);
-          // Purga imediata se contiver registros de teste legados
-          if (Array.isArray(lista) && lista.some(u => u.email === 'admin@example.invalid' || u.email === 'carlos.ed@gmail.com')) {
-            localStorage.removeItem('loterias_nasa_admin_users');
-            return [];
+          let lista = JSON.parse(salvo);
+          if (Array.isArray(lista) && lista.length > 0) {
+            // Garante que os 3 testadores de honra estejam presentes
+            const codigosPresentes = new Set(lista.map(u => (u.codigoVip || '').toUpperCase()));
+            const semente = gerarSementeTestadoresIniciais();
+            semente.forEach(s => {
+              if (!codigosPresentes.has(s.codigoVip.toUpperCase())) {
+                lista.push(s);
+              }
+            });
+            return lista;
           }
-          return Array.isArray(lista) ? lista : [];
         }
       } catch (e) {
-        return [];
+        // Segue para a semente
       }
-      return [];
+
+      const inicial = gerarSementeTestadoresIniciais();
+      try {
+        localStorage.setItem('loterias_nasa_admin_users', JSON.stringify(inicial));
+      } catch (_) {}
+      return inicial;
     }
 
     function salvarBaseUsuariosAdmin(base) {
@@ -5133,7 +5267,7 @@ function abrirModalDialog(msg, callback) {
     }
 
     function alternarSubAbaAdmin(subaba) {
-      ['usuarios', 'planos', 'gateways', 'relatorio'].forEach(s => {
+      ['usuarios', 'feedbacks', 'planos', 'gateways', 'relatorio'].forEach(s => {
         const sec = document.getElementById(`subsecao-admin-${s}`);
         const tab = document.getElementById(`subtab-admin-${s}`);
         if (sec) sec.classList.add('hidden');
@@ -5147,6 +5281,10 @@ function abrirModalDialog(msg, callback) {
       if (secAtiva) secAtiva.classList.remove('hidden');
       if (tabAtiva) {
         tabAtiva.className = 'pb-2.5 px-3 font-bold text-xs border-b-2 border-amber-400 text-amber-300 transition flex items-center gap-1.5';
+      }
+
+      if (subaba === 'feedbacks' && typeof window.renderizarFeedbacksAdmin === 'function') {
+        window.renderizarFeedbacksAdmin();
       }
     }
 
@@ -5269,14 +5407,23 @@ function abrirModalDialog(msg, callback) {
           badgeStatus = '<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-[10px] flex items-center gap-1 w-fit">🟡 Pendente</span>';
         }
 
+        const codVip = (u.codigoVip || '').toUpperCase().trim();
+        const linkVip = `${window.location.origin}${window.location.pathname}?vip=${codVip}`;
+
         return `
           <tr class="hover:bg-slate-800/40 transition">
             <td class="p-3.5">
               <div class="flex items-center gap-2">
                 <span class="text-base">${escaparHtmlSeguro(u.avatar || '👤')}</span>
                 <div>
-                  <div class="font-bold text-white font-sans">${escaparHtmlSeguro(u.nome)}</div>
-                  <div class="text-[10px] text-slate-500">${escaparHtmlSeguro(u.email)} ${u.telefone ? '• ' + escaparHtmlSeguro(u.telefone) : ''}</div>
+                  <div class="font-bold text-white font-sans flex items-center gap-1.5 flex-wrap">
+                    <span>${escaparHtmlSeguro(u.nome)}</span>
+                    ${codVip ? `<span class="px-1.5 py-0.2 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[9px] font-mono font-bold" title="Código VIP: ${codVip}">🔑 ${codVip}</span>` : ''}
+                  </div>
+                  <div class="text-[10px] text-slate-400 font-sans flex items-center gap-2 flex-wrap mt-0.5">
+                    <span>✉️ ${escaparHtmlSeguro(u.email || 'Sem email')}</span>
+                    ${u.telefone ? `<span class="text-emerald-400 font-mono font-bold">💬 ${escaparHtmlSeguro(u.telefone)}</span>` : '<span class="text-amber-400/80 italic text-[9px]">⚠️ Sem WhatsApp</span>'}
+                  </div>
                 </div>
               </div>
             </td>
@@ -5287,15 +5434,24 @@ function abrirModalDialog(msg, callback) {
             </td>
             <td class="p-3.5">${badgeStatus}</td>
             <td class="p-3.5 text-right">
-              <div class="flex items-center justify-end gap-1.5">
-                <button onclick="concederVipUsuario('${u.id}', 30, 'pro')" class="px-2 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 rounded-lg text-[10px] font-bold transition" title="Conceder +30 dias de VIP">
-                  +30d VIP
+              <div class="flex items-center justify-end gap-1.5 flex-wrap">
+                <!-- Ações Prioritárias: WhatsApp & Link Mágico -->
+                <button type="button" onclick="enviarConviteWhatsAppAdmin('${u.id}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-lg text-[10px] shadow transition flex items-center gap-1" title="Enviar convite e link mágico no WhatsApp deste cliente">
+                  <span>💬</span> <span>WhatsApp</span>
                 </button>
-                <button onclick="concederVipUsuario('${u.id}', 365, 'anual')" class="px-2 py-1 bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-800 rounded-lg text-[10px] font-bold transition" title="Upgrade para VIP Anual">
-                  💎 Anual
+                <button type="button" onclick="copiarLinkVipAdmin('${codVip}')" class="px-2 py-1 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 rounded-lg text-[10px] font-bold transition flex items-center gap-1" title="Copiar Link Mágico de Acesso Direto">
+                  <span>🔗</span> <span>Link</span>
                 </button>
-                <button onclick="concederAcessoVitalicio('${u.id}')" class="px-2 py-1 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 rounded-lg text-[10px] font-bold transition" title="Conceder acesso vitalício para teste">
-                  ∞ Teste
+                <button type="button" onclick="abrirModalEditarUsuarioAdmin('${u.id}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-[10px] font-bold transition" title="Editar dados (WhatsApp, E-mail, Nome)">
+                  ✏️
+                </button>
+                
+                <!-- Ações de Licença -->
+                <button onclick="concederVipUsuario('${u.id}', 30, 'pro')" class="px-2 py-1 bg-slate-900 hover:bg-emerald-950 text-slate-300 hover:text-emerald-300 border border-slate-800 rounded-lg text-[10px] font-bold transition" title="Conceder +30 dias de VIP">
+                  +30d
+                </button>
+                <button onclick="concederVipUsuario('${u.id}', 365, 'anual')" class="px-2 py-1 bg-slate-900 hover:bg-amber-950 text-slate-300 hover:text-amber-300 border border-slate-800 rounded-lg text-[10px] font-bold transition" title="Upgrade para VIP Anual">
+                  💎
                 </button>
                 <button onclick="alternarBloqueioUsuario('${u.id}')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[10px] transition" title="Bloquear ou desbloquear">
                   ${u.status === 'bloqueado' ? '🔓' : '🔒'}
@@ -5309,6 +5465,153 @@ function abrirModalDialog(msg, callback) {
           </tr>
         `;
       }).join('');
+    }
+
+    function copiarLinkVipAdmin(codigo) {
+      if (!codigo) {
+        toast('Este usuário não possui código VIP definido.', '⚠️');
+        return;
+      }
+      const link = `${window.location.origin}${window.location.pathname}?vip=${codigo.toUpperCase()}`;
+      navigator.clipboard.writeText(link).then(() => {
+        toast(`📋 Link VIP copiado: ${link}`, '✨');
+        tocarSomNasa('sucesso');
+      }).catch(() => {
+        prompt('Copie o Link Mágico VIP abaixo:', link);
+      });
+    }
+
+    function enviarConviteWhatsAppAdmin(userId) {
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === userId);
+      if (!u) return;
+
+      let fone = (u.telefone || '').replace(/\D/g, '');
+      if (!fone) {
+        const informado = prompt(`Informe o WhatsApp de ${u.nome} (com DDD, ex: 11999998888):`);
+        if (!informado) return;
+        u.telefone = informado.trim();
+        salvarBaseUsuariosAdmin(base);
+        fone = u.telefone.replace(/\D/g, '');
+      }
+
+      const codVip = (u.codigoVip || u.nome.replace(/\s+/g, '').toUpperCase().slice(0, 12)).trim();
+      const linkVip = `${window.location.origin}${window.location.pathname}?vip=${codVip}`;
+
+      const texto = encodeURIComponent(
+        `🛰️ *Convite Exclusivo — Loterias NASA PRO*\n\n` +
+        `Olá, *${u.nome.split(' ')[0]}*! Aqui é o Vitório Bérgamo.\n\n` +
+        `Você foi selecionado como nosso *Testador VIP Pioneiro* no *Loterias NASA PRO*! Seu acesso completo com todas as matrizes, filtros orbitais e volante interativo já está 100% liberado.\n\n` +
+        `👉 *Acesse agora com 1 toque no seu celular (sem precisar de senha):*\n` +
+        `${linkVip}\n\n` +
+        `Se preferir ativar manualmente no app, seu código VIP é: *${codVip}*\n\n` +
+        `Abra o link, faça seus palpites e depois me diga o que achou das análises! 🚀`
+      );
+
+      window.open(`https://api.whatsapp.com/send?phone=55${fone}&text=${texto}`, '_blank');
+      toast(`💬 Abrindo WhatsApp para ${u.nome.split(' ')[0]}...`, '📲');
+    }
+
+    function abrirModalEditarUsuarioAdmin(userId) {
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === userId);
+      if (!u) return;
+
+      let modal = document.getElementById('modal-editar-usuario-admin');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'modal-editar-usuario-admin';
+        modal.className = 'fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4 font-sans';
+        modal.innerHTML = `
+          <div class="bg-slate-900 border-2 border-cyan-500/50 rounded-3xl max-w-sm w-full p-5 space-y-3.5 shadow-2xl relative max-h-[90vh] overflow-y-auto text-slate-100">
+            <button onclick="fecharModalEditarUsuarioAdmin()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg font-bold">✕</button>
+
+            <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+              <span class="text-2xl">✏️</span>
+              <div>
+                <h3 class="text-sm font-black text-white uppercase">Editar Dados do Testador / VIP</h3>
+                <p class="text-[10px] text-slate-400">Atualize WhatsApp, e-mail e código de acesso</p>
+              </div>
+            </div>
+
+            <form id="form-editar-usuario-admin" onsubmit="salvarEdicaoUsuarioAdmin(event)" class="space-y-3 font-mono text-xs">
+              <input type="hidden" id="edit-user-id" />
+
+              <div>
+                <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Nome Completo</label>
+                <input type="text" id="edit-user-nome" required class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-cyan-400 focus:outline-none font-sans" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">WhatsApp (com DDD)</label>
+                <input type="tel" id="edit-user-telefone" placeholder="Ex: (11) 99999-9999" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-emerald-400 font-bold focus:border-cyan-400 focus:outline-none font-sans" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">E-mail</label>
+                <input type="email" id="edit-user-email" required class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-white focus:border-cyan-400 focus:outline-none font-sans" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Código VIP Personalizado</label>
+                <input type="text" id="edit-user-codigo-vip" required class="w-full px-3 py-2 bg-slate-950 border border-amber-500/50 rounded-xl text-amber-300 font-bold uppercase focus:border-amber-400 focus:outline-none font-mono" />
+              </div>
+
+              <div>
+                <label class="text-[10px] text-slate-400 uppercase font-bold block mb-1">Observações</label>
+                <input type="text" id="edit-user-obs" class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:border-cyan-400 focus:outline-none font-sans" />
+              </div>
+
+              <div class="pt-2 flex gap-2">
+                <button type="button" onclick="fecharModalEditarUsuarioAdmin()" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition">
+                  Cancelar
+                </button>
+                <button type="submit" class="w-1/2 py-2.5 bg-gradient-to-r from-cyan-500 to-teal-400 hover:from-cyan-400 hover:to-teal-300 text-slate-950 font-black rounded-xl shadow-lg transition">
+                  Salvar Alterações
+                </button>
+              </div>
+            </form>
+          </div>
+        `;
+        document.body.appendChild(modal);
+      }
+
+      document.getElementById('edit-user-id').value = u.id;
+      document.getElementById('edit-user-nome').value = u.nome || '';
+      document.getElementById('edit-user-telefone').value = u.telefone || '';
+      document.getElementById('edit-user-email').value = u.email || '';
+      document.getElementById('edit-user-codigo-vip').value = u.codigoVip || '';
+      document.getElementById('edit-user-obs').value = u.obs || '';
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function fecharModalEditarUsuarioAdmin() {
+      const modal = document.getElementById('modal-editar-usuario-admin');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+    }
+
+    function salvarEdicaoUsuarioAdmin(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-user-id').value;
+      const base = carregarBaseUsuariosAdmin();
+      const u = base.find(x => x.id === id);
+      if (!u) return;
+
+      u.nome = document.getElementById('edit-user-nome').value.trim();
+      u.telefone = document.getElementById('edit-user-telefone').value.trim();
+      u.email = document.getElementById('edit-user-email').value.trim();
+      u.codigoVip = document.getElementById('edit-user-codigo-vip').value.trim().toUpperCase();
+      u.obs = document.getElementById('edit-user-obs').value.trim();
+
+      salvarBaseUsuariosAdmin(base);
+      fecharModalEditarUsuarioAdmin();
+      tocarSomNasa('sucesso');
+      toast(`✅ Dados de ${u.nome} atualizados com sucesso!`, '💾');
     }
 
     function abrirModalNovoUsuarioAdmin() {
@@ -5330,9 +5633,11 @@ function abrirModalDialog(msg, callback) {
     function submeterNovoUsuarioAdmin(e) {
       e.preventDefault();
       const nome = document.getElementById('admin-user-nome').value.trim();
+      const telefone = (document.getElementById('admin-user-telefone')?.value || '').trim();
       const email = document.getElementById('admin-user-email').value.trim();
       const plano = document.getElementById('admin-user-plano').value;
-      const dias = parseInt(document.getElementById('admin-user-dias').value) || 30;
+      const dias = parseInt(document.getElementById('admin-user-dias').value) || 365;
+      const codigoVip = (document.getElementById('admin-user-codigo-vip')?.value || nome.replace(/\s+/g, '').toUpperCase().slice(0, 12)).trim().toUpperCase();
       const obs = document.getElementById('admin-user-obs').value.trim();
 
       const hoje = new Date();
@@ -5359,12 +5664,13 @@ function abrirModalDialog(msg, callback) {
         id: 'usr-' + Date.now(),
         nome,
         email,
-        telefone: '',
+        telefone,
         avatar: avatares[plano] || '👤',
         plano,
         planoNome: nomesPlanos[plano] || plano,
+        codigoVip,
         dataCadastro: hoje.toISOString().split('T')[0],
-        dataExpiracao: dataExp.toISOString().split('T')[0],
+        dataExpiracao: dias >= 9000 ? 'Vitalício' : dataExp.toISOString().split('T')[0],
         status: 'ativo',
         valorPago: plano === 'anual' ? 197.00 : (plano === 'pro' ? 29.90 : (plano === 'bolao' ? 59.90 : 0)),
         obs: obs || 'Cadastrado manualmente pelo CEO'
@@ -5376,8 +5682,17 @@ function abrirModalDialog(msg, callback) {
 
       fecharModalNovoUsuarioAdmin();
       tocarSomNasa('sucesso');
-      toast(`✅ Cliente ${nome} cadastrado com sucesso no plano ${nomesPlanos[plano]}!`, '👑');
+      toast(`✅ Testador/Cliente ${nome} liberado com código: ${codigoVip}!`, '👑');
       document.getElementById('form-novo-usuario-admin').reset();
+
+      // Já oferece envio no WhatsApp imediatamente se telefone foi informado
+      if (telefone) {
+        setTimeout(() => {
+          if (confirm(`Deseja abrir o WhatsApp agora para enviar o convite VIP para ${nome}?`)) {
+            enviarConviteWhatsAppAdmin(novo.id);
+          }
+        }, 350);
+      }
     }
 
     function concederVipUsuario(id, dias, planoAlvo = 'pro') {

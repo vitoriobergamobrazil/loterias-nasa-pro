@@ -52,29 +52,52 @@ let googleTokenClient = null;
 
 function loginComGoogle() {
   if (typeof google === 'undefined' || !google.accounts?.oauth2) {
-    toast('Google ainda carregando. Tente em instantes.', '⏳');
+    toast('Google Identity ainda carregando. Tente em instantes ou entre com seu Código VIP.', '⏳');
     tocarBeep('alert');
     return;
   }
 
-  if (!googleTokenClient) {
-    googleTokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: OAUTH_CONFIG.google.clientId,
-      scope: OAUTH_CONFIG.google.scope,
-      callback: handleGoogleToken
-    });
-  }
+  try {
+    if (!googleTokenClient) {
+      googleTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: OAUTH_CONFIG.google.clientId,
+        scope: OAUTH_CONFIG.google.scope,
+        error_callback: (err) => {
+          console.warn('Erro OAuth Google:', err);
+          mostrarAvisoOrigemGoogle(err);
+        },
+        callback: handleGoogleToken
+      });
+    }
 
-  googleTokenClient.requestAccessToken();
+    googleTokenClient.requestAccessToken({ prompt: 'select_account' });
+  } catch (err) {
+    console.error('Falha ao disparar login Google:', err);
+    mostrarAvisoOrigemGoogle(err);
+  }
+}
+
+function mostrarAvisoOrigemGoogle(err) {
+  const detalhe = err?.type || err?.error || err?.message || 'Origem não reconhecida';
+  const msg = `⚠️ Google Login: ${detalhe}. O domínio atual (${window.location.hostname}) precisa estar nas Origens Autorizadas do Google Cloud Console. Utilize o acesso direto por Código VIP ou WhatsApp!`;
+  toast(msg, '🔒');
+  if (typeof tocarBeep === 'function') tocarBeep('alert');
+
+  // Destaca o campo de código VIP no modal de login
+  const inputVip = document.getElementById('input-cupom-vip-auth');
+  if (inputVip) {
+    inputVip.focus();
+    inputVip.classList.add('ring-2', 'ring-amber-400');
+  }
 }
 
 async function handleGoogleToken(resposta) {
   if (resposta.error || !resposta.access_token) {
-    // O usuário fechar o popup cai aqui e não é erro de verdade.
-    if (resposta.error !== 'popup_closed' && resposta.error !== 'access_denied') {
-      toast('Não foi possível entrar com o Google', '⚠️');
-      tocarBeep('alert');
+    // Se o usuário fechou o popup, não trata como erro crítico
+    if (resposta.error === 'popup_closed' || resposta.error === 'access_denied') {
+      return;
     }
+    mostrarAvisoOrigemGoogle(resposta);
     return;
   }
 
@@ -97,7 +120,7 @@ async function handleGoogleToken(resposta) {
     });
   } catch (err) {
     console.error('Erro no login Google:', err);
-    toast('Erro ao ler seu perfil do Google', '⚠️');
+    toast('Erro ao ler seu perfil do Google. Entre com seu Código VIP.', '⚠️');
     tocarBeep('alert');
   }
 }

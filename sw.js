@@ -3,8 +3,8 @@
 // Estratégia: Cache-First para assets estáticos, Network-First para dados
 // =========================================================================
 
-const CACHE_NAME = 'loterias-nasa-pro-v20261029.7';
-const CACHE_STATIC = 'nasa-static-v20261029.7';
+const CACHE_NAME = 'loterias-nasa-pro-v20261030.1';
+const CACHE_STATIC = 'nasa-static-v20261030.1';
 
 // Assets críticos para funcionamento offline
 const ASSETS_TO_CACHE = [
@@ -16,6 +16,7 @@ const ASSETS_TO_CACHE = [
   './css/app.css',
   './js/app.js',
   './js/error-trap.js',
+  './js/feedback-testadores.js',
   './js/simulador-retrospectivo.js',
   './js/volante-impressao.js',
   './js/testadores-vip.js',
