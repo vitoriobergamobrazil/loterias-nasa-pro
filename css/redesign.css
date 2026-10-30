@@ -2442,3 +2442,137 @@ html:not(.dark) #view-admin .bg-slate-950\/90 {
   border-color: #e2e8f0 !important;
   color: #475569 !important;
 }
+
+/* =========================================================================
+   BLINDAGEM TOTAL DO TEMA CLARO (AUDITORIA DOS 15 ESPECIALISTAS)
+   Elimina qualquer elemento preto/escuro solto em Fechamentos, Lote e Auditoria
+   ========================================================================= */
+
+/* 1. Blindagem Universal de Pílulas e Badges no Tema Claro */
+html:not(.dark) .bg-cyan-950,
+html:not(.dark) .bg-cyan-950\/80,
+html:not(.dark) .bg-cyan-950\/60,
+html:not(.dark) .bg-cyan-950\/40,
+html:not(.dark) .bg-cyan-950\/30,
+html:not(.dark) .bg-cyan-950\/20 {
+  background-color: #ecfeff !important;
+  color: #0e7490 !important;
+  border-color: #a5f3fc !important;
+}
+
+html:not(.dark) .bg-purple-950,
+html:not(.dark) .bg-purple-950\/80,
+html:not(.dark) .bg-purple-950\/60,
+html:not(.dark) .bg-purple-950\/40,
+html:not(.dark) .bg-purple-950\/30,
+html:not(.dark) .bg-purple-950\/20 {
+  background-color: #faf5ff !important;
+  color: #7e22ce !important;
+  border-color: #e9d5ff !important;
+}
+
+html:not(.dark) .bg-emerald-950,
+html:not(.dark) .bg-emerald-950\/80,
+html:not(.dark) .bg-emerald-950\/60,
+html:not(.dark) .bg-emerald-950\/40,
+html:not(.dark) .bg-emerald-950\/30,
+html:not(.dark) .bg-emerald-950\/25,
+html:not(.dark) .bg-emerald-950\/20 {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+}
+
+html:not(.dark) .bg-amber-950,
+html:not(.dark) .bg-amber-950\/80,
+html:not(.dark) .bg-amber-950\/60,
+html:not(.dark) .bg-amber-950\/40,
+html:not(.dark) .bg-amber-950\/30,
+html:not(.dark) .bg-amber-950\/20 {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+}
+
+/* 2. Fechamentos Gerados no Tema Claro */
+html:not(.dark) #resultado-fechamento-container {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+html:not(.dark) #lista-jogos-fechamento > div {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+html:not(.dark) #lista-jogos-fechamento span.bg-cyan-950 {
+  background-color: #ecfeff !important;
+  color: #0891b2 !important;
+  border-color: #a5f3fc !important;
+}
+
+/* 3. Lote de Apostas Geradas (#container-lote-apostas) */
+html:not(.dark) #container-lote-apostas {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+html:not(.dark) #lista-lote-apostas > div {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+}
+html:not(.dark) #lista-lote-apostas .text-white {
+  color: #0f172a !important;
+}
+html:not(.dark) #lista-lote-apostas span.bg-slate-900 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+html:not(.dark) #lista-lote-apostas button.bg-slate-900,
+html:not(.dark) #lista-lote-apostas button.bg-slate-800 {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+html:not(.dark) #lista-lote-apostas button.bg-slate-900:hover,
+html:not(.dark) #lista-lote-apostas button.bg-slate-800:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+html:not(.dark) #lista-lote-apostas .grid > div {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* 4. Tela de Auditoria e Testes Individuais (#view-auditoria) */
+html:not(.dark) #view-auditoria {
+  background-color: #f8fafc !important;
+}
+html:not(.dark) #view-auditoria .bg-slate-900,
+html:not(.dark) #view-auditoria .bg-slate-950,
+html:not(.dark) #view-auditoria .bg-slate-950\/80 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03) !important;
+}
+html:not(.dark) #view-auditoria .text-white {
+  color: #0f172a !important;
+}
+html:not(.dark) #view-auditoria span.bg-slate-900 {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+html:not(.dark) #view-auditoria .grid > div {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+html:not(.dark) #view-auditoria button.bg-slate-800 {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+html:not(.dark) #view-auditoria button.bg-slate-800:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
