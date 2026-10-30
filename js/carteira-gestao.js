@@ -326,6 +326,17 @@
         console.warn('Erro ao persistir exclusão de lote:', e);
       }
 
+      // Deleta imediatamente do Supabase na nuvem para não ressuscitar no sync
+      try {
+        const cliente = typeof obterClienteSupabase === 'function' ? obterClienteSupabase() : null;
+        if (cliente) {
+          const idsArr = Array.from(idsRemover);
+          cliente.from('carteira_apostas').delete().in('bilhete_id', idsArr).then();
+        }
+      } catch (e) {
+        console.warn('Erro ao deletar da nuvem:', e);
+      }
+
       if (typeof window.salvarCarteiraStorage === 'function') window.salvarCarteiraStorage();
       window.atualizarPainelCarteira();
       if (typeof window.toast === 'function') window.toast(`Concurso ${grupo.concurso} removido da carteira.`, '🗑️');

@@ -3016,11 +3016,7 @@ function gerarPalpiteInteligente() {
       try {
         const cliente = typeof obterClienteSupabase === 'function' ? obterClienteSupabase() : null;
         if (cliente) {
-          cliente.auth.getSession().then(({ data }) => {
-            if (data?.session?.user) {
-              cliente.from('carteira_apostas').delete().eq('bilhete_id', String(id)).then();
-            }
-          });
+          cliente.from('carteira_apostas').delete().eq('bilhete_id', String(id)).then();
         }
       } catch (e) {}
     }
