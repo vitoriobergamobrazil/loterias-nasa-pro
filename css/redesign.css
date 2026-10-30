@@ -1119,6 +1119,91 @@ html:not(.dark) #home-lista-ultimos-sorteios-avaliados > div {
   border-color: #e2e8f0 !important;
 }
 
+/* ========== CARTEIRA DE APOSTAS NO TEMA CLARO (FINTECH CLEAN) ========== */
+html:not(.dark) #view-carteira {
+  background-color: #f8fafc !important;
+}
+
+/* Card Principal da Banca / Estatísticas */
+html:not(.dark) #view-carteira > div > div:first-child,
+html:not(.dark) #carteira-subview-bilhetes > div:first-child {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+}
+
+html:not(.dark) #carteira-subview-bilhetes .grid > div {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* Concierge WhatsApp Card */
+html:not(.dark) #carteira-subview-bilhetes > div:nth-child(2) {
+  background: #ffffff !important;
+  border: 1px solid #a7f3d0 !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08) !important;
+}
+
+/* Barra de Filtros e Busca da Carteira */
+html:not(.dark) #carteira-subview-bilhetes > div:nth-child(3),
+html:not(.dark) #carteira-subview-bilhetes input {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) #carteira-subview-bilhetes .bg-slate-950 button {
+  color: #475569 !important;
+}
+
+html:not(.dark) #carteira-subview-bilhetes .bg-slate-950 button.bg-slate-800 {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+/* Cards dos Concursos Agrupados na Carteira */
+html:not(.dark) #lista-grupos-carteira > div,
+html:not(.dark) #lista-apostas-carteira > div {
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+}
+
+html:not(.dark) #lista-grupos-carteira > div > div:first-child {
+  background: #f8fafc !important;
+  border-bottom: 1px dashed #e2e8f0 !important;
+}
+
+html:not(.dark) #lista-grupos-carteira h4 {
+  color: #0f172a !important;
+}
+
+/* Faixa do Resultado Oficial da Caixa na Carteira */
+html:not(.dark) #lista-grupos-carteira .bg-emerald-950\/25 {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+}
+
+html:not(.dark) #lista-grupos-carteira .bg-emerald-950\/25 span {
+  color: #065f46 !important;
+}
+
+/* Bolas de Dezenas da Carteira no Modo Claro */
+html:not(.dark) #lista-grupos-carteira .bg-slate-800 {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+html:not(.dark) #lista-grupos-carteira .bg-slate-950\/60 {
+  background-color: #ffffff !important;
+}
+
+html:not(.dark) #lista-grupos-carteira .hover\:bg-slate-900\/60:hover {
+  background-color: #f8fafc !important;
+}
+
 /* DRAWER DE PERFIL NO TEMA CLARO */
 html:not(.dark) .nasa-profile-sheet,
 html:not(.dark) #nasa-profile-drawer-backdrop > div {

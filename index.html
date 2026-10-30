@@ -1097,20 +1097,17 @@
     <div id="carteira-subview-bilhetes" class="space-y-4">
 
       <!-- BANCA & CONFERIR -->
-      <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-5 space-y-4 shadow-xl">
-        <div class="flex justify-between items-center font-mono">
+      <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-4 sm:p-5 space-y-4 shadow-xl">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 font-mono">
           <div>
             <span class="text-[10px] text-slate-400 uppercase tracking-widest font-black block">SEUS BILHETES E RESULTADOS</span>
-            <h2 class="text-base font-black text-white font-sans">Minha carteira</h2>
+            <h2 class="text-base sm:text-lg font-black text-white font-sans">Minha carteira</h2>
           </div>
-          <div class="flex items-center gap-1.5 flex-wrap justify-end">
-            <button type="button" onclick="if (typeof abrirModalSincronizarAparelhos === 'function') abrirModalSincronizarAparelhos();" class="px-2.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center gap-1 font-mono" title="Enviar jogos para seu outro celular via WhatsApp">
-              <span>📲</span> <span>Enviar p/ Outro Celular</span>
-            </button>
-            <button type="button" onclick="sincronizarCarteiraNuvem(true)" class="px-2.5 py-1.5 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 font-bold text-xs rounded-xl shadow active:scale-95 transition flex items-center gap-1 font-mono" title="Puxar ou enviar apostas para a nuvem da sua conta">
+          <div class="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-end flex-wrap">
+            <button type="button" onclick="sincronizarCarteiraNuvem(true)" class="flex-1 sm:flex-initial px-2.5 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 font-bold text-xs rounded-xl shadow active:scale-95 transition flex items-center justify-center gap-1 font-mono" title="Sincronizar com a nuvem">
               <span>☁️</span> <span>Sincronizar</span>
             </button>
-            <button id="btn-conferir-carteira-topo" onclick="conferirTodosBilhetesSalvos()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center gap-1.5 font-mono">
+            <button id="btn-conferir-carteira-topo" onclick="conferirTodosBilhetesSalvos()" class="flex-1 sm:flex-initial px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition flex items-center justify-center gap-1.5 font-mono">
               <span>⚡</span> CONFERIR TUDO
             </button>
           </div>

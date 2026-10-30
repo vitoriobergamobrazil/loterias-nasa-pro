@@ -2006,6 +2006,18 @@ function renderizarPalpiteExpressHome() {
 }
 
 function salvarPalpiteExpressHome() {
+  // TRAVA DE CAPTURA DE LEAD: Ninguém salva sem se identificar (coleta de e-mail / WhatsApp)
+  const naoLogado = !usuarioSessao || usuarioSessao.tipo === 'visitante' || !usuarioSessao.email;
+  if (naoLogado) {
+    if (typeof toast === 'function') toast('Identifique-se com E-mail ou WhatsApp para salvar o seu bilhete!', '📋');
+    if (typeof tocarBeep === 'function') tocarBeep('alert');
+    setTimeout(() => {
+      if (typeof abrirModalAuth === 'function') abrirModalAuth();
+      else if (typeof abrirModalAuthOuPerfil === 'function') abrirModalAuthOuPerfil();
+    }, 300);
+    return;
+  }
+
   if (!palpiteExpressAtual || !palpiteExpressAtual.dezenas) {
     gerarPalpiteExpressHome();
   }

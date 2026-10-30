@@ -184,13 +184,36 @@
       baseConcursosMega = [];
       baseConcursosLoto = [];
 
-      const storageCarteira = localStorage.getItem('loterias_carteira_db');
+      carregarCarteiraPorUsuario();
+    }
+
+    function obterChaveStorageCarteira() {
+      const email = (typeof usuarioSessao !== 'undefined' && usuarioSessao?.email)
+        ? usuarioSessao.email.toLowerCase().trim()
+        : (usuarioSessao?.cupomAtivo ? `vip_${usuarioSessao.cupomAtivo}` : 'visitante_anonimo');
+      return `loterias_carteira_${email}`;
+    }
+
+    function carregarCarteiraPorUsuario() {
+      const chave = obterChaveStorageCarteira();
+      const storageCarteira = localStorage.getItem(chave);
       if (storageCarteira) {
         try { carteiraJogos = JSON.parse(storageCarteira); } catch (e) { carteiraJogos = []; }
       } else {
-        carteiraJogos = [];
+        // Se for o Founder e a chave antiga existir, migra com segurança
+        if (chave.includes('vitorio')) {
+          const leg = localStorage.getItem('loterias_carteira_db');
+          if (leg) {
+            try { carteiraJogos = JSON.parse(leg); } catch (e) { carteiraJogos = []; }
+          } else {
+            carteiraJogos = [];
+          }
+        } else {
+          carteiraJogos = [];
+        }
       }
       window.carteiraJogos = carteiraJogos;
+      if (typeof atualizarPainelCarteira === 'function') atualizarPainelCarteira();
     }
 
     let syncNuvemTimeout = null;
@@ -200,7 +223,8 @@
       } else {
         window.carteiraJogos = carteiraJogos;
       }
-      localStorage.setItem('loterias_carteira_db', JSON.stringify(carteiraJogos));
+      const chave = obterChaveStorageCarteira();
+      localStorage.setItem(chave, JSON.stringify(carteiraJogos));
 
       // Sincronização em nuvem segura com debounce (evita chamadas excessivas)
       clearTimeout(syncNuvemTimeout);
@@ -2262,6 +2286,18 @@ function gerarPalpiteInteligente() {
     }
 
     function salvarJogoNaCarteira() {
+      // 1. TRAVA DE CAPTURA DE LEAD / LOGIN: O usuário precisa se cadastrar para salvar jogos
+      const naoLogado = !usuarioSessao || usuarioSessao.tipo === 'visitante' || !usuarioSessao.email;
+      if (naoLogado) {
+        toast('Identifique-se com seu E-mail ou WhatsApp para salvar seus bilhetes!', '📋');
+        tocarBeep('alert');
+        setTimeout(() => {
+          if (typeof abrirModalAuth === 'function') abrirModalAuth();
+          else if (typeof abrirModalAuthOuPerfil === 'function') abrirModalAuthOuPerfil();
+        }, 300);
+        return;
+      }
+
       if (planoUsuario !== 'pro' && carteiraJogos.length >= 2) {
         abrirModalPaywall('carteira_limite');
         return;
@@ -5169,11 +5205,21 @@ function abrirModalDialog(msg, callback) {
       if (typeof sincronizarHeaderStatusUsuario === 'function') sincronizarHeaderStatusUsuario();
       if (typeof atualizarDadosDrawer === 'function') atualizarDadosDrawer();
 
+      // Descarrega imediatamente os bilhetes da memória para não vazar dados
+      carteiraJogos = [];
+      window.carteiraJogos = [];
+      if (typeof atualizarPainelCarteira === 'function') atualizarPainelCarteira();
+
       tocarSomNasa('sucesso');
       toast('Desconectado com sucesso! Você agora está como Visitante.', 'ℹ️');
 
       if (typeof fecharDrawerPerfil === 'function') fecharDrawerPerfil();
       if (typeof fecharModalAuth === 'function') fecharModalAuth();
+
+      // Recarrega o app limpando o estado de memória global
+      setTimeout(() => {
+        window.location.href = window.location.origin + window.location.pathname + '?logout=' + Date.now();
+      }, 500);
     }
 
 
