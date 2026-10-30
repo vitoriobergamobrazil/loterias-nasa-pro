@@ -68,3 +68,7 @@ create policy "permitir leitura telemetria" on public.user_telemetria_logs for s
 
 drop policy if exists "permitir insercao telemetria" on public.user_telemetria_logs;
 create policy "permitir insercao telemetria" on public.user_telemetria_logs for insert with check (true);
+
+-- 3. PERMISSÕES DE ACESSO PARA A API PÚBLICA (ANON & AUTHENTICATED)
+grant all on public.carteira_apostas to anon, authenticated;
+grant all on public.user_telemetria_logs to anon, authenticated;
