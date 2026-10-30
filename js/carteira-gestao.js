@@ -305,19 +305,34 @@
     const grupo = grupos.find(g => g.id === grupoId);
     if (!grupo) return;
 
-    if (typeof window.abrirModalDialog === 'function') {
-      window.abrirModalDialog(`Excluir todas as ${grupo.bilhetes.length} apostas do ${grupo.concurso}?`, () => {
-        const idsRemover = new Set(grupo.bilhetes.map(b => String(b.id)));
-        window.carteiraJogos = window.carteiraJogos.filter(b => !idsRemover.has(String(b.id)));
-        if (typeof window.salvarCarteiraStorage === 'function') window.salvarCarteiraStorage();
-        window.atualizarPainelCarteira();
-        if (typeof window.toast === 'function') window.toast('Lote removido da carteira.', '🗑️');
-      });
-    } else if (confirm(`Excluir as ${grupo.bilhetes.length} apostas?`)) {
+    const executarRemocao = () => {
       const idsRemover = new Set(grupo.bilhetes.map(b => String(b.id)));
-      window.carteiraJogos = window.carteiraJogos.filter(b => !idsRemover.has(String(b.id)));
+      const novaLista = (window.carteiraJogos || []).filter(b => !idsRemover.has(String(b.id)));
+      window.carteiraJogos = novaLista;
+      if (typeof carteiraJogos !== 'undefined') carteiraJogos = novaLista;
+
+      const chave = obterChaveCarteiraAtiva();
+      try {
+        localStorage.setItem(chave, JSON.stringify(novaLista));
+        const leg = localStorage.getItem('loterias_carteira_db');
+        if (leg) {
+          const dadosLeg = JSON.parse(leg);
+          if (Array.isArray(dadosLeg)) {
+            const limpos = dadosLeg.filter(b => !idsRemover.has(String(b.id)));
+            localStorage.setItem('loterias_carteira_db', JSON.stringify(limpos));
+          }
+        }
+      } catch (e) {
+        console.warn('Erro ao persistir exclusão de lote:', e);
+      }
+
       if (typeof window.salvarCarteiraStorage === 'function') window.salvarCarteiraStorage();
       window.atualizarPainelCarteira();
+      if (typeof window.toast === 'function') window.toast(`Concurso ${grupo.concurso} removido da carteira.`, '🗑️');
+    };
+
+    if (confirm(`Deseja excluir a(s) ${grupo.bilhetes.length} aposta(s) deste concurso (${grupo.concurso})?`)) {
+      executarRemocao();
     }
   };
 
@@ -555,6 +570,9 @@
 
               <div class="flex items-center gap-2 justify-between sm:justify-end flex-wrap">
                 ${statusBadge}
+                <button type="button" onclick="event.stopPropagation(); removerLoteGrupoCarteira('${g.id}')" class="btn-toggle-grupo w-7 h-7 rounded-lg text-xs font-bold transition flex items-center justify-center border text-rose-500 hover:text-rose-600" title="Excluir todas as apostas deste concurso">
+                  🗑️
+                </button>
                 <button type="button" class="btn-toggle-grupo w-7 h-7 rounded-lg text-xs font-bold transition flex items-center justify-center border" title="${aberto ? 'Recolher' : 'Ver Jogos'}">
                   ${aberto ? '▴' : '▾'}
                 </button>

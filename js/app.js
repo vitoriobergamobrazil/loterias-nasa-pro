@@ -218,9 +218,6 @@
 
     let syncNuvemTimeout = null;
     function salvarCarteiraStorage() {
-      if (typeof window.usuarioEstaIdentificado === 'function' && !window.usuarioEstaIdentificado()) {
-        return; // Nunca persiste bilhetes para visitante não identificado
-      }
       if (window.carteiraJogos && Array.isArray(window.carteiraJogos)) {
         carteiraJogos = window.carteiraJogos;
       } else {
@@ -2987,8 +2984,29 @@ function gerarPalpiteInteligente() {
 
     function removerBilheteCarteira(id) {
       if (typeof tocarBeep === 'function') tocarBeep('click');
-      carteiraJogos = (window.carteiraJogos || carteiraJogos || []).filter(b => String(b.id) !== String(id));
+      const listaBase = (Array.isArray(window.carteiraJogos) && window.carteiraJogos.length > 0)
+        ? window.carteiraJogos
+        : (Array.isArray(carteiraJogos) ? carteiraJogos : []);
+
+      carteiraJogos = listaBase.filter(b => String(b.id) !== String(id));
       window.carteiraJogos = carteiraJogos;
+
+      const chave = obterChaveStorageCarteira();
+      try {
+        localStorage.setItem(chave, JSON.stringify(carteiraJogos));
+        // Se houver resíduo em chave legada, limpa também
+        const leg = localStorage.getItem('loterias_carteira_db');
+        if (leg) {
+          const dadosLeg = JSON.parse(leg);
+          if (Array.isArray(dadosLeg)) {
+            const limpos = dadosLeg.filter(b => String(b.id) !== String(id));
+            localStorage.setItem('loterias_carteira_db', JSON.stringify(limpos));
+          }
+        }
+      } catch (e) {
+        console.warn('Erro ao persistir remoção de bilhete:', e);
+      }
+
       salvarCarteiraStorage();
       atualizarPainelCarteira();
       if (typeof renderizarBarraJogosTesteRapido === 'function') renderizarBarraJogosTesteRapido();
