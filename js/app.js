@@ -3158,7 +3158,8 @@ function gerarPalpiteInteligente() {
 
         carteiraJogos = local;
         window.carteiraJogos = local;
-        localStorage.setItem('loterias_carteira_db', JSON.stringify(local));
+        const chaveAtiva = obterChaveStorageCarteira();
+        localStorage.setItem(chaveAtiva, JSON.stringify(local));
         if (typeof atualizarPainelCarteira === 'function') atualizarPainelCarteira();
 
         if (notificar && typeof toast === 'function') {

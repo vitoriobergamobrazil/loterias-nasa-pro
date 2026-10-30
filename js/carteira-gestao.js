@@ -819,7 +819,8 @@
 
   window.importarJogosSincronizados = function (jogos, notificar = true) {
     if (!Array.isArray(jogos) || jogos.length === 0) return 0;
-    let local = Array.isArray(window.carteiraJogos) ? window.carteiraJogos : (JSON.parse(localStorage.getItem('loterias_carteira_db') || '[]'));
+    const chaveAtiva = obterChaveCarteiraAtiva();
+    let local = Array.isArray(window.carteiraJogos) ? window.carteiraJogos : (JSON.parse(localStorage.getItem(chaveAtiva) || '[]'));
     
     // Deduplicação inteligente
     const assinaturas = new Set(local.map(b => `${b.modalidade}_${b.concursoAlvo || ''}_${(b.dezenas || []).slice().sort((a,b)=>a-b).join('-')}`));
@@ -835,7 +836,7 @@
     });
 
     window.carteiraJogos = local;
-    localStorage.setItem('loterias_carteira_db', JSON.stringify(local));
+    localStorage.setItem(chaveAtiva, JSON.stringify(local));
     if (typeof window.salvarCarteiraStorage === 'function') window.salvarCarteiraStorage();
     if (typeof window.atualizarPainelCarteira === 'function') window.atualizarPainelCarteira();
     if (typeof window.renderizarCockpitInicioApostador === 'function') window.renderizarCockpitInicioApostador();
