@@ -63,5 +63,8 @@ create index if not exists telemetria_acao_idx on public.user_telemetria_logs (a
 
 alter table public.user_telemetria_logs enable row level security;
 
-drop policy if exists "permitir leitura telemetria" on public.user_telemetria_logs for select using (true);
-drop policy if exists "permitir insercao telemetria" on public.user_telemetria_logs for insert with check (true);
+drop policy if exists "permitir leitura telemetria" on public.user_telemetria_logs;
+create policy "permitir leitura telemetria" on public.user_telemetria_logs for select using (true);
+
+drop policy if exists "permitir insercao telemetria" on public.user_telemetria_logs;
+create policy "permitir insercao telemetria" on public.user_telemetria_logs for insert with check (true);

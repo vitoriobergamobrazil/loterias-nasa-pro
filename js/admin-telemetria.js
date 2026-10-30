@@ -79,6 +79,24 @@
     } catch (_) {}
   };
 
+  // Helper de detecção detalhada de dispositivo
+  function detectarDispositivoDetalhado() {
+    try {
+      const ua = navigator.userAgent;
+      let os = 'Desktop';
+      if (/Android/i.test(ua)) os = 'Android';
+      else if (/iPhone/i.test(ua)) os = 'iPhone / iOS';
+      else if (/iPad/i.test(ua)) os = 'iPad / iPadOS';
+      else if (/Windows/i.test(ua)) os = 'Windows PC';
+      else if (/Macintosh/i.test(ua)) os = 'Mac';
+
+      const dim = `${window.innerWidth}x${window.innerHeight}`;
+      return `${os} (${dim})`;
+    } catch (_) {
+      return 'Mobile / Web';
+    }
+  }
+
   // REGISTRADOR CENTRAL DE TELEMETRIA
   window.registrarLogUso = function (acao, dados = {}) {
     try {
@@ -87,22 +105,30 @@
         : (JSON.parse(localStorage.getItem('loterias_nasa_user') || 'null') || {});
 
       const userId = sessao.email || (sessao.cupomAtivo ? `vip_${sessao.cupomAtivo}` : 'visitante_anonimo');
-      const nome = sessao.nome || 'Visitante';
-      const tipo = sessao.tipo || 'visitante';
+      const nome = sessao.nome || (sessao.email ? sessao.email.split('@')[0] : 'Visitante');
+      const tipo = sessao.tipo || (sessao.email ? 'vip' : 'visitante');
+
+      const horaLocal = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const dispositivo = dados.dispositivo || detectarDispositivoDetalhado();
 
       const novoLog = {
         id: 'log-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
         userId: userId,
         nome: nome,
         tipo: tipo,
-        acao: acao || 'acao_desconhecida',
+        acao: acao || 'clique_geral',
         modalidade: dados.modalidade || (typeof modalidadeAtual !== 'undefined' ? modalidadeAtual : 'megasena'),
         dezenas: Array.isArray(dados.dezenas) ? dados.dezenas.map(Number) : [],
         concursoAlvo: dados.concursoAlvo || dados.concurso || '',
         score: Number(dados.score || 98),
         testesOk: Number(dados.testesOk || 6),
-        detalhes: dados.detalhes || {},
-        dispositivo: (/Android/i.test(navigator.userAgent) ? 'Android' : /iPhone|iPad/i.test(navigator.userAgent) ? 'iOS' : 'Desktop / PC'),
+        detalhes: {
+          horaLocal: horaLocal,
+          origem: dados.origem || window.location.pathname,
+          rotulo: dados.rotulo || '',
+          ...((typeof dados.detalhes === 'object' && dados.detalhes) ? dados.detalhes : {})
+        },
+        dispositivo: dispositivo,
         data: new Date().toISOString()
       };
 
@@ -126,7 +152,11 @@
             testes_ok: novoLog.testesOk,
             detalhes: novoLog.detalhes,
             dispositivo: novoLog.dispositivo
-          }]).then();
+          }]).then(function (res) {
+            if (res && res.error) {
+              console.warn('[Telemetria] Supabase retorno:', res.error.message);
+            }
+          }).catch(function () {});
         }
       }
     } catch (e) {
@@ -291,14 +321,29 @@
         'aposta_salva': '<span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold">✅ Salva na Carteira</span>',
         'jogo_gerado': '<span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 text-[10px] font-bold">🎲 Gerou Palpite</span>',
         'fechamento_executado': '<span class="px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 text-[10px] font-bold">📐 Fechamento</span>',
-        'login_vip': '<span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 text-[10px] font-bold">👑 Login VIP</span>'
+        'login_vip': '<span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 text-[10px] font-bold">👑 Login VIP</span>',
+        'navegacao_aba': `<span class="px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800 text-[10px] font-bold">🧭 ${l.detalhes?.rotulo || 'Navegação'}</span>`,
+        'clique_acao': `<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-200 border border-slate-700 text-[10px] font-bold">🖱️ ${l.detalhes?.rotulo || 'Clique'}</span>`,
+        'aceite_termo': `<span class="px-2 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800 text-[10px] font-bold">📜 Aceite: ${l.detalhes?.rotulo || 'Termos'}</span>`,
+        'compartilhar_whatsapp': '<span class="px-2 py-0.5 rounded bg-green-950 text-green-300 border border-green-800 text-[10px] font-bold">📱 WhatsApp</span>',
+        'copiar_jogo': '<span class="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 text-[10px] font-bold">📋 Copiou Jogo</span>',
+        'troca_tema': `<span class="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 text-[10px] font-bold">☀️ ${l.detalhes?.rotulo || 'Tema'}</span>`,
+        'troca_som': `<span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 text-[10px] font-bold">🔊 ${l.detalhes?.rotulo || 'Som'}</span>`,
+        'conferir_bilhetes': '<span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold">🔍 Conferência</span>'
       }[l.acao] || `<span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[10px]">${l.acao}</span>`;
 
-      const bolinhas = (l.dezenas || []).map(d => `
-        <span class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] ${isMega ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-purple-950 text-purple-400 border border-purple-800'}">
-          ${String(d).padStart(2, '0')}
-        </span>
-      `).join('');
+      const bolinhas = (l.dezenas && l.dezenas.length > 0)
+        ? l.dezenas.map(d => `
+            <span class="w-5 h-5 rounded flex items-center justify-center font-mono font-bold text-[9px] ${isMega ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-purple-950 text-purple-400 border border-purple-800'}">
+              ${String(d).padStart(2, '0')}
+            </span>
+          `).join('')
+        : `<span class="text-slate-400 text-[10px] italic font-mono">${l.detalhes?.rotulo || l.detalhes?.origem || '—'}</span>`;
+
+      const scoreDisplay = (l.dezenas && l.dezenas.length > 0)
+        ? `<span class="font-mono font-black text-cyan-300 text-xs">${l.score || 98}/100</span>
+           <div class="text-[9px] text-emerald-400 font-bold">✓ ${l.testesOk || 6}/6 OK</div>`
+        : `<span class="text-slate-500 text-[10px] font-mono">—</span>`;
 
       return `
         <tr class="hover:bg-slate-900/40 transition">
@@ -312,13 +357,12 @@
             <span class="font-bold text-[10px] ${isMega ? 'text-emerald-400' : 'text-purple-400'} font-mono">${(l.modalidade || 'megasena').toUpperCase()}</span>
           </td>
           <td class="p-3">
-            <div class="flex flex-wrap gap-1 max-w-xs">
-              ${bolinhas || '<span class="text-slate-500 text-[10px]">—</span>'}
+            <div class="flex flex-wrap gap-1 max-w-xs items-center">
+              ${bolinhas}
             </div>
           </td>
           <td class="p-3 text-center whitespace-nowrap">
-            <span class="font-mono font-black text-cyan-300 text-xs">${l.score || 98}/100</span>
-            <div class="text-[9px] text-emerald-400 font-bold">✓ ${l.testesOk || 6}/6 OK</div>
+            ${scoreDisplay}
           </td>
           <td class="p-3 text-[10px] text-slate-400 font-mono whitespace-nowrap">${l.dispositivo || 'Mobile'}</td>
         </tr>
@@ -330,7 +374,8 @@
     const limpo = (termo || '').toLowerCase().trim();
     const logs = window.obterLogsTelemetriaLocal();
     const filtrados = logs.filter(l => {
-      const str = `${l.nome} ${l.userId} ${l.acao} ${l.modalidade} ${(l.dezenas || []).join(' ')}`.toLowerCase();
+      const rotulo = l.detalhes?.rotulo || '';
+      const str = `${l.nome} ${l.userId} ${l.acao} ${rotulo} ${l.modalidade} ${(l.dezenas || []).join(' ')}`.toLowerCase();
       return str.includes(limpo);
     });
 
@@ -351,12 +396,96 @@
           window.registrarLogUso('aposta_salva', {
             dezenas: j,
             score: score,
-            testesOk: 6
+            testesOk: 6,
+            rotulo: 'Aposta Salva na Carteira'
           });
         }
       } catch (_) {}
       return origSalvarJogo.apply(this, arguments);
     };
   }
+
+  // LISTENER GLOBAL DE TELEMETRIA INTELIGENTE (Cliques, Abas, Aceites e Interações)
+  document.addEventListener('click', function (e) {
+    try {
+      const el = e.target.closest('button, a, [role="button"], input[type="checkbox"], input[type="radio"]');
+      if (!el) return;
+
+      const id = el.id || '';
+      const texto = (el.innerText || el.getAttribute('aria-label') || el.title || '').trim().slice(0, 40);
+
+      // 1. Navegação de Abas do Rodapé
+      if (id.startsWith('btn-tab-') || el.closest('#bottom-nav')) {
+        const abaNome = id.replace('btn-tab-', '') || texto || 'Aba';
+        window.registrarLogUso('navegacao_aba', { rotulo: `Aba ${abaNome.toUpperCase()}` });
+        return;
+      }
+
+      // 2. Botão Gerar Palpite / Auditoria NASA
+      if (id === 'btn-gerar-palpite' || id === 'btn-hero-cta' || /auditoria|gerar|simular/i.test(texto)) {
+        setTimeout(function () {
+          try {
+            const dezenas = typeof getJogoAtual === 'function' ? getJogoAtual() : [];
+            const scoreEl = document.getElementById('score-numero');
+            const score = scoreEl ? parseInt(scoreEl.innerText, 10) : 98;
+            window.registrarLogUso('jogo_gerado', {
+              dezenas: dezenas,
+              score: isNaN(score) ? 98 : score,
+              testesOk: 6,
+              rotulo: texto || 'Gerar Palpite'
+            });
+          } catch (_) {}
+        }, 400);
+        return;
+      }
+
+      // 3. Compartilhamento e Cópia
+      if (/whatsapp/i.test(texto) || id.includes('whatsapp')) {
+        window.registrarLogUso('compartilhar_whatsapp', { rotulo: 'WhatsApp' });
+        return;
+      }
+      if (/copiar/i.test(texto) || id.includes('copiar')) {
+        window.registrarLogUso('copiar_jogo', { rotulo: 'Copiar Bilhete' });
+        return;
+      }
+
+      // 4. Modos de Experiência (Rápido, Volante, Científico)
+      if (id.includes('modo-') || el.closest('.nasa-hero-modo-bar')) {
+        window.registrarLogUso('troca_modo', { rotulo: texto || 'Modo Experiência' });
+        return;
+      }
+
+      // 5. Aceite de Termos Legais (CDC / LGPD)
+      if (id.includes('termo') || id.includes('lgpd') || id.includes('cdc') || /aceit|concord/i.test(texto)) {
+        window.registrarLogUso('aceite_termo', { rotulo: texto || 'Termos de Uso / LGPD' });
+        return;
+      }
+
+      // 6. Configurações (Tema e Som)
+      if (id.includes('tema') || /tema|dark|light/i.test(texto)) {
+        window.registrarLogUso('troca_tema', { rotulo: 'Alternou Tema' });
+        return;
+      }
+      if (id.includes('som') || /som|áudio|audio/i.test(texto)) {
+        window.registrarLogUso('troca_som', { rotulo: 'Ajustou Áudio' });
+        return;
+      }
+
+      // 7. Conferência de bilhetes
+      if (id.includes('conferir') || /conferir/i.test(texto)) {
+        window.registrarLogUso('conferir_bilhetes', { rotulo: 'Conferiu Apostas' });
+        return;
+      }
+
+      // 8. Botão "JOGUEI ESTE JOGO!"
+      if (/joguei/i.test(texto) || id.includes('joguei')) {
+        const j = typeof getJogoAtual === 'function' ? getJogoAtual() : [];
+        window.registrarLogUso('aposta_salva', {
+          dezenas: j,
+          rotulo: 'Joguei Este Jogo!'
+        });
+      }
+    } catch (_) {}
+  }, true);
 
 })();
