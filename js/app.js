@@ -5150,12 +5150,30 @@ function abrirModalDialog(msg, callback) {
 
     function fazerLogout() {
       usuarioSessao = { nome: 'Visitante', email: '', avatar: '🚀', tipo: 'visitante', plano: 'free' };
+      planoUsuario = 'free';
+
+      // Limpeza completa e definitiva de todas as chaves de autenticação e cupons VIP
       localStorage.removeItem('loterias_nasa_user');
+      localStorage.removeItem('loterias_nasa_vip_cupom');
+      localStorage.removeItem('loterias_nasa_vip_perfil');
+      localStorage.removeItem('loterias_nasa_cupom_ativo');
+      sessionStorage.clear();
+
       const cliente = obterClienteSupabase();
-      if (cliente) cliente.auth.signOut().catch(() => {});
+      if (cliente) {
+        cliente.auth.signOut().catch(() => {});
+      }
+
+      atualizarVisualPlano();
       atualizarPerfilUsuarioUI();
-      tocarBeep('click');
-      toast('Desconectado com sucesso.', 'ℹ️');
+      if (typeof sincronizarHeaderStatusUsuario === 'function') sincronizarHeaderStatusUsuario();
+      if (typeof atualizarDadosDrawer === 'function') atualizarDadosDrawer();
+
+      tocarSomNasa('sucesso');
+      toast('Desconectado com sucesso! Você agora está como Visitante.', 'ℹ️');
+
+      if (typeof fecharDrawerPerfil === 'function') fecharDrawerPerfil();
+      if (typeof fecharModalAuth === 'function') fecharModalAuth();
     }
 
 
