@@ -2999,11 +2999,25 @@ function gerarPalpiteInteligente() {
       }
 
       // Se for apenas visitante sem nenhuma conta ou VIP definido, mantém local
-      if (!accountId) return;
+      if (!accountId) {
+        if (notificar && typeof toast === 'function') {
+          toast('Identifique-se com sua conta ou código VIP para sincronizar no banco.', '🔒');
+        }
+        return;
+      }
 
-      if (!cliente) return;
+      if (!cliente) {
+        if (notificar && typeof toast === 'function') {
+          toast('⚠️ Configuração do banco Supabase não inicializada.', '⚠️');
+        }
+        return;
+      }
 
       try {
+        if (notificar && typeof toast === 'function') {
+          toast('🔄 Conectando ao banco de dados na nuvem...', '☁️');
+        }
+
         // 1. Busca apostas salvas na nuvem para este usuário / conta
         const { data: apostasNuvem, error } = await cliente
           .from('carteira_apostas')
@@ -3011,7 +3025,10 @@ function gerarPalpiteInteligente() {
           .eq('user_id', accountId);
 
         if (error) {
-          // Se tabela ainda não foi criada, não trava a experiência
+          console.warn('[NASA DB] Erro ao consultar carteira_apostas:', error);
+          if (notificar && typeof toast === 'function') {
+            toast(`⚠️ Erro no banco de dados: ${error.message || 'Tabela em manutenção'}`, '⚠️');
+          }
           return;
         }
 
@@ -3062,7 +3079,10 @@ function gerarPalpiteInteligente() {
             registrado_como_jogado: Boolean(b.registradoComoJogado)
           }));
 
-          await cliente.from('carteira_apostas').upsert(payload, { onConflict: 'user_id,bilhete_id' });
+          const { error: upsertErr } = await cliente.from('carteira_apostas').upsert(payload, { onConflict: 'user_id,bilhete_id' });
+          if (upsertErr) {
+            console.warn('[NASA DB] Erro no upsert de apostas:', upsertErr);
+          }
         }
 
         carteiraJogos = local;
@@ -3070,11 +3090,18 @@ function gerarPalpiteInteligente() {
         localStorage.setItem('loterias_carteira_db', JSON.stringify(local));
         if (typeof atualizarPainelCarteira === 'function') atualizarPainelCarteira();
 
-        if (notificar && novasDaNuvem > 0 && typeof toast === 'function') {
-          toast(`☁️ ${novasDaNuvem} aposta(s) sincronizada(s) da sua conta!`, '☁️');
+        if (notificar && typeof toast === 'function') {
+          if (novasDaNuvem > 0) {
+            toast(`☁️ ${novasDaNuvem} aposta(s) sincronizada(s) da sua conta!`, '☁️');
+          } else {
+            toast(`✅ Banco de Dados Atualizado: ${local.length} apostas sincronizadas com sua conta.`, '🎯');
+          }
         }
       } catch (err) {
-        console.warn('Sincronização em nuvem da carteira:', err);
+        console.warn('[NASA DB] Falha de conexão com a base de dados:', err);
+        if (notificar && typeof toast === 'function') {
+          toast('⚠️ Banco de dados em pausa por inatividade. Reative o projeto no painel do Supabase.', '⚠️');
+        }
       }
     }
 

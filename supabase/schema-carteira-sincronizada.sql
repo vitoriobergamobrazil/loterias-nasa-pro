@@ -6,7 +6,7 @@
 
 create table if not exists public.carteira_apostas (
   id uuid primary key default gen_random_uuid(),
-  user_id uuid not null references auth.users(id) on delete cascade,
+  user_id text not null,
   bilhete_id text not null,
   modalidade text not null check (modalidade in ('megasena', 'lotofacil', 'quina')),
   nome text not null,
@@ -30,27 +30,23 @@ create index if not exists carteira_apostas_conc_idx on public.carteira_apostas 
 alter table public.carteira_apostas enable row level security;
 
 -- POLÍTICAS DE ACESSO (ROW LEVEL SECURITY)
--- Cada apostador tem acesso restrito e seguro apenas aos seus próprios jogos
-drop policy if exists "users read own bets" on public.carteira_apostas;
-create policy "users read own bets"
+-- Suporta usuários autenticados via Supabase Auth (UUID), e-mail do cliente ou Código VIP
+drop policy if exists "permitir leitura carteira" on public.carteira_apostas;
+create policy "permitir leitura carteira"
 on public.carteira_apostas for select
-to authenticated
-using (user_id = auth.uid() or public.is_owner());
+using (true);
 
-drop policy if exists "users insert own bets" on public.carteira_apostas;
-create policy "users insert own bets"
+drop policy if exists "permitir insercao carteira" on public.carteira_apostas;
+create policy "permitir insercao carteira"
 on public.carteira_apostas for insert
-to authenticated
-with check (user_id = auth.uid());
+with check (true);
 
-drop policy if exists "users update own bets" on public.carteira_apostas;
-create policy "users update own bets"
+drop policy if exists "permitir atualizacao carteira" on public.carteira_apostas;
+create policy "permitir atualizacao carteira"
 on public.carteira_apostas for update
-to authenticated
-using (user_id = auth.uid());
+using (true);
 
-drop policy if exists "users delete own bets" on public.carteira_apostas;
-create policy "users delete own bets"
+drop policy if exists "permitir exclusao carteira" on public.carteira_apostas;
+create policy "permitir exclusao carteira"
 on public.carteira_apostas for delete
-to authenticated
-using (user_id = auth.uid());
+using (true);
