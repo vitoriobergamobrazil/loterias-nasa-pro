@@ -45,6 +45,17 @@ function mostrarCheckoutReal(planId) {
   const plano = CHECKOUT_PLANOS[planId];
   if (!plano) return;
 
+  // Garante que visitante nunca cai direto na tela de CPF/pagamento
+  if (!usuarioSessao || usuarioSessao.tipo === 'visitante' || !usuarioSessao.email) {
+    if (typeof fecharModalUpgrade === 'function') fecharModalUpgrade();
+    toast('Cadastre sua conta grátis antes de assinar.', '📧');
+    setTimeout(() => {
+      if (typeof abrirModalAuth === 'function') abrirModalAuth();
+      else if (typeof abrirModalAuthOuPerfil === 'function') abrirModalAuthOuPerfil();
+    }, 300);
+    return;
+  }
+
   tocarSomNasa('purchase');
 
   const modal = document.getElementById('modal-upgrade-nasa');
