@@ -4,6 +4,64 @@
 // Inclui o botão "JOGUEI ESTE JOGO!" com vinculação automática ao sorteio oficial
 // ===================================================================
 
+window.normalizarTelefoneWhatsapp = function(fone) {
+  if (!fone) return '';
+  let limpo = String(fone).replace(/\D/g, '');
+  if (!limpo) return '';
+  if (limpo.startsWith('0')) limpo = limpo.substring(1);
+  if (limpo.length === 10 || limpo.length === 11) {
+    limpo = '55' + limpo;
+  }
+  return limpo;
+};
+
+window.abrirWhatsApp = window.dispararWhatsApp = function ({ fone = '', texto = '' } = {}) {
+  const foneLimpo = window.normalizarTelefoneWhatsapp(fone);
+
+  let textoDecodificado = texto || '';
+  try {
+    if (typeof texto === 'string' && (texto.includes('%20') || texto.includes('%0A') || texto.includes('%2A'))) {
+      textoDecodificado = decodeURIComponent(texto);
+    }
+  } catch (_) {
+    textoDecodificado = texto;
+  }
+
+  const textoFinalEncoded = encodeURIComponent(textoDecodificado);
+
+  // Detecção robusta de dispositivo móvel (Android, iPhone, etc.)
+  const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '')
+    || (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 768px)').matches && ('ontouchstart' in window || navigator.maxTouchPoints > 0));
+
+  if (isMobile) {
+    // NO CELULAR: Dispara protocolo nativo whatsapp:// para abrir o APP OFICIAL INSTALADO no aparelho
+    // Nunca usa window.open com api.whatsapp.com em celular para não abrir o Chrome na página "Baixar o WhatsApp"
+    let deepLink = 'whatsapp://send?';
+    if (foneLimpo) {
+      deepLink += `phone=${foneLimpo}&`;
+    }
+    deepLink += `text=${textoFinalEncoded}`;
+
+    const a = document.createElement('a');
+    a.href = deepLink;
+    a.rel = 'noopener';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      if (a.parentNode) a.parentNode.removeChild(a);
+    }, 500);
+    return;
+  }
+
+  // NO COMPUTADOR: Abre o WhatsApp Web no navegador
+  let webUrl = foneLimpo
+    ? `https://web.whatsapp.com/send?phone=${foneLimpo}&text=${textoFinalEncoded}`
+    : `https://web.whatsapp.com/send?text=${textoFinalEncoded}`;
+
+  window.open(webUrl, '_blank', 'noopener,noreferrer');
+};
+
 function obterInfoProximoSorteio(modalidade) {
   const mod = modalidade || (typeof modalidadeAtual !== 'undefined' ? modalidadeAtual : 'megasena');
   let proximoNumero = null;
@@ -229,8 +287,7 @@ ${linhasJogos}
 🛰️ *Loterias NASA Pro* — Monte e audite seus jogos:
 👉 https://loterias.pd.dev.br/`;
 
-    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoLote)}`;
-    window.open(url, '_blank');
+    window.abrirWhatsApp({ texto: textoLote });
     if (typeof toast === 'function') toast(`Enviando ${totalJogos} jogos no WhatsApp...`, '📱');
     return;
   }
@@ -260,9 +317,8 @@ ${linhasJogos}
 🛰️ *Loterias NASA Pro* — Monte e audite seus jogos:
 👉 https://loterias.pd.dev.br/`;
 
-  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoUnico)}`;
-  window.open(url, '_blank');
-  if (typeof toast === 'function') toast('Abrindo WhatsApp...', '📱');
+    window.abrirWhatsApp({ texto: textoUnico });
+    if (typeof toast === 'function') toast('Abrindo WhatsApp...', '📱');
 }
 
 /**

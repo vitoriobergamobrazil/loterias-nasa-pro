@@ -222,16 +222,19 @@
 
     const rotulo = ROTULOS_NOTAS[notaSelecionada] || `Nota ${notaSelecionada}/5`;
 
-    const texto = encodeURIComponent(
+    const texto = 
       `🛰️ *Feedback Loterias NASA PRO*\n\n` +
       `👤 *Testador:* ${nome}\n` +
       `⭐ *Avaliação:* ${rotulo}\n\n` +
       `💡 *Sugestão de Melhoria:*\n"${mensagem || 'App muito bom! Parabéns pelo projeto!'}"\n\n` +
-      `Enviado via aplicativo oficial.`
-    );
+      `Enviado via aplicativo oficial.`;
 
-    // Abre o WhatsApp para o contato do Vitório ou link direto
-    window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+    // Abre direto no app WhatsApp nativo no celular ou Web no desktop
+    if (typeof window.abrirWhatsApp === 'function') {
+      window.abrirWhatsApp({ texto: texto });
+    } else {
+      window.location.href = `whatsapp://send?text=${encodeURIComponent(texto)}`;
+    }
     window.submeterFeedbackTestador();
   };
 
@@ -351,9 +354,9 @@
           </td>
           <td class="p-3.5 text-right">
             ${zapNum ? `
-              <a href="https://api.whatsapp.com/send?phone=55${zapNum}&text=${encodeURIComponent('Olá, ' + (f.nome || '') + '! Vi sua sugestão no Loterias NASA PRO. Muito obrigado pelo feedback!')}" target="_blank" class="px-2.5 py-1 bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 transition">
+              <button type="button" onclick="window.abrirWhatsApp ? window.abrirWhatsApp({ fone: '${zapNum}', texto: 'Olá, ${(f.nome || '').replace(/'/g, '')}! Vi sua sugestão no Loterias NASA PRO. Muito obrigado pelo feedback!' }) : (window.location.href = 'whatsapp://send?phone=55${zapNum}&text=Olá!')" class="px-2.5 py-1 bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 rounded-lg text-[10px] font-bold inline-flex items-center gap-1 transition">
                 <span>💬</span> <span>Responder</span>
-              </a>
+              </button>
             ` : `
               <span class="text-slate-600 text-[10px]">Sem WhatsApp</span>
             `}

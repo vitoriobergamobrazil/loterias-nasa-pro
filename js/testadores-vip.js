@@ -174,13 +174,17 @@
   };
 
   window.compartilharConviteTestadoresWhatsApp = function () {
-    const texto = encodeURIComponent(
+    const texto = 
       `🛰️ *Convite Exclusivo - Loterias NASA Pro*\n\n` +
       `Fui convidado para o grupo pioneiro de 20 testadores do *Loterias NASA* antes do lançamento na Google Play Store!\n\n` +
       `Se você aposta na Mega-Sena ou Lotofácil e quer testar as matrizes gratuitamente, garanta uma das 20 vagas:\n` +
-      `${window.location.origin}${window.location.pathname}?programa=testadores`
-    );
-    window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+      `${window.location.origin}${window.location.pathname}?programa=testadores`;
+
+    if (typeof window.abrirWhatsApp === 'function') {
+      window.abrirWhatsApp({ texto: texto });
+    } else {
+      window.location.href = `whatsapp://send?text=${encodeURIComponent(texto)}`;
+    }
   };
 
   window.exportarListaGooglePlayCSV = function () {

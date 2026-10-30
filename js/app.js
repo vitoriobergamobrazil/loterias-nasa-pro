@@ -4,6 +4,61 @@
       return formatadorMoeda.format(valor);
     }
 
+    // Protocolo e Utilitário Universal de Abertura do WhatsApp
+    // Garante que no celular abra diretamente o aplicativo nativo (whatsapp://) e não caia na página de download
+    if (typeof window.normalizarTelefoneWhatsapp !== 'function') {
+      window.normalizarTelefoneWhatsapp = function(fone) {
+        if (!fone) return '';
+        let limpo = String(fone).replace(/\D/g, '');
+        if (!limpo) return '';
+        if (limpo.startsWith('0')) limpo = limpo.substring(1);
+        if (limpo.length === 10 || limpo.length === 11) {
+          limpo = '55' + limpo;
+        }
+        return limpo;
+      };
+    }
+
+    if (typeof window.abrirWhatsApp !== 'function') {
+      window.abrirWhatsApp = window.dispararWhatsApp = function ({ fone = '', texto = '' } = {}) {
+        const foneLimpo = window.normalizarTelefoneWhatsapp(fone);
+        let textoDecodificado = texto || '';
+        try {
+          if (typeof texto === 'string' && (texto.includes('%20') || texto.includes('%0A') || texto.includes('%2A'))) {
+            textoDecodificado = decodeURIComponent(texto);
+          }
+        } catch (_) {
+          textoDecodificado = texto;
+        }
+        const textoFinalEncoded = encodeURIComponent(textoDecodificado);
+        const isMobile = /Android|iPhone|iPad|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '')
+          || (typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 768px)').matches && ('ontouchstart' in window || navigator.maxTouchPoints > 0));
+
+        if (isMobile) {
+          let deepLink = 'whatsapp://send?';
+          if (foneLimpo) {
+            deepLink += `phone=${foneLimpo}&`;
+          }
+          deepLink += `text=${textoFinalEncoded}`;
+          const a = document.createElement('a');
+          a.href = deepLink;
+          a.rel = 'noopener';
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            if (a.parentNode) a.parentNode.removeChild(a);
+          }, 500);
+          return;
+        }
+
+        let webUrl = foneLimpo
+          ? `https://web.whatsapp.com/send?phone=${foneLimpo}&text=${textoFinalEncoded}`
+          : `https://web.whatsapp.com/send?text=${textoFinalEncoded}`;
+        window.open(webUrl, '_blank', 'noopener,noreferrer');
+      };
+    }
+
     // Rigor Combinatório C(n, k)
     function combinacao(n, k) {
       if (k < 0 || k > n) return 0;
@@ -306,7 +361,7 @@
 
       // Registrar Service Worker com Verificação Imediata de Atualizações
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js?v=20261029.3', { scope: './' })
+        navigator.serviceWorker.register('./sw.js?v=20261030.2', { scope: './' })
           .then((reg) => {
             console.log('[NASA Pro] Service Worker registrado. Verificando atualizações...');
             reg.update(); // força verificação no servidor imediatamente
@@ -2203,7 +2258,7 @@ function gerarPalpiteInteligente() {
       txt += `⚡ *Gerado e auditado via Loterias NASA Pro*\n`;
       txt += `🔗 *Audite seu jogo grátis:* https://vitoriobergamobrazil.github.io/loterias-nasa-pro/\n`;
 
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`, '_blank');
+      window.abrirWhatsApp({ texto: txt });
     }
 
     function salvarJogoNaCarteira() {
@@ -3154,7 +3209,7 @@ function gerarPalpiteInteligente() {
       txt += `━━━━━━━━━━━━━━━━━━━━\n`;
       txt += `🚀 *Auditado via Loterias NASA Pro*\n`;
       txt += `🔗 *Audite seu jogo grátis:* https://vitoriobergamobrazil.github.io/loterias-nasa-pro/\n`;
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`, '_blank');
+      window.abrirWhatsApp({ texto: txt });
     }
 
     function abrirLinkOficialCaixa() {
@@ -4198,7 +4253,7 @@ function abrirModalDialog(msg, callback) {
         msg += `... e mais ${jogosFechamentoGerados.length - 10} jogos.\n`;
       }
       msg += `\nGerado com inteligência espacial no Loterias NASA Pro.`;
-      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+      window.abrirWhatsApp({ texto: msg });
     }
 
     // =========================================================================
@@ -4617,8 +4672,19 @@ function abrirModalDialog(msg, callback) {
             }
           }
         }
+
+        // Processa sincronização de carteira recebida via link de transferência (?sync=...)
+        if (typeof window.processarParametroSyncUrl === 'function') {
+          window.processarParametroSyncUrl();
+        } else {
+          setTimeout(() => {
+            if (typeof window.processarParametroSyncUrl === 'function') {
+              window.processarParametroSyncUrl();
+            }
+          }, 300);
+        }
       } catch (e) {
-        console.warn('Erro ao ler parâmetros VIP da URL:', e);
+        console.warn('Erro ao ler parâmetros VIP/Sync da URL:', e);
       }
     }
 
@@ -5498,17 +5564,16 @@ function abrirModalDialog(msg, callback) {
       const codVip = (u.codigoVip || u.nome.replace(/\s+/g, '').toUpperCase().slice(0, 12)).trim();
       const linkVip = `${window.location.origin}${window.location.pathname}?vip=${codVip}`;
 
-      const texto = encodeURIComponent(
+      const texto = 
         `🛰️ *Convite Exclusivo — Loterias NASA PRO*\n\n` +
         `Olá, *${u.nome.split(' ')[0]}*! Aqui é o Vitório Bérgamo.\n\n` +
         `Você foi selecionado como nosso *Testador VIP Pioneiro* no *Loterias NASA PRO*! Seu acesso completo com todas as matrizes, filtros orbitais e volante interativo já está 100% liberado.\n\n` +
         `👉 *Acesse agora com 1 toque no seu celular (sem precisar de senha):*\n` +
         `${linkVip}\n\n` +
         `Se preferir ativar manualmente no app, seu código VIP é: *${codVip}*\n\n` +
-        `Abra o link, faça seus palpites e depois me diga o que achou das análises! 🚀`
-      );
+        `Abra o link, faça seus palpites e depois me diga o que achou das análises! 🚀`;
 
-      window.open(`https://api.whatsapp.com/send?phone=55${fone}&text=${texto}`, '_blank');
+      window.abrirWhatsApp({ fone: fone, texto: texto });
       toast(`💬 Abrindo WhatsApp para ${u.nome.split(' ')[0]}...`, '📲');
     }
 

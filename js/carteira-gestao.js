@@ -275,7 +275,11 @@
     });
 
     msg += `\n🛰️ *Loterias NASA Pro* — Monte e audite seus bolões:\n👉 https://loterias.pd.dev.br/`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    if (typeof window.abrirWhatsApp === 'function') {
+      window.abrirWhatsApp({ texto: msg });
+    } else {
+      window.location.href = `whatsapp://send?text=${encodeURIComponent(msg)}`;
+    }
   };
 
   window.removerLoteGrupoCarteira = function (grupoId) {
@@ -659,5 +663,237 @@
   // Garante a substituição suave da função de renderização
   window.atualizarPainelCarteira = function () {
     window.renderizarCarteiraInteligente();
+  };
+
+  // =========================================================================
+  // SINCRONIZAÇÃO UNIVERSAL DE CARTEIRA ENTRE CELULARES (TRANSFERÊNCIA INSTANTÂNEA)
+  // Permite abrir os mesmos jogos em qualquer outro celular via WhatsApp, Link ou Código
+  // =========================================================================
+
+  window.compactarCarteiraBase64 = function (lista) {
+    try {
+      const arr = Array.isArray(lista) ? lista : (window.carteiraJogos || []);
+      const compactos = arr.map(b => ({
+        id: b.id || Date.now(),
+        m: (b.modalidade === 'lotofacil' ? 'l' : 'm'),
+        d: (b.dezenas || []).map(Number),
+        c: b.concursoAlvo || '',
+        dt: b.data || '',
+        s: Number(b.score || 98),
+        j: b.registradoComoJogado ? 1 : 0
+      }));
+      const json = JSON.stringify(compactos);
+      const b64 = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+        return String.fromCharCode('0x' + p1);
+      }));
+      return encodeURIComponent(b64);
+    } catch (e) {
+      console.error('[NASA Sync] Erro ao compactar carteira:', e);
+      return '';
+    }
+  };
+
+  window.descompactarCarteiraBase64 = function (b64url) {
+    try {
+      if (!b64url) return [];
+      let limpo = b64url.trim();
+      if (limpo.includes('sync=')) {
+        const urlObj = new URL(limpo.startsWith('http') ? limpo : ('https://fake.domain/' + limpo));
+        limpo = urlObj.searchParams.get('sync') || '';
+      }
+      const b64 = decodeURIComponent(limpo);
+      const json = decodeURIComponent(atob(b64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      const arr = JSON.parse(json);
+      if (!Array.isArray(arr)) return [];
+      return arr.map(c => ({
+        id: c.id || (Date.now() + Math.floor(Math.random() * 1000)),
+        modalidade: c.m === 'l' ? 'lotofacil' : 'megasena',
+        nome: (c.m === 'l' ? 'Lotofácil' : 'Mega-Sena') + ' • ' + ((c.d && c.d.length) || 6) + ' Dezenas',
+        dezenas: Array.isArray(c.d) ? c.d.map(Number) : [],
+        concursoAlvo: c.c || 'Próximo Oficial',
+        data: c.dt || new Date().toLocaleDateString('pt-BR'),
+        score: Number(c.s || 98),
+        registradoComoJogado: Boolean(c.j),
+        dataRegistro: new Date().toISOString()
+      }));
+    } catch (e) {
+      console.error('[NASA Sync] Erro ao descompactar carteira:', e);
+      return [];
+    }
+  };
+
+  window.gerarLinkSincronizacaoCarteira = function () {
+    const lista = window.carteiraJogos || [];
+    const b64 = window.compactarCarteiraBase64(lista);
+    const cupom = (window.usuarioSessao && window.usuarioSessao.cupomAtivo) || localStorage.getItem('loterias_nasa_vip_cupom') || 'VIPVITORIO';
+    const baseUrl = `${window.location.origin}${window.location.pathname}`;
+    return `${baseUrl}?sync=${b64}&vip=${encodeURIComponent(cupom)}`;
+  };
+
+  window.enviarSincronizacaoWhatsApp = function () {
+    const lista = window.carteiraJogos || [];
+    if (lista.length === 0) {
+      if (typeof window.toast === 'function') window.toast('Sua carteira está vazia! Gere ou salve jogos primeiro.', '⚠️');
+      return;
+    }
+    const link = window.gerarLinkSincronizacaoCarteira();
+    const nome = (window.usuarioSessao && window.usuarioSessao.nome) || 'Apostador VIP';
+    const total = lista.length;
+
+    const texto = 
+      `🛰️ *Loterias NASA PRO — Sincronização de Jogos entre Aparelhos*\n\n` +
+      `👤 *Testador VIP:* ${nome}\n` +
+      `📦 *Total de Jogos Salvos:* ${total} bilhete(s)\n\n` +
+      `👉 *Abra este link no seu outro celular para carregar todos os seus jogos instantaneamente:*\n` +
+      `${link}\n\n` +
+      `Ao abrir o link no seu outro celular, todos os seus jogos e seu acesso VIP serão ativados automaticamente! 🚀`;
+
+    if (typeof window.abrirWhatsApp === 'function') {
+      window.abrirWhatsApp({ texto: texto });
+    } else {
+      window.location.href = `whatsapp://send?text=${encodeURIComponent(texto)}`;
+    }
+    if (typeof window.toast === 'function') window.toast('Abrindo WhatsApp para enviar ao outro celular...', '📲');
+  };
+
+  window.copiarLinkSincronizacaoCarteira = function () {
+    const link = window.gerarLinkSincronizacaoCarteira();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(link).then(() => {
+        if (typeof window.toast === 'function') window.toast('Link copiado! Envie para seu outro celular.', '📋');
+      }).catch(() => {
+        prompt('Copie o link abaixo e abra no outro celular:', link);
+      });
+    } else {
+      prompt('Copie o link abaixo e abra no outro celular:', link);
+    }
+  };
+
+  window.importarJogosSincronizados = function (jogos, notificar = true) {
+    if (!Array.isArray(jogos) || jogos.length === 0) return 0;
+    let local = Array.isArray(window.carteiraJogos) ? window.carteiraJogos : (JSON.parse(localStorage.getItem('loterias_carteira_db') || '[]'));
+    
+    // Deduplicação inteligente
+    const assinaturas = new Set(local.map(b => `${b.modalidade}_${b.concursoAlvo || ''}_${(b.dezenas || []).slice().sort((a,b)=>a-b).join('-')}`));
+    let novos = 0;
+
+    jogos.forEach(j => {
+      const sig = `${j.modalidade}_${j.concursoAlvo || ''}_${(j.dezenas || []).slice().sort((a,b)=>a-b).join('-')}`;
+      if (!assinaturas.has(sig)) {
+        local.unshift(j);
+        assinaturas.add(sig);
+        novos++;
+      }
+    });
+
+    window.carteiraJogos = local;
+    localStorage.setItem('loterias_carteira_db', JSON.stringify(local));
+    if (typeof window.salvarCarteiraStorage === 'function') window.salvarCarteiraStorage();
+    if (typeof window.atualizarPainelCarteira === 'function') window.atualizarPainelCarteira();
+    if (typeof window.renderizarCockpitInicioApostador === 'function') window.renderizarCockpitInicioApostador();
+
+    if (notificar && typeof window.toast === 'function') {
+      window.toast(`🎉 ${novos > 0 ? novos : jogos.length} jogos carregados com sucesso neste aparelho!`, '📲');
+    }
+    return novos;
+  };
+
+  window.processarParametroSyncUrl = function () {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const syncVal = params.get('sync') || params.get('carteira') || params.get('jogos');
+      if (syncVal) {
+        const jogos = window.descompactarCarteiraBase64(syncVal);
+        if (jogos && jogos.length > 0) {
+          window.importarJogosSincronizados(jogos, true);
+        }
+      }
+    } catch (e) {
+      console.warn('[NASA Sync] Erro ao processar URL sync:', e);
+    }
+  };
+
+  window.abrirModalSincronizarAparelhos = function () {
+    const total = (window.carteiraJogos || []).length;
+    let modal = document.getElementById('modal-sincronizar-aparelhos');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'modal-sincronizar-aparelhos';
+      modal.className = 'fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4 font-sans';
+      document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div class="bg-slate-900 border border-slate-700/80 rounded-3xl max-w-md w-full p-5 space-y-4 shadow-2xl relative animate-scaleUp">
+        <button type="button" onclick="fecharModalSincronizarAparelhos()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">✕</button>
+
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 to-teal-400 flex items-center justify-center text-2xl shadow-lg">📲</div>
+          <div>
+            <h3 class="text-base font-black text-white">Sincronizar Entre Celulares</h3>
+            <p class="text-xs text-cyan-300 font-mono">Abra seus jogos em qualquer aparelho</p>
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-xs text-slate-300 space-y-1">
+          <div class="flex items-center justify-between font-bold text-white">
+            <span>Jogos Prontos para Enviar:</span>
+            <span class="text-emerald-400 font-mono text-sm">${total} aposta(s)</span>
+          </div>
+          <p class="text-[11px] text-slate-400">
+            Você pode mandar o link direto para o seu WhatsApp e abrir no outro aparelho com 1 toque.
+          </p>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <button type="button" onclick="enviarSincronizacaoWhatsApp(); fecharModalSincronizarAparelhos();" class="w-full py-3 px-4 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg active:scale-95 transition">
+            <span class="text-base">💬</span>
+            <span>Enviar para Meu WhatsApp (Abrir no outro celular)</span>
+          </button>
+
+          <button type="button" onclick="copiarLinkSincronizacaoCarteira();" class="w-full py-2.5 px-4 bg-slate-950 hover:bg-slate-800 border border-slate-700 text-white font-bold rounded-2xl text-xs flex items-center justify-center gap-2 transition active:scale-95">
+            <span>🔗</span>
+            <span>Copiar Link de Transferência</span>
+          </button>
+        </div>
+
+        <div class="border-t border-slate-800 pt-3 space-y-2">
+          <label class="text-[11px] font-bold text-slate-400 block">📥 Ou Cole o Link/Código do Outro Celular Aqui:</label>
+          <div class="flex gap-2">
+            <input type="text" id="input-sync-manual" placeholder="Cole o link ou código recebido..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-mono" />
+            <button type="button" onclick="submeterImportacaoSyncManual()" class="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black rounded-xl text-xs shrink-0 transition">Importar</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+  };
+
+  window.fecharModalSincronizarAparelhos = function () {
+    const modal = document.getElementById('modal-sincronizar-aparelhos');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  };
+
+  window.submeterImportacaoSyncManual = function () {
+    const el = document.getElementById('input-sync-manual');
+    const valor = el ? el.value.trim() : '';
+    if (!valor) {
+      if (typeof window.toast === 'function') window.toast('Cole o link ou código de transferência primeiro.', '⚠️');
+      return;
+    }
+    const jogos = window.descompactarCarteiraBase64(valor);
+    if (!jogos || jogos.length === 0) {
+      if (typeof window.toast === 'function') window.toast('Código de sincronização inválido ou vazio.', '❌');
+      return;
+    }
+    window.importarJogosSincronizados(jogos, true);
+    window.fecharModalSincronizarAparelhos();
   };
 })();

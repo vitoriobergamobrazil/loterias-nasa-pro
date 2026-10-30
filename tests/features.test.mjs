@@ -200,3 +200,65 @@ test('Carteira & Inteligência: Identificação de Concursos Passados e Detector
   assert.equal(verificarSobreposicao([2, 5, 18, 27, 44, 60], carteiraMock), 'alta_afinidade', '5 acertos deve detectar alta afinidade');
   assert.equal(verificarSobreposicao([10, 20, 30, 40, 50, 60], carteiraMock), 'inedito', 'Jogo sem sobreposição deve ser inédito');
 });
+
+test('WhatsApp & Sincronização: Normalização de telefone para o app nativo', () => {
+  function normalizarTelefone(fone) {
+    if (!fone) return '';
+    let limpo = String(fone).replace(/\D/g, '');
+    if (!limpo) return '';
+    if (limpo.startsWith('0')) limpo = limpo.substring(1);
+    if (limpo.length === 10 || limpo.length === 11) {
+      limpo = '55' + limpo;
+    }
+    return limpo;
+  }
+
+  assert.equal(normalizarTelefone('(11) 98765-4321'), '5511987654321', 'Deve adicionar DDI 55');
+  assert.equal(normalizarTelefone('5511987654321'), '5511987654321', 'Não deve duplicar DDI 55');
+  assert.equal(normalizarTelefone('066999998888'), '5566999998888', 'Deve remover 0 inicial e adicionar 55');
+  assert.equal(normalizarTelefone(''), '', 'Deve retornar vazio se nulo');
+});
+
+test('WhatsApp & Sincronização: Compactação e descompactação de carteira entre aparelhos', () => {
+  const jogosOriginais = [
+    { id: 101, modalidade: 'megasena', dezenas: [5, 10, 15, 20, 25, 30], concursoAlvo: '#2800', data: '30/10/2026', score: 98, registradoComoJogado: true },
+    { id: 102, modalidade: 'lotofacil', dezenas: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], concursoAlvo: '#3200', data: '30/10/2026', score: 95, registradoComoJogado: false }
+  ];
+
+  function compactar(lista) {
+    const compactos = lista.map(b => ({
+      id: b.id || Date.now(),
+      m: b.modalidade === 'lotofacil' ? 'l' : 'm',
+      d: b.dezenas,
+      c: b.concursoAlvo || '',
+      dt: b.data || '',
+      s: b.score || 98,
+      j: b.registradoComoJogado ? 1 : 0
+    }));
+    const json = JSON.stringify(compactos);
+    return Buffer.from(json).toString('base64url');
+  }
+
+  function descompactar(b64) {
+    const json = Buffer.from(b64, 'base64url').toString('utf8');
+    const arr = JSON.parse(json);
+    return arr.map(c => ({
+      id: c.id,
+      modalidade: c.m === 'l' ? 'lotofacil' : 'megasena',
+      dezenas: c.d,
+      concursoAlvo: c.c,
+      data: c.dt,
+      score: c.s,
+      registradoComoJogado: Boolean(c.j)
+    }));
+  }
+
+  const payload = compactar(jogosOriginais);
+  assert.ok(payload.length < 500, 'Payload deve ser ultracompacto');
+
+  const recuperados = descompactar(payload);
+  assert.equal(recuperados.length, 2, 'Deve recuperar os 2 jogos');
+  assert.deepEqual(recuperados[0].dezenas, [5, 10, 15, 20, 25, 30], 'Dezenas devem ser idênticas');
+  assert.equal(recuperados[0].registradoComoJogado, true, 'Status jogado deve ser preservado');
+  assert.equal(recuperados[1].modalidade, 'lotofacil', 'Modalidade deve ser preservada');
+});

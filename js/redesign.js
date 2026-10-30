@@ -1229,7 +1229,7 @@ function criarDrawerPerfilConfig() {
           <span class="text-amber-400 text-xs font-bold">Avaliar →</span>
         </button>
 
-        <button type="button" onclick="fecharDrawerPerfil(); const t = encodeURIComponent('🛰️ Olá NASA PRO! Gostaria de registrar números na minha carteira / tirar uma dúvida:'); window.open('https://api.whatsapp.com/send?text=' + t, '_blank');" class="w-full p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-emerald-500/40 text-xs font-bold text-white flex items-center justify-between text-left transition">
+        <button type="button" onclick="fecharDrawerPerfil(); const t = '🛰️ Olá NASA PRO! Gostaria de registrar números na minha carteira / tirar uma dúvida:'; if (typeof window.abrirWhatsApp === 'function') { window.abrirWhatsApp({ texto: t }); } else { window.location.href = 'whatsapp://send?text=' + encodeURIComponent(t); }" class="w-full p-2.5 rounded-xl bg-slate-950 hover:bg-slate-900 border border-emerald-500/40 text-xs font-bold text-white flex items-center justify-between text-left transition">
           <div class="flex items-center gap-2">
             <span>💬</span>
             <div>

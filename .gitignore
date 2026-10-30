@@ -11,3 +11,4 @@ supabase/.temp/
 # Pacote de assinatura da Play Store (contém senha do keystore)
 *.zip
 *.keystore
+*.apk
