@@ -64,8 +64,8 @@ function concluirLoginOAuth(dados) {
 
 // Fallback direto e instantâneo por e-mail Google sem travas de popup/origem
 function solicitarEmailGoogleDireto(errOriginal) {
-  const emailSugerido = (usuarioSessao && usuarioSessao.email) ? usuarioSessao.email : 'vitorio.bergamo@gmail.com';
-  const email = prompt('🌐 Conectar com Google Account:\n\nInforme seu e-mail do Google (Gmail) para acesso imediato à sua conta:', emailSugerido);
+  const emailSugerido = (usuarioSessao && usuarioSessao.email) ? usuarioSessao.email : '';
+  const email = prompt('🌐 Conectar com Google Account:\n\nInforme seu e-mail do Google (Gmail) para entrar ou criar sua conta:', emailSugerido);
   
   if (!email || !email.trim()) return;
   const limpo = email.trim();

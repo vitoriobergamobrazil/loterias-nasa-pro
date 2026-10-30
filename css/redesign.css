@@ -1021,13 +1021,111 @@ html:not(.dark) .nasa-primary-cta * {
   color: #ffffff !important;
 }
 
+/* ========== TEMA CLARO PREMIUM (DESIGN SYSTEM FINTECH / APPLE CLEAN) ========== */
+html:not(.dark) body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  background-image: none !important;
+}
+
+/* Garante remoção absoluta de qualquer quadriculado milimetrado no modo claro */
+html:not(.dark) .telemetry-grid,
+html:not(.dark) [class*="telemetry-grid"] {
+  background-image: none !important;
+  background-size: 0 0 !important;
+}
+
+/* Card Palpite de Ouro do Dia (Modo Rápido) */
+html:not(.dark) #home-card-palpite-rapido-box {
+  background: #ffffff !important;
+  border: 1px solid #fde68a !important;
+  box-shadow: 0 8px 24px -4px rgba(245, 158, 11, 0.12), 0 2px 6px -1px rgba(0, 0, 0, 0.04) !important;
+}
+
+html:not(.dark) #home-card-palpite-rapido-box h3 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #home-card-palpite-rapido-box span.font-mono {
+  color: #b45309 !important;
+}
+
+html:not(.dark) #home-rapido-score-badge {
+  background-color: #fef3c7 !important;
+  border-color: #fcd34d !important;
+  color: #92400e !important;
+}
+
+html:not(.dark) #home-card-palpite-rapido-box button:not([class*="from-"]) {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #1e293b !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Cards e Seções Gerais da Home no Tema Claro */
+html:not(.dark) .bg-slate-900,
+html:not(.dark) .bg-slate-900\/95,
+html:not(.dark) .bg-slate-950 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) .border-slate-800,
+html:not(.dark) .border-slate-800\/80,
+html:not(.dark) .border-slate-700 {
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) .text-white {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .text-slate-400,
+html:not(.dark) .text-slate-300,
+html:not(.dark) .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Preserva cores brancas exclusivamente em botões coloridos / primários */
+html:not(.dark) .nasa-primary-cta *,
+html:not(.dark) .btn-rocket-launch *,
+html:not(.dark) button[class*="from-emerald"] *,
+html:not(.dark) button[class*="from-cyan"] *,
+html:not(.dark) .bg-emerald-600 *,
+html:not(.dark) .bg-purple-600 * {
+  color: #ffffff !important;
+}
+
+/* Os 4 Cards dos Módulos Principais (Fechamentos, Quentes, Carteira, Bolão) */
+html:not(.dark) #home-cockpit-container > div.grid button,
+html:not(.dark) #home-cockpit-container > div.grid > div {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Card Minhas Apostas Ativas */
+html:not(.dark) #home-cockpit-container > div:has(#home-resumo-apostas-ativas),
+html:not(.dark) #home-lista-ultimos-sorteios-avaliados > div {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+/* Linhas dos 10 Sorteios Oficiais */
+html:not(.dark) #home-lista-ultimos-sorteios-avaliados > div {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
 /* DRAWER DE PERFIL NO TEMA CLARO */
 html:not(.dark) .nasa-profile-sheet,
 html:not(.dark) #nasa-profile-drawer-backdrop > div {
   background-color: #ffffff !important;
   color: #0f172a !important;
-  border-top-color: #cbd5e1 !important;
-  box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.15) !important;
+  border-top: 1px solid #cbd5e1 !important;
+  box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.18) !important;
 }
 
 html:not(.dark) .nasa-sheet-handle {
@@ -1072,7 +1170,7 @@ html:not(.dark) .nasa-profile-sheet #drawer-admin-row button {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
   border: 1px solid #f59e0b !important;
   color: #78350f !important;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25) !important;
 }
 
 html:not(.dark) .nasa-profile-sheet #drawer-admin-row button span {
