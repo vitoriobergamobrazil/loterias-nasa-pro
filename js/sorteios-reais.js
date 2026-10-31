@@ -18,8 +18,8 @@ const SORTEIOS_CONFIG = {
 
 const SORTEIOS_CALENDARIO = {
   // 0=domingo, 1=segunda, 2=terça, 3=quarta, 4=quinta, 5=sexta, 6=sábado
-  // Mega-Sena: 3 sorteios semanais (Terça=2, Quinta=4, Sábado=6)
-  megasena: { dias: [2, 4, 6], hora: 20 },
+  // Mega-Sena: 3 sorteios regulares (Terça=2, Quinta=4, Sábado=6), além de semanas especiais com Sexta
+  megasena: { dias: [2, 4, 5, 6], hora: 20 },
   // Lotofácil: 6 sorteios semanais (Segunda a Sábado)
   lotofacil: { dias: [1, 2, 3, 4, 5, 6], hora: 20 }
 };
@@ -29,7 +29,7 @@ const NOMES_DIAS = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta',
 /**
  * Converte data da Caixa (dd/mm/aaaa) para rótulo amigável ('Hoje', 'Amanhã' ou dia da semana)
  */
-function formatarDataProximoCaixa(dataProximoBR, modalidade = null) {
+function formatarDataProximoCaixa(dataProximoBR, modalidade = null, agora = new Date()) {
   if (!dataProximoBR) return null;
   const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(dataProximoBR).trim());
   if (!m) return null;
@@ -43,15 +43,27 @@ function formatarDataProximoCaixa(dataProximoBR, modalidade = null) {
     else if (data.getDay() === 1) data.setDate(data.getDate() + 1); // Segunda -> Terça
   }
 
-  const hoje = new Date();
+  const hoje = new Date(agora);
   hoje.setHours(0, 0, 0, 0);
   data.setHours(0, 0, 0, 0);
   const diffDias = Math.round((data.getTime() - hoje.getTime()) / 86400000);
   const diaSemana = NOMES_DIAS[data.getDay()] || '';
   const dataCurta = `${String(data.getDate()).padStart(2, '0')}/${String(data.getMonth() + 1).padStart(2, '0')}`;
 
-  if (diffDias === 0) return `Hoje (${diaSemana})`;
+  if (diffDias === 0) {
+    // Se a data da Caixa for hoje, mas o horário limite (20h) já passou:
+    // O concurso do dia já encerrou apostas e está em apuração/sorteando.
+    const horaLimite = SORTEIOS_CALENDARIO[modalidade]?.hora ?? 20;
+    if (agora.getHours() >= horaLimite) {
+      if (agora.getHours() < 22) {
+        return `Hoje (${diaSemana}) • Em apuração`;
+      }
+      return `Encerrado (${diaSemana})`;
+    }
+    return `Hoje (${diaSemana})`;
+  }
   if (diffDias === 1) return `Amanhã (${diaSemana} ${dataCurta})`;
+  if (diffDias < 0) return `Encerrado (${dataCurta})`;
   return `${diaSemana} (${dataCurta})`;
 }
 
@@ -95,10 +107,19 @@ function calcularContagemRegressiva(modalidade, agora = new Date()) {
   const cfg = SORTEIOS_CALENDARIO[modalidade];
   if (!cfg) return '—';
 
+  const alvoHoje = new Date(agora);
+  alvoHoje.setHours(cfg.hora, 0, 0, 0);
+
+  const hojeEhDiaDeSorteio = cfg.dias.includes(agora.getDay());
+
+  // Se hoje é dia de sorteio e estamos no período de apuração (entre 20h00 e 21h59)
+  if (hojeEhDiaDeSorteio && agora >= alvoHoje && agora.getHours() < 22) {
+    return 'Em apuração...';
+  }
+
   const alvo = new Date(agora);
   alvo.setHours(cfg.hora, 0, 0, 0);
 
-  const hojeEhDiaDeSorteio = cfg.dias.includes(agora.getDay());
   if (!(hojeEhDiaDeSorteio && agora < alvo)) {
     for (let i = 1; i <= 7; i++) {
       const candidato = new Date(agora);

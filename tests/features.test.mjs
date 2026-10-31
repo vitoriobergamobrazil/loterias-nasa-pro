@@ -67,6 +67,29 @@ test('Calendário Oficial: Mega-Sena em domingo deve indicar Terça-feira (nunca
   const loto = calcular('lotofacil', domingo);
   assert.equal(loto.diaSemana, 'Segunda', 'Próximo sorteio da Lotofácil a partir de domingo deve ser Segunda');
   assert.equal(loto.diffDias, 1, 'Lotofácil é daqui a 1 dia (Amanhã Segunda)');
+
+  // Teste de apuração após as 20h na sexta-feira (ex: 30/10/2026 às 21h16)
+  const sextaNoite = new Date(2026, 9, 30, 21, 16, 0); // 30/10/2026 21:16
+  const codeSorteios = fs.readFileSync('js/sorteios-reais.js', 'utf8');
+  const mockDocument = {
+    addEventListener: () => {},
+    querySelectorAll: () => []
+  };
+  const mockWindow = {};
+  const context = { NOMES_DIAS, SORTEIOS_CALENDARIO, Date, Math, String, Number, console, document: mockDocument, window: mockWindow, setInterval: () => {}, setTimeout: () => {} };
+  const fnExec = new Function('ctx', `
+    with (ctx) {
+      ${codeSorteios}
+      return { formatar: formatarDataProximoCaixa, regressiva: calcularContagemRegressiva };
+    }
+  `);
+  const funcs = fnExec(context);
+
+  const rotuloMega = funcs.formatar('30/10/2026', 'megasena', sextaNoite);
+  assert.ok(rotuloMega.includes('apuração'), 'Sorteio do dia após as 20h deve indicar apuração em andamento');
+
+  const contagem = funcs.regressiva('megasena', sextaNoite);
+  assert.equal(contagem, 'Em apuração...', 'Contagem entre 20h e 22h no dia do sorteio deve ser "Em apuração..."');
 });
 
 test('Carteira Inteligente: Agrupamento em escala de 100 apostas por concurso', () => {

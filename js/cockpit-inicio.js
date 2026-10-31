@@ -42,11 +42,11 @@ function renderizarCockpitInicioApostador() {
 
   const megaPremio = formatarMoedaCockpit(megaUltimo?.premioProximo) || 'R$ 85.000.000';
   const megaConcurso = megaUltimo?.proximoConcurso ? `#${megaUltimo.proximoConcurso}` : 'Próximo';
-  const megaData = (megaUltimo?.dataProximo && typeof formatarDataProximoCaixa === 'function' ? formatarDataProximoCaixa(megaUltimo.dataProximo) : null) || (calcMega ? `${calcMega.dia} ${calcMega.hora}` : 'Ter/Qui/Sáb 20h');
+  const megaData = (megaUltimo?.dataProximo && typeof formatarDataProximoCaixa === 'function' ? formatarDataProximoCaixa(megaUltimo.dataProximo, 'megasena') : null) || (calcMega ? `${calcMega.dia} ${calcMega.hora}` : 'Ter/Qui/Sáb 20h');
 
   const lotoPremio = formatarMoedaCockpit(lotoUltimo?.premioProximo) || 'R$ 5.000.000';
   const lotoConcurso = lotoUltimo?.proximoConcurso ? `#${lotoUltimo.proximoConcurso}` : 'Próximo';
-  const lotoData = (lotoUltimo?.dataProximo && typeof formatarDataProximoCaixa === 'function' ? formatarDataProximoCaixa(lotoUltimo.dataProximo) : null) || (calcLoto ? `${calcLoto.dia} ${calcLoto.hora}` : 'Seg a Sáb 20h');
+  const lotoData = (lotoUltimo?.dataProximo && typeof formatarDataProximoCaixa === 'function' ? formatarDataProximoCaixa(lotoUltimo.dataProximo, 'lotofacil') : null) || (calcLoto ? `${calcLoto.dia} ${calcLoto.hora}` : 'Seg a Sáb 20h');
 
   // 2. Bilhetes Ativos do Usuário
   const bilhetesCarteira = Array.isArray(carteiraJogos) ? carteiraJogos : [];

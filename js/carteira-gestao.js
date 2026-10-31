@@ -305,7 +305,21 @@
     const grupo = grupos.find(g => g.id === grupoId);
     if (!grupo) return;
 
+    // Emite alerta sonoro de aviso para evitar exclusão desatenta
+    if (typeof window.tocarSomNasa === 'function') {
+      window.tocarSomNasa('alerta');
+    } else if (typeof window.tocarBeep === 'function') {
+      window.tocarBeep('alert');
+    }
+
     const executarRemocao = () => {
+      // Confirmação dupla para lotes expressivos (5 ou mais apostas)
+      const totalJogos = grupo.bilhetes.length;
+      if (totalJogos >= 5) {
+        const confirmacaoFinal = confirm(`⚠️ ATENÇÃO: Você está prestes a apagar ${totalJogos} apostas de uma vez só!\n\nTem certeza absoluta que deseja descartar este lote de jogos?`);
+        if (!confirmacaoFinal) return;
+      }
+
       const idsRemover = new Set(grupo.bilhetes.map(b => String(b.id)));
       const novaLista = (window.carteiraJogos || []).filter(b => !idsRemover.has(String(b.id)));
       window.carteiraJogos = novaLista;
@@ -339,10 +353,14 @@
 
       if (typeof window.salvarCarteiraStorage === 'function') window.salvarCarteiraStorage();
       window.atualizarPainelCarteira();
-      if (typeof window.toast === 'function') window.toast(`Concurso ${grupo.concurso} removido da carteira.`, '🗑️');
+      if (typeof window.toast === 'function') window.toast(`Lote de ${grupo.bilhetes.length} aposta(s) excluído com sucesso.`, '🗑️');
     };
 
-    if (confirm(`Deseja excluir a(s) ${grupo.bilhetes.length} aposta(s) deste concurso (${grupo.concurso})?`)) {
+    const textoAviso = `Deseja realmente apagar todas as ${grupo.bilhetes.length} aposta(s) do Concurso ${grupo.concurso}?`;
+
+    if (typeof window.abrirModalDialog === 'function') {
+      window.abrirModalDialog(textoAviso, executarRemocao);
+    } else if (confirm(textoAviso)) {
       executarRemocao();
     }
   };
@@ -639,7 +657,7 @@
                         ` : `
                           <span class="text-[10px] linha-sem-acerto">Pendente</span>
                         `}
-                        <button type="button" onclick="event.stopPropagation(); removerBilheteCarteira('${b.id}')" class="btn-remover-bilhete w-6 h-6 rounded-lg flex items-center justify-center text-xs transition" title="Excluir este jogo">
+                        <button type="button" onclick="event.stopPropagation(); removerBilheteCarteira('${b.id}')" class="btn-remover-bilhete w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-sm font-bold transition text-rose-400 hover:text-white hover:bg-rose-600/40 border border-rose-500/30" title="Excluir este jogo">
                           ✕
                         </button>
                       </div>

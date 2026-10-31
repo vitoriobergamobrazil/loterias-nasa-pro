@@ -55,6 +55,20 @@ async function apagarDadosDoUsuario(userId: string, email: string) {
   if (erroPerfil) throw new Error(`profiles: ${erroPerfil.message}`)
   etapas.push("perfil")
 
+  // Expurga apostas da carteira do usuário (UUID ou email)
+  await admin
+    .from("carteira_apostas")
+    .delete()
+    .or(`user_id.eq.${userId},user_id.eq.${email}`)
+  etapas.push("carteira de apostas")
+
+  // Expurga logs de telemetria do usuário
+  await admin
+    .from("user_telemetria_logs")
+    .delete()
+    .or(`user_id.eq.${userId},user_id.eq.${email}`)
+  etapas.push("logs de telemetria")
+
   if (email) {
     const { error: erroLead } = await admin
       .from("visitor_leads")

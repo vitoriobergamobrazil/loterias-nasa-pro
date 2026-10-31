@@ -378,6 +378,15 @@ function sincronizarVisualModalidadeGlobal() {
     }
   }
 
+  // Sincroniza o badge de contagem regressiva ativa no hero
+  const activeCountdown = document.getElementById('home-active-countdown');
+  if (activeCountdown) {
+    activeCountdown.className = `nasa-countdown-badge js-${mod}-countdown`;
+    if (typeof calcularContagemRegressiva === 'function') {
+      activeCountdown.innerText = calcularContagemRegressiva(mod);
+    }
+  }
+
   // Destaca o card ativo na Home
   const cardMega = document.getElementById('home-card-mega');
   const cardLoto = document.getElementById('home-card-loto');
