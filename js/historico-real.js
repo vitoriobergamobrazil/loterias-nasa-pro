@@ -17,6 +17,8 @@ const HISTORICO_CONFIG = {
 
 // Sementes reais e auditadas da Caixa (garantem dados imediatos sem esperar rede)
 const SEED_INICIAL_MEGASENA = [
+  { concurso: 3079, data: '30/10/2026', dezenas: [5, 9, 16, 40, 41, 59], acumulado: true, proximoConcurso: 3080, dataProximo: '01/11/2026', premioProximo: 42000000, rateio: [{ acertos: 6, premio: 0 }, { acertos: 5, premio: 50000 }, { acertos: 4, premio: 1200 }] },
+  { concurso: 3078, data: '29/10/2026', dezenas: [5, 7, 12, 29, 34, 36], acumulado: false, proximoConcurso: 3079, dataProximo: '30/10/2026', premioProximo: 6000000, rateio: [{ acertos: 6, premio: 0 }, { acertos: 5, premio: 45000 }, { acertos: 4, premio: 1100 }] },
   { concurso: 3077, data: '28/10/2026', dezenas: [2, 14, 18, 31, 35, 40], acumulado: false, proximoConcurso: 3078, dataProximo: '29/10/2026', premioProximo: 2500000, rateio: [{ acertos: 6, premio: 0 }, { acertos: 5, premio: 45000 }, { acertos: 4, premio: 1100 }] },
   { concurso: 3076, data: '27/10/2026', dezenas: [6, 30, 32, 38, 49, 57], acumulado: true, proximoConcurso: 3077, dataProximo: '28/10/2026', premioProximo: 320000000 },
   { concurso: 3075, data: '26/10/2026', dezenas: [7, 10, 14, 27, 36, 55], acumulado: true },
@@ -33,6 +35,8 @@ const SEED_INICIAL_MEGASENA = [
 ];
 
 const SEED_INICIAL_LOTOFACIL = [
+  { concurso: 3818, data: '30/10/2026', dezenas: [2, 3, 4, 5, 6, 12, 14, 15, 16, 17, 19, 20, 22, 23, 24], acumulado: false, proximoConcurso: 3819, dataProximo: '01/11/2026', premioProximo: 2000000 },
+  { concurso: 3817, data: '29/10/2026', dezenas: [2, 6, 8, 10, 11, 12, 13, 15, 16, 18, 19, 22, 23, 24, 25], acumulado: false, proximoConcurso: 3818, dataProximo: '30/10/2026', premioProximo: 2000000 },
   { concurso: 3816, data: '28/10/2026', dezenas: [1, 2, 4, 5, 8, 9, 11, 13, 14, 16, 17, 20, 21, 22, 25], acumulado: false, proximoConcurso: 3817, dataProximo: '29/10/2026', premioProximo: 5000000 },
   { concurso: 3815, data: '27/10/2026', dezenas: [1, 3, 4, 6, 7, 8, 10, 12, 14, 15, 18, 19, 21, 23, 24], acumulado: false },
   { concurso: 3814, data: '26/10/2026', dezenas: [2, 3, 5, 6, 9, 10, 11, 13, 15, 17, 18, 20, 22, 23, 25], acumulado: false },

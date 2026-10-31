@@ -77,7 +77,24 @@ async function buscarConcursoCaixa(modalidade, concurso = null) {
 
       if (!resposta.ok) return null;
 
-      const resultado = normalizarConcurso(await resposta.json(), modalidade);
+      let resultado = normalizarConcurso(await resposta.json(), modalidade);
+
+      // CASO ESPECIAL DA CAIXA: Em noites de sorteio, o endpoint raiz '/modalidade' pode
+      // continuar retornando o concurso anterior em cache CDN da Caixa por até 1h, mesmo que
+      // o sorteio (proximoConcurso) já tenha sido apurado no endpoint '/modalidade/{proximoConcurso}'.
+      if (resultado && !concurso && resultado.proximoConcurso) {
+        try {
+          const proxRes = await fetch(`${CAIXA_API.base}/${modalidade}/${resultado.proximoConcurso}`, {
+            headers: { Accept: 'application/json' }
+          });
+          if (proxRes.ok) {
+            const proxDados = normalizarConcurso(await proxRes.json(), modalidade);
+            if (proxDados && Array.isArray(proxDados.dezenas) && proxDados.dezenas.length > 0) {
+              resultado = proxDados;
+            }
+          }
+        } catch (_) {}
+      }
 
       // Cacheia tanto o último quanto os passados nesta sessão para evitar rate-limit da Caixa
       if (resultado) {
